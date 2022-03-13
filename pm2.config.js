@@ -2,7 +2,7 @@ module.exports = {
     apps: [
         {
             name: 'rankordered-backend',
-            script: './dist/src/main.js'
+            script: './dist/main.js'
             // watch: true
         }
     ]
