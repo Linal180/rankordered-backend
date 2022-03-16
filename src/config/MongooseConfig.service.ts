@@ -30,8 +30,6 @@ export class MongooseConfigSerive implements MongooseOptionsFactory {
             return connection;
         };
 
-        console.log(option);
-
         return option;
     }
 }
