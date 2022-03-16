@@ -12,12 +12,7 @@ export class MongooseConfigSerive implements MongooseOptionsFactory {
         | Promise<MongooseModuleOptions> {
         const option: MongooseModuleOptions = {
             uri: `mongodb://${process.env.DATABASE_URL}`,
-            dbName: process.env.DATABASE_NAME,
-            connectionFactory: (connection: Connection) => {
-                // eslint-disable-next-line @typescript-eslint/no-var-requires
-                connection.plugin(require('mongoose-autopopulate'));
-                return connection;
-            }
+            dbName: process.env.DATABASE_NAME
         };
 
         if (process.env.MONGO_USERNAME) {
@@ -25,7 +20,17 @@ export class MongooseConfigSerive implements MongooseOptionsFactory {
                 username: process.env.MONGO_USERNAME,
                 password: process.env.MONGO_PASSWORD
             };
+
+            option.authSource = process.env.MONGO_AUTHSOURCE;
         }
+
+        option.connectionFactory = (connection: Connection) => {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            connection.plugin(require('mongoose-autopopulate'));
+            return connection;
+        };
+
+        console.log(option);
 
         return option;
     }
