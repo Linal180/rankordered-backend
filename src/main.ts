@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import * as basicAuth from 'express-basic-auth';
 import { ConfigService } from '@nestjs/config';
 // import { ErrorsInterceptor } from './Shared/Response/Interceptors/Errors.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { HttpExceptionFilter } from './shared/httpError/filter/http-exception.filter';
 
 async function bootstrap() {
@@ -18,7 +19,7 @@ async function bootstrap() {
     //   cert: readFileSync( './ssl/cert.pem'),
     // };
 
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         cors: true,
         bodyParser: true,
         logger: ['error', 'warn', 'log']

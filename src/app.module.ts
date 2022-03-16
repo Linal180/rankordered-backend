@@ -22,7 +22,7 @@ import { GalleryModule } from './component/gallery/gallery.module';
     imports: [
         ConfigModule.forRoot({ load: [configuration] }),
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '../../', 'public'),
+            rootPath: join(__dirname, '..', 'public'),
             serveRoot: '/public'
         }),
         MongooseModule.forRootAsync({
