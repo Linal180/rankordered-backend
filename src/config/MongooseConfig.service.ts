@@ -16,11 +16,8 @@ export class MongooseConfigSerive implements MongooseOptionsFactory {
         };
 
         if (process.env.MONGO_USERNAME) {
-            option.auth = {
-                username: process.env.MONGO_USERNAME,
-                password: process.env.MONGO_PASSWORD
-            };
-
+            option.user = process.env.MONGO_USERNAME;
+            option.pass = process.env.MONGO_PASSWORD;
             option.authSource = process.env.MONGO_AUTHSOURCE;
         }
 
