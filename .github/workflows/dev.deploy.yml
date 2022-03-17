@@ -24,6 +24,7 @@ jobs:
         
   lint:
     runs-on: self-hosted
+    if: success()
     steps:
       - uses: actions/checkout@v2
       - name: install
@@ -31,6 +32,7 @@ jobs:
         
   test:
     runs-on: self-hosted
+    if: success()
     steps:
       - uses: actions/checkout@v2
       - name: test
@@ -38,6 +40,7 @@ jobs:
       
   build:
     runs-on: self-hosted
+    if: success()
     steps:
       - uses: actions/checkout@v2
       - name: build
