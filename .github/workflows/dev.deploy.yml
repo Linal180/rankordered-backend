@@ -27,7 +27,6 @@ jobs:
     needs: install
     if: success()
     steps:
-      - uses: actions/checkout@v2
       - name: install
         run: yarn lint
         
@@ -36,7 +35,6 @@ jobs:
     needs: lint
     if: success()
     steps:
-      - uses: actions/checkout@v2
       - name: test
         run: yarn test --silent
       
@@ -45,7 +43,6 @@ jobs:
     needs: test
     if: success()
     steps:
-      - uses: actions/checkout@v2
       - name: build
         run: yarn build
         
