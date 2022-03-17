@@ -4,52 +4,54 @@ name: development
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    # Triggers the workflow on push or pull request events but only for the master branch
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  install:
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v2
-      - name: install
-        run: yarn install --silent
-        
-  lint:
-    runs-on: self-hosted
-    needs: install
-    if: success()
-    steps:
-      - name: install
-        run: yarn lint
-        
-  test:
-    runs-on: self-hosted
-    needs: lint
-    if: success()
-    steps:
-      - name: test
-        run: yarn test --silent
-      
-  build:
-    runs-on: self-hosted
-    needs: test
-    if: success()
-    steps:
-      - name: build
-        run: yarn build
-        
-        
+    install:
+        runs-on: self-hosted
+        steps:
+            - uses: actions/checkout@v2
+            - name: install
+              run: yarn install --silent
+
+    lint:
+        runs-on: self-hosted
+        needs: install
+        if: success()
+        steps:
+            - name: install
+              run: yarn lint
+
+    test:
+        runs-on: self-hosted
+        needs: lint
+        if: success()
+        steps:
+            - name: test
+              run: yarn test --silent
+
+    build:
+        runs-on: self-hosted
+        needs: test
+        if: success()
+        steps:
+            - name: build
+              run: yarn build
 #   deploy:
 #     runs-on: self-hosted
 #     steps:
 #       - uses: actions/checkout@v2
 #       - name: deploy
-#         run: 
+#         run:
