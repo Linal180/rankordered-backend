@@ -55,7 +55,7 @@ jobs:
 
     lint:
         runs-on: self-hosted
-        needs: install
+        needs: [install, create-envfile]
         if: success()
         steps:
             - name: install
@@ -71,7 +71,7 @@ jobs:
 
     build:
         runs-on: self-hosted
-        needs: [test, create-envfile]
+        needs: test
         if: success()
         steps:
             - name: build
@@ -83,7 +83,7 @@ jobs:
         if: success()
         steps:
             - name: copy
-              run: rsync -avu --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
+              run: rsync -avuq --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
             - name: reload application
               run: pm2 reload rankordered-backend-staging
             - name: save pm2 config
