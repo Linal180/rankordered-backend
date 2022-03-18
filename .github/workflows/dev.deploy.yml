@@ -30,32 +30,32 @@ concurrency:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-    install:
-        runs-on: self-hosted
-        steps:
-            - uses: actions/checkout@v2
-            - name: install
-              run: yarn install --silent
-
     create-envfile:
         runs-on: self-hosted
         steps:
+            - uses: actions/checkout@v2
             - name: Create env file
               run: |
-                  touch .env
-                  echo URL="http://localhost" >> .env
-                  echo PORT="4001" >> .env
-                  echo DATABASE_URL=${{secrets.DATABASE_URL}} >> .env
-                  echo DATABASE_NAME=${{secrets.STG_DATABASE_NAME}} >> .env
-                  echo MONGO_USERNAME=${{secrets.MONGO_USERNAME}} >> .env
-                  echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
-                  echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
-                  echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
+                  sudo touch .env
+                  sudo echo URL="http://localhost" >> .env
+                  sudo echo PORT="4001" >> .env
+                  sudo echo DATABASE_URL=${{secrets.DATABASE_URL}} >> .env
+                  sudo echo DATABASE_NAME=${{secrets.STG_DATABASE_NAME}} >> .env
+                  sudo echo MONGO_USERNAME=${{secrets.MONGO_USERNAME}} >> .env
+                  sudo echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
+                  sudo echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
+                  sudo echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
                   cat .env
+    install:
+        runs-on: self-hosted
+        needs: create-envfile
+        steps:
+            - name: install
+              run: yarn install --silent
 
     lint:
         runs-on: self-hosted
-        needs: [install, create-envfile]
+        needs: install
         if: success()
         steps:
             - name: install
