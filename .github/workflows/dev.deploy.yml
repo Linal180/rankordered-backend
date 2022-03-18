@@ -44,7 +44,7 @@ jobs:
               run: |
                   touch .env
                   echo URL="http://localhost" >> .env
-                  echo PORT="4002" >> .env
+                  echo PORT="4001" >> .env
                   echo DATABASE_URL=${{secrets.DATABASE_URL}} >> .env
                   echo DATABASE_NAME=${{secrets.STG_DATABASE_NAME}} >> .env
                   echo MONGO_USERNAME=${{secrets.MONGO_USERNAME}} >> .env
@@ -83,6 +83,6 @@ jobs:
         if: success()
         steps:
             - name: copy
-              run: rsync -avu --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
+              run: rsync -avu --delete --force "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
             - name: reload application
               run: pm2 reload rankordered-backend-staging
