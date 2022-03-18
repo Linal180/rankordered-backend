@@ -83,7 +83,7 @@ jobs:
         if: success()
         steps:
             - name: copy
-              run: sudo rsync -rtuv --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude "public" --exclude ".git" --exclude "node_modules"
+              run: sudo rsync -avu --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude "public" --exclude ".git" --exclude "node_modules"
             # - name: list pm2
             #   run: sudo pm2 list
             # - name: start pm2
