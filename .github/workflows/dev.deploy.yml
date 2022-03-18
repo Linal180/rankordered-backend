@@ -83,12 +83,12 @@ jobs:
         if: success()
         steps:
             - name: copy
-              run: rsync -rtuv --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
-            # - name: reload application
-            #   run: pm2 reload rankordered-backend-staging
-            - name: list pm2
-              run: sudo pm2 list
-            - name: start pm2
-              run: sudo pm2 start pm2.dev.config.js
+              run: sudo rsync -rtuv --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
+            # - name: list pm2
+            #   run: sudo pm2 list
+            # - name: start pm2
+            #   run: sudo pm2 start pm2.dev.config.js
+            - name: reload application
+              run: sudo pm2 reload rankordered-backend-staging
             - name: save pm2 config
               run: sudo pm2 save
