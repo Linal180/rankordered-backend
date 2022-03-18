@@ -18,15 +18,15 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
-env:
-    URL: http://localhost
-    PORT: 4002
-    DATABASE_URL: ${{secrets.DATABASE_URL}}
-    DATABASE_NAME: ${{secrets.STG_DATABASE_NAME}}
-    MONGO_USERNAME: ${{secrets.MONGO_USERNAME}}
-    MONGO_PASSWORD: ${{secrets.MONGO_PASSWORD}}
-    MONGO_AUTHSOURCE: ${{secrets.MONGO_AUTHSOURCE}}
-    JWT_SECRET: ${{secrets.JWT_SECRET}}
+# env:
+#     URL: http://localhost
+#     PORT: 4002
+#     DATABASE_URL: ${{secrets.DATABASE_URL}}
+#     DATABASE_NAME: ${{secrets.STG_DATABASE_NAME}}
+#     MONGO_USERNAME: ${{secrets.MONGO_USERNAME}}
+#     MONGO_PASSWORD: ${{secrets.MONGO_PASSWORD}}
+#     MONGO_AUTHSOURCE: ${{secrets.MONGO_AUTHSOURCE}}
+#     JWT_SECRET: ${{secrets.JWT_SECRET}}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -40,17 +40,18 @@ jobs:
     create-envfile:
         runs-on: self-hosted
         steps:
-            - name: Make envfile
-              uses: SpicyPizza/create-envfile@v1.3
-              with:
-                  envkey_URL: http://localhost
-                  envkey_PORT: 4002
-                  envkey_DATABASE_URL: ${{secrets.DATABASE_URL}}
-                  envkey_DATABASE_NAME: ${{secrets.STG_DATABASE_NAME}}
-                  envkey_MONGO_USERNAME: ${{secrets.MONGO_USERNAME}}
-                  envkey_MONGO_PASSWORD: ${{secrets.MONGO_PASSWORD}}
-                  envkey_MONGO_AUTHSOURCE: ${{secrets.MONGO_AUTHSOURCE}}
-                  envkey_JWT_SECRET: ${{secrets.JWT_SECRET}}
+            - name: Create env file
+              run: |
+                  touch .env
+                  echo URL="http://localhost" >> .env
+                  echo PORT="4002" >> .env
+                  echo DATABASE_URL=${{secrets.DATABASE_URL}} >> .env
+                  echo DATABASE_NAME=${{secrets.STG_DATABASE_NAME}} >> .env
+                  echo MONGO_USERNAME=${{secrets.MONGO_USERNAME}} >> .env
+                  echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
+                  echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
+                  echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
+                  cat .env
 
     lint:
         runs-on: self-hosted
@@ -70,7 +71,7 @@ jobs:
 
     build:
         runs-on: self-hosted
-        needs: test
+        needs: [test, create-envfile]
         if: success()
         steps:
             - name: build
