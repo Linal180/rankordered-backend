@@ -76,9 +76,13 @@ jobs:
         steps:
             - name: build
               run: yarn build
-#   deploy:
-#     runs-on: self-hosted
-#     steps:
-#       - uses: actions/checkout@v2
-#       - name: deploy
-#         run:
+
+    deploy:
+        runs-on: self-hosted
+        needs: build
+        if: success()
+        steps:
+            - name: copy
+              run: rsync -avu --delete "./" "/home/rankordered/stg-rankordered-backend-nest"
+            - name: reload application
+              run: pm2 reload rankordered-backend-staging
