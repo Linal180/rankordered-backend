@@ -83,6 +83,6 @@ jobs:
         if: success()
         steps:
             - name: copy
-              run: rsync -avu --delete "./" "/home/rankordered/stg-rankordered-backend-nest"
+              run: rsync -avu --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
             - name: reload application
               run: pm2 reload rankordered-backend-staging
