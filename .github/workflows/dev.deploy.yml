@@ -13,9 +13,20 @@ on:
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
 
+# to ensure only the latest workflow is running through the action
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
+
+env:
+    URL: http://localhost
+    PORT: 4002
+    DATABASE_URL: ${{secrets.DATABASE_URL}}
+    DATABASE_NAME: ${{secrets.STG_DATABASE_NAME}}
+    MONGO_USERNAME: ${{secrets.MONGO_USERNAME}}
+    MONGO_PASSWORD: ${{secrets.MONGO_PASSWORD}}
+    MONGO_AUTHSOURCE: ${{secrets.MONGO_AUTHSOURCE}}
+    JWT_SECRET: ${{secrets.JWT_SECRET}}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
