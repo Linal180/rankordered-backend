@@ -77,18 +77,18 @@ jobs:
             - name: build
               run: yarn build
 
-    deploy:
-        runs-on: self-hosted
-        needs: build
-        if: success()
-        steps:
-            - name: copy
-              run: sudo rsync -rtuv --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
-            # - name: list pm2
-            #   run: sudo pm2 list
-            # - name: start pm2
-            #   run: sudo pm2 start pm2.dev.config.js
-            - name: reload application
-              run: sudo pm2 reload rankordered-backend-staging
-            - name: save pm2 config
-              run: sudo pm2 save
+#     deploy:
+#         runs-on: self-hosted
+#         needs: build
+#         if: success()
+#         steps:
+#             - name: copy
+#               run: sudo rsync -rtuv --delete "./" "/home/rankordered/stg-rankordered-backend-nest" --exclude ".git" --exclude "node_modules"
+#             # - name: list pm2
+#             #   run: sudo pm2 list
+#             # - name: start pm2
+#             #   run: sudo pm2 start pm2.dev.config.js
+#             - name: reload application
+#               run: sudo pm2 reload rankordered-backend-staging
+#             - name: save pm2 config
+#               run: sudo pm2 save
