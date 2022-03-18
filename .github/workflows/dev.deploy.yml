@@ -87,8 +87,8 @@ jobs:
             # - name: reload application
             #   run: pm2 reload rankordered-backend-staging
             - name: list pm2
-              run: pm2 list
+              run: sudo pm2 list
             - name: start pm2
-              run: pm2 start pm2.dev.config.js
+              run: sudo pm2 start pm2.dev.config.js
             - name: save pm2 config
-              run: pm2 save
+              run: sudo pm2 save
