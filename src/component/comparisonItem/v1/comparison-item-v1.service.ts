@@ -369,8 +369,12 @@ export class ComparisonItemV1Service {
     };
 
     scoreSort = {
-        $sort: {
-            'score.score': -1
+        // $sort: {
+        //     'score.score': -1
+        // }
+        $setWindowFields: {
+            sortBy: { 'score.score': -1 },
+            output: { ranking: { $documentNumber: {} } }
         }
     };
 
