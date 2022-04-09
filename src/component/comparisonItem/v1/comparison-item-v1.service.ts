@@ -182,6 +182,9 @@ export class ComparisonItemV1Service {
                     this.itemScoreRefine,
                     this.scoreCategoryLookup,
                     this.scoreCategoryRefine,
+                    this.imagesLookup,
+                    this.defaultImageLookup,
+                    this.defaultImageRefine,
                     { $limit: 1 }
                 ])
                 .exec()
