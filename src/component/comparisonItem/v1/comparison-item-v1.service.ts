@@ -135,13 +135,19 @@ export class ComparisonItemV1Service {
         res.data = (
             await this.itemModel
                 .aggregate([
+                    this.itemScoreLookup(categoryId),
+                    this.itemScoreRefine,
+                    {
+                        $setWindowFields: {
+                            sortBy: { 'score.score': -1 },
+                            output: { ranking: { $documentNumber: {} } }
+                        }
+                    },
                     {
                         $match: {
                             _id: new Types.ObjectId(id)
                         }
                     },
-                    this.itemScoreLookup(categoryId),
-                    this.itemScoreRefine,
                     this.scoreCategoryLookup,
                     this.scoreCategoryRefine,
                     this.categoryLookup,
@@ -173,15 +179,21 @@ export class ComparisonItemV1Service {
         res.data = (
             await this.itemModel
                 .aggregate([
+                    this.itemScoreLookup(categoryId),
+                    this.itemScoreRefine,
+                    this.scoreCategoryLookup,
+                    this.scoreCategoryRefine,
+                    {
+                        $setWindowFields: {
+                            sortBy: { 'score.score': -1 },
+                            output: { ranking: { $documentNumber: {} } }
+                        }
+                    },
                     {
                         $match: {
                             slug: slug
                         }
                     },
-                    this.itemScoreLookup(categoryId),
-                    this.itemScoreRefine,
-                    this.scoreCategoryLookup,
-                    this.scoreCategoryRefine,
                     this.imagesLookup,
                     this.defaultImageLookup,
                     this.defaultImageRefine,
@@ -372,9 +384,6 @@ export class ComparisonItemV1Service {
     };
 
     scoreSort = {
-        // $sort: {
-        //     'score.score': -1
-        // }
         $setWindowFields: {
             sortBy: { 'score.score': -1 },
             output: { ranking: { $documentNumber: {} } }
