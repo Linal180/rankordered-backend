@@ -6,6 +6,7 @@ import { ContactModule } from './contact/contact.module';
 import { UserModule } from './user/user.module';
 import { ItemScoreModule } from './item-score/item-score.module';
 import { VotingModule } from './voting/Voting.module';
+import { ScoreSnapshotModule } from './scoresnapshot/score-snapshot.module';
 
 @Module({
     imports: [
@@ -15,7 +16,8 @@ import { VotingModule } from './voting/Voting.module';
         ComparisonItemModule,
         ContactModule,
         ItemScoreModule,
-        VotingModule
+        VotingModule,
+        ScoreSnapshotModule
     ]
 })
 export class ComponentModule {}

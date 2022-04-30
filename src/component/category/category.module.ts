@@ -11,6 +11,7 @@ import { CategoryV1Service } from './v1/category-v1.service';
         ])
     ],
     providers: [CategoryV1Service],
-    controllers: [CategoryV1Controller]
+    controllers: [CategoryV1Controller],
+    exports: [CategoryV1Service]
 })
 export class CategoryModule {}
