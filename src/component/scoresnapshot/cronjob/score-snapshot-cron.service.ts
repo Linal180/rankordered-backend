@@ -24,7 +24,10 @@ export class ScoreSnapshotCronService {
         try {
             const { data } = await this.categoryService.findByQuery();
             data.forEach((category) => {
-                this.scoreSnapshotQueue.add('saveScoreByCategory', category);
+                this.scoreSnapshotQueue.add('saveScoreByCategory', category, {
+                    removeOnComplete: true,
+                    removeOnFail: true
+                });
             });
         } catch (error) {
             this.logger.error(error.message);
