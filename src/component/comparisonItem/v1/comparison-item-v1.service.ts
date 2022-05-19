@@ -348,6 +348,9 @@ export class ComparisonItemV1Service {
                         $sort: {
                             createdAt: 1
                         } as const
+                    },
+                    {
+                        $limit: 10
                     }
                 ],
                 as: 'scoreSnapshot'
