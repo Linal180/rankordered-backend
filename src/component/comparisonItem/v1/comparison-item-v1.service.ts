@@ -197,6 +197,7 @@ export class ComparisonItemV1Service {
                     this.imagesLookup,
                     this.defaultImageLookup,
                     this.defaultImageRefine,
+                    this.scoreSnapshotLookup(categoryId),
                     { $limit: 1 }
                 ])
                 .exec()
@@ -240,7 +241,8 @@ export class ComparisonItemV1Service {
             this.defaultCategoryRefine,
             this.imagesLookup,
             this.defaultImageLookup,
-            this.defaultImageRefine
+            this.defaultImageRefine,
+            this.scoreSnapshotLookup(categoryId)
         );
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
@@ -315,6 +317,42 @@ export class ComparisonItemV1Service {
             path: '$score',
             preserveNullAndEmptyArrays: true
         }
+    };
+
+    scoreSnapshotLookup = (categoryId = null) => {
+        return {
+            $lookup: {
+                from: 'scoresnapshots',
+                let: {
+                    itemId: '$_id',
+                    categoryId: categoryId
+                        ? new Types.ObjectId(categoryId)
+                        : '$defaultCategory'
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    {
+                                        $eq: ['$itemId', '$$itemId']
+                                    },
+                                    {
+                                        $eq: ['$categoryId', '$$categoryId']
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            createdAt: 1
+                        } as const
+                    }
+                ],
+                as: 'scoreSnapshot'
+            }
+        };
     };
 
     scoreCategoryLookup = {
