@@ -14,7 +14,7 @@ export class ScoreSnapshotCronService {
         private scoreSnapshotQueue: Queue
     ) {}
 
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    @Cron(CronExpression.EVERY_HOUR)
     async handleCron() {
         this.logger.log('saving current score and ranking');
         await this.saveItemScoreAndRanking();
