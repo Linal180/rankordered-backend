@@ -6,6 +6,7 @@ import { CategoryV1Service } from './category-v1.service';
 const categoryMock = {
     _id: '123456',
     name: 'test category',
+    active: true,
     slug: 'test_category'
 };
 

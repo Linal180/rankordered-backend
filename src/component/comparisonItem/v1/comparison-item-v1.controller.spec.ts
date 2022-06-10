@@ -25,14 +25,19 @@ const mockComparisonItemWithScore = {
 const mockComparisonItem = {
     name: 'test item',
     slug: 'test_item',
-    category: [{ name: 'test category', slug: 'test_category' }],
-    defaultCategory: { name: 'test category', slug: 'test_category' },
+    category: [{ name: 'test category', slug: 'test_category', active: true }],
+    defaultCategory: {
+        name: 'test category',
+        slug: 'test_category',
+        active: true
+    },
     address: 'address',
     foundedDate: '1995',
     website: 'website.com',
     source: {
         source: 'wiki'
     },
+    active: true,
     label: ['college']
 };
 

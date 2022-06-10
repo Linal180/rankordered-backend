@@ -13,8 +13,13 @@ import { ComparisonItemV1Service } from './comparison-item-v1.service';
 const mockComparisonItem: ComparisonItem = {
     name: 'test item',
     slug: 'test_item',
-    category: [{ name: 'test category', slug: 'test_category' }],
-    defaultCategory: { name: 'test category', slug: 'test_category' },
+    category: [{ name: 'test category', slug: 'test_category', active: true }],
+    defaultCategory: {
+        name: 'test category',
+        slug: 'test_category',
+        active: true
+    },
+    active: true,
     address: 'address',
     foundedDate: '1995',
     website: 'website.com',
