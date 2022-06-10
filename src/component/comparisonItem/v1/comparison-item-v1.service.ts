@@ -135,6 +135,7 @@ export class ComparisonItemV1Service {
         res.data = (
             await this.itemModel
                 .aggregate([
+                    this.filterActive,
                     this.itemScoreLookup(categoryId),
                     this.itemScoreRefine,
                     {
@@ -179,6 +180,7 @@ export class ComparisonItemV1Service {
         res.data = (
             await this.itemModel
                 .aggregate([
+                    this.filterActive,
                     this.itemScoreLookup(categoryId),
                     this.itemScoreRefine,
                     this.scoreCategoryLookup,
@@ -214,7 +216,8 @@ export class ComparisonItemV1Service {
 
     async findAllWithRanking(
         categoryId: string = null,
-        pagination: PaginationDto
+        pagination: PaginationDto,
+        active?: boolean
     ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
         // eslint-disable-next-line prefer-const
         let aggregateOperation = [];
@@ -228,7 +231,14 @@ export class ComparisonItemV1Service {
             options = { category: categoryId };
         }
 
+        if (active !== undefined) {
+            aggregateOperation.push({
+                $match: { active: active }
+            });
+        }
+
         aggregateOperation.push(
+            this.filterActive,
             this.itemScoreLookup(categoryId),
             this.itemScoreRefine,
             this.scoreCategoryLookup,
@@ -310,6 +320,12 @@ export class ComparisonItemV1Service {
                 as: 'score'
             }
         };
+    };
+
+    filterActive = {
+        $match: {
+            active: true
+        }
     };
 
     itemScoreRefine = {

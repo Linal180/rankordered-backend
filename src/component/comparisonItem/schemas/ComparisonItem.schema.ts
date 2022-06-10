@@ -66,6 +66,9 @@ class ComparisonItem {
         required: false
     })
     images?: Gallery[];
+
+    @Prop({ default: true })
+    active: boolean;
 }
 
 const ComparisonItemSchema = SchemaFactory.createForClass(ComparisonItem);

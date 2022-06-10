@@ -11,6 +11,9 @@ export class Category {
     @Prop()
     slug: string;
 
+    @Prop({ default: true })
+    active: boolean;
+
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',

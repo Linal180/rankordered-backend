@@ -35,6 +35,11 @@ export class ComparisonItemV1Controller {
         required: false,
         type: String
     })
+    @ApiQuery({
+        name: 'active',
+        required: false,
+        type: Boolean
+    })
     @UsePipes(
         new ValidationPipe({
             transform: true,
@@ -45,9 +50,14 @@ export class ComparisonItemV1Controller {
     )
     getComparisonItems(
         @Query() pagination: PaginationDto,
-        @Query('categoryId') categoryid?: string
+        @Query('categoryId') categoryid?: string,
+        @Query('active') active?: boolean
     ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
-        return this.itemService.findAllWithRanking(categoryid, pagination);
+        return this.itemService.findAllWithRanking(
+            categoryid,
+            pagination,
+            active
+        );
     }
 
     @Get(':id')

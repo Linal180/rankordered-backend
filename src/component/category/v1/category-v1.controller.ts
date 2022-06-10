@@ -6,10 +6,11 @@ import {
     Param,
     Post,
     Put,
+    Query,
     UseGuards,
     UseInterceptors
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { TransformInterceptor } from '../../../shared/response/interceptors/Transform.interceptor';
@@ -28,8 +29,15 @@ export class CategoryV1Controller {
     constructor(private categoryService: CategoryV1Service) {}
 
     @Get()
-    getCategories(): Promise<MongoResultQuery<CategoryDto[]>> {
-        return this.categoryService.findByQuery();
+    @ApiQuery({
+        name: 'active',
+        required: false,
+        type: Boolean
+    })
+    getCategories(
+        @Query('active') active?: boolean
+    ): Promise<MongoResultQuery<CategoryDto[]>> {
+        return this.categoryService.findByQuery({ active });
     }
 
     @Get(':id')

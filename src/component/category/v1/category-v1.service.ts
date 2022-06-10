@@ -41,6 +41,7 @@ export class CategoryV1Service {
 
     async findByQuery(filter: any = {}): Promise<MongoResultQuery<Category[]>> {
         const res = new MongoResultQuery<Category[]>();
+
         res.data = await this.categoryModel.find(filter).exec();
 
         res.count = res.data.length;
