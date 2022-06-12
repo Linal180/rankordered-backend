@@ -37,7 +37,14 @@ export class CategoryV1Controller {
     getCategories(
         @Query('active') active?: boolean
     ): Promise<MongoResultQuery<CategoryDto[]>> {
-        return this.categoryService.findByQuery({ active });
+        // eslint-disable-next-line prefer-const
+        let filter: { active?: boolean } = {};
+
+        if (active !== undefined) {
+            filter.active = active;
+        }
+
+        return this.categoryService.findByQuery(filter);
     }
 
     @Get(':id')

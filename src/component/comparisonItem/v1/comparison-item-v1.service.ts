@@ -217,11 +217,11 @@ export class ComparisonItemV1Service {
     async findAllWithRanking(
         categoryId: string = null,
         pagination: PaginationDto,
-        active?: boolean
+        active?: boolean | string
     ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
         // eslint-disable-next-line prefer-const
         let aggregateOperation = [];
-        let options = {};
+        let options: any = {};
 
         if (categoryId) {
             aggregateOperation.push({
@@ -232,13 +232,16 @@ export class ComparisonItemV1Service {
         }
 
         if (active !== undefined) {
+            console.log(typeof active);
             aggregateOperation.push({
-                $match: { active: active }
+                $match: { active: active === 'true' }
             });
+
+            options.active = active;
         }
 
         aggregateOperation.push(
-            this.filterActive,
+            // this.filterActive,
             this.itemScoreLookup(categoryId),
             this.itemScoreRefine,
             this.scoreCategoryLookup,

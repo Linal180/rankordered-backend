@@ -40,19 +40,21 @@ export class ComparisonItemV1Controller {
         required: false,
         type: Boolean
     })
-    @UsePipes(
-        new ValidationPipe({
-            transform: true,
-            transformOptions: {
-                enableImplicitConversion: true
-            }
-        })
-    )
     getComparisonItems(
-        @Query() pagination: PaginationDto,
+        @Query(
+            new ValidationPipe({
+                transform: true,
+                transformOptions: {
+                    enableImplicitConversion: true
+                }
+            })
+        )
+        pagination: PaginationDto,
         @Query('categoryId') categoryid?: string,
         @Query('active') active?: boolean
     ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
+        console.log(active);
+        console.log(pagination);
         return this.itemService.findAllWithRanking(
             categoryid,
             pagination,
