@@ -18,6 +18,7 @@ import { CategoryDto } from '../dto/Category.dto';
 import { CreateCategoryDto } from '../dto/CreateCategory.dto';
 import { UpdateCategoryDto } from '../dto/UpdateCategory.dto';
 import { CategoryV1Service } from './category-v1.service';
+import { activateCategoryDto } from '../dto/ActivateCategory.dto';
 
 @ApiTags('Categories')
 @Controller({
@@ -78,6 +79,19 @@ export class CategoryV1Controller {
         @Body() updateCategoryData: UpdateCategoryDto
     ): Promise<MongoResultQuery<CategoryDto>> {
         return this.categoryService.updateCategory(id, updateCategoryData);
+    }
+
+    @Put('activate/:id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    activateCategory(
+        @Param('id') id: string,
+        @Body() activeCategoryData: activateCategoryDto
+    ) {
+        return this.categoryService.toggleActiveCategory(
+            id,
+            activeCategoryData.active
+        );
     }
 
     @Delete(':id')

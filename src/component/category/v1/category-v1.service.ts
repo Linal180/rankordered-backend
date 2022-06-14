@@ -65,6 +65,25 @@ export class CategoryV1Service {
         return res;
     }
 
+    async toggleActiveCategory(
+        id: string,
+        active: boolean
+    ): Promise<MongoResultQuery<Category>> {
+        const res = new MongoResultQuery<Category>();
+        res.data = await this.categoryModel.findByIdAndUpdate(
+            id,
+            { active: active },
+            { returnDocument: 'after' }
+        );
+
+        if (!res.data) {
+            this.throwObjectNotFoundError();
+        }
+
+        res.status = OperationResult.update;
+        return res;
+    }
+
     async updateCategory(
         id: string,
         category: UpdateCategoryDto
