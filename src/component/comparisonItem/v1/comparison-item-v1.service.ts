@@ -286,6 +286,26 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async toggleActiveComparisonItem(
+        id: string,
+        active: boolean
+    ): Promise<MongoResultQuery<ComparisonItem>> {
+        const res = new MongoResultQuery<ComparisonItem>();
+
+        res.data = await this.itemModel.findByIdAndUpdate(
+            id,
+            { active: active },
+            { returnDocument: 'after' }
+        );
+
+        if (!res.data) {
+            this.throwObjectNotFoundError();
+        }
+
+        res.status = OperationResult.update;
+        return res;
+    }
+
     itemScoreLookup = (categoryId = null) => {
         return {
             $lookup: {

@@ -9,7 +9,6 @@ import {
     Query,
     UseGuards,
     UseInterceptors,
-    UsePipes,
     ValidationPipe
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -22,6 +21,7 @@ import { CreateComparisonItemDto } from '../dto/CreateComparisonItem.dto';
 import { UpdateComparisonItemDto } from '../dto/UpdateComparisonItem.dto';
 import { ComparisonItemWithScore } from '../schemas/ComparisonItemWithScore';
 import { ComparisonItemV1Service } from './comparison-item-v1.service';
+import { ActivateComparisonItemDto } from '../dto/ActivateComparisonItem.dto';
 
 @ApiTags('Comparison Items')
 @Controller({ path: 'comparison-item', version: '1' })
@@ -53,8 +53,6 @@ export class ComparisonItemV1Controller {
         @Query('categoryId') categoryid?: string,
         @Query('active') active?: boolean
     ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
-        console.log(active);
-        console.log(pagination);
         return this.itemService.findAllWithRanking(
             categoryid,
             pagination,
@@ -112,6 +110,16 @@ export class ComparisonItemV1Controller {
         @Body() updateItemData: UpdateComparisonItemDto
     ): Promise<MongoResultQuery<ComparisonItemDto>> {
         return this.itemService.updateItem(id, updateItemData);
+    }
+
+    @Put('activate/:id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    updateComparisonItemStatus(
+        @Param('id') id: string,
+        @Body() data: ActivateComparisonItemDto
+    ): Promise<MongoResultQuery<ComparisonItemDto>> {
+        return this.itemService.toggleActiveComparisonItem(id, data.active);
     }
 
     @Delete(':id')
