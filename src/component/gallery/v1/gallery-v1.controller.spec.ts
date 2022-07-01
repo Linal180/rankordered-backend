@@ -57,7 +57,11 @@ describe('GalleryV1Controller', () => {
         it('should get all gallery item', async (done) => {
             const spy = jest.spyOn(service, 'findAll');
 
-            const res = await controller.getGalleryItem();
+            const res = await controller.getGalleryItem({
+                page: 1,
+                limit: 10,
+                currentPage: 0
+            });
 
             expect(res.status).toBe(OperationResult.fetch);
             expect(spy).toBeCalledTimes(1);

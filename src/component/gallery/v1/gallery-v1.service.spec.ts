@@ -84,10 +84,19 @@ describe('GalleryV1Service', () => {
         it('should find all galleries', async (done) => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([mockGallery]),
-                count: jest.fn().mockResolvedValueOnce(1)
+                count: jest.fn().mockResolvedValueOnce(1),
+                skip: jest.fn().mockReturnValueOnce({
+                    limit: jest.fn().mockReturnValue({
+                        exec: jest.fn().mockResolvedValueOnce([mockGallery])
+                    })
+                })
             } as never);
 
-            const res = await service.findAll();
+            const res = await service.findAll({
+                page: 1,
+                limit: 10,
+                currentPage: 0
+            });
 
             expect(spy).toBeCalledTimes(2);
             expect(res.status).toBe(OperationResult.fetch);
