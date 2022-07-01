@@ -10,6 +10,7 @@ import { FileType } from '../schemas/FiletType';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { UploadedFileWithSource } from '../schemas/UploadedFile.data';
+import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
 
 @Injectable()
 export class GalleryV1Service {
@@ -33,12 +34,18 @@ export class GalleryV1Service {
         return res;
     }
 
-    async findAll(filter: any = {}): Promise<MongoResultQuery<Gallery[]>> {
+    async findAll(
+        pagination: PaginationDto
+    ): Promise<MongoResultQuery<Gallery[]>> {
         const res = new MongoResultQuery<Gallery[]>();
 
-        res.data = await this.galleryModel.find(filter).exec();
+        res.data = await this.galleryModel
+            .find()
+            .skip(pagination.currentPage * pagination.limit)
+            .limit(pagination.limit)
+            .exec();
         res.status = OperationResult.fetch;
-        res.count = await this.galleryModel.find(filter).count();
+        res.count = await this.galleryModel.find().count();
 
         return res;
     }
