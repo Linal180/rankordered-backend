@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { UploadedFileWithSource } from '../schemas/UploadedFile.data';
 import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
+import { UpdateGalleryDto } from '../dto/updateGallery.dto';
 
 @Injectable()
 export class GalleryV1Service {
@@ -88,6 +89,25 @@ export class GalleryV1Service {
 
         res.status = OperationResult.delete;
 
+        return res;
+    }
+
+    async edit(
+        id: string,
+        data: UpdateGalleryDto
+    ): Promise<MongoResultQuery<Gallery>> {
+        const res = new MongoResultQuery<Gallery>();
+
+        res.data = await this.galleryModel.findByIdAndUpdate(
+            id,
+            {
+                source: data
+            },
+            {
+                returnDocument: 'after'
+            }
+        );
+        res.status = OperationResult.update;
         return res;
     }
 

@@ -1,9 +1,11 @@
 import {
+    Body,
     Controller,
     Delete,
     Get,
     Param,
     Post,
+    Put,
     Query,
     UploadedFile,
     UseGuards,
@@ -25,6 +27,7 @@ import { GalleryDto } from '../dto/gallery.dto';
 import { GalleryV1Service } from './gallery-v1.service';
 import { UploadedFileWithSource } from '../schemas/UploadedFile.data';
 import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
+import { UpdateGalleryDto } from '../dto/updateGallery.dto';
 
 @ApiTags('Gallery')
 @Controller({ version: '1', path: 'gallery' })
@@ -93,6 +96,16 @@ export class GalleryV1Controller {
     )
     async uploadGalleryItem(@UploadedFile() image: UploadedFileWithSource) {
         return this.service.create(image);
+    }
+
+    @Put(':id/source')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    async editGalleryItemByid(
+        @Param('id') id: string,
+        @Body() updateGalleryData: UpdateGalleryDto
+    ): Promise<MongoResultQuery<GalleryDto>> {
+        return this.service.edit(id, updateGalleryData);
     }
 
     @Delete(':id')
