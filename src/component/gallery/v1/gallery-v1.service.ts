@@ -81,11 +81,13 @@ export class GalleryV1Service {
     async delete(id: string): Promise<MongoResultQuery<Gallery>> {
         const res = new MongoResultQuery<Gallery>();
 
-        res.data = await this.galleryModel.findByIdAndDelete(id);
+        res.data = await this.galleryModel.findById(id);
 
         fs.unlinkSync(
             join(this.config.get('rootPath'), res.data.path, res.data.slug)
         );
+
+        await this.galleryModel.findByIdAndDelete(id);
 
         res.status = OperationResult.delete;
 
