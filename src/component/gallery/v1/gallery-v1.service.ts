@@ -42,6 +42,7 @@ export class GalleryV1Service {
 
         res.data = await this.galleryModel
             .find()
+            .sort('createdAt', 'asc')
             .skip(pagination.currentPage * pagination.limit)
             .limit(pagination.limit)
             .exec();
