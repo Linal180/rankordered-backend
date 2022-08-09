@@ -85,9 +85,11 @@ describe('GalleryV1Service', () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([mockGallery]),
                 count: jest.fn().mockResolvedValueOnce(1),
-                skip: jest.fn().mockReturnValueOnce({
-                    limit: jest.fn().mockReturnValue({
-                        exec: jest.fn().mockResolvedValueOnce([mockGallery])
+                sort: jest.fn().mockReturnValueOnce({
+                    skip: jest.fn().mockReturnValueOnce({
+                        limit: jest.fn().mockReturnValue({
+                            exec: jest.fn().mockResolvedValueOnce([mockGallery])
+                        })
                     })
                 })
             } as never);
