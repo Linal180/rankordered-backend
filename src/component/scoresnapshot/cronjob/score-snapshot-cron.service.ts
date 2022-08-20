@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Queue } from 'bull';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
+import { ScoreSnapshotV1Service } from '../v1/score-snapshot-v1.service';
 
 @Injectable()
 export class ScoreSnapshotCronService {
@@ -10,6 +11,7 @@ export class ScoreSnapshotCronService {
 
     constructor(
         private categoryService: CategoryV1Service,
+        private scoreSnapshotService: ScoreSnapshotV1Service,
         @InjectQueue('score_snapshot')
         private scoreSnapshotQueue: Queue
     ) {}
@@ -18,6 +20,11 @@ export class ScoreSnapshotCronService {
     async handleCron() {
         this.logger.log('saving current score and ranking');
         await this.saveItemScoreAndRanking();
+    }
+
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    async handleSnapshotCleanupCron() {
+        this.logger.log('clean up snapshot which is more than 2 months');
     }
 
     async saveItemScoreAndRanking() {
@@ -32,6 +39,19 @@ export class ScoreSnapshotCronService {
                     removeOnFail: true
                 });
             });
+        } catch (error) {
+            this.logger.error(error.message);
+        }
+    }
+
+    async houseKeepingSnapshot() {
+        try {
+            const { deletedCount } =
+                await this.scoreSnapshotService.houseKeepingSnapshot();
+
+            if (deletedCount > 0) {
+                this.logger.log(`${deletedCount} snapshot deleted`);
+            }
         } catch (error) {
             this.logger.error(error.message);
         }

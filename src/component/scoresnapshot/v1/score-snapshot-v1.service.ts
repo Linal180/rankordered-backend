@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { Model } from 'mongoose';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
@@ -53,4 +54,24 @@ export class ScoreSnapshotV1Service {
             date: data.date
         });
     }
+
+    async houseKeepingSnapshot(): Promise<DeleteResult> {
+        const dateLimit = DateTime.now()
+            .startOf('day')
+            .minus({ months: 2 })
+            .toJSDate();
+
+        this.logger.log(
+            `Deleting snapshot older than ${dateLimit.toISOString()}`
+        );
+
+        return await this.scoreSnapshotModel.deleteMany({
+            createdAt: { $lt: dateLimit }
+        });
+    }
+}
+
+export interface DeleteResult {
+    acknowledged: boolean;
+    deletedCount: number;
 }
