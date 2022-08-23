@@ -25,6 +25,7 @@ export class ScoreSnapshotCronService {
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async handleSnapshotCleanupCron() {
         this.logger.log('clean up snapshot which is more than 2 months');
+        await this.houseKeepingSnapshot();
     }
 
     async saveItemScoreAndRanking() {
