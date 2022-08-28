@@ -82,6 +82,7 @@ describe('ComparisonItemV1Service', () => {
                         constructor: jest.fn(),
                         create: jest.fn().mockResolvedValue(mockComparisonItem),
                         aggregate: jest.fn(),
+                        updateMany: jest.fn(),
                         exec: jest.fn(),
                         count: jest.fn()
                     }
@@ -382,6 +383,23 @@ describe('ComparisonItemV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(items.status).toBe(OperationResult.fetch);
+            done();
+        });
+    });
+
+    describe('toggleActiveAllItem', () => {
+        it('should toggle all item active', async (done) => {
+            const spy = jest.spyOn(model, 'updateMany').mockResolvedValue({
+                acknowledged: true,
+                matchedCount: 0,
+                modifiedCount: 0,
+                upsertedCount: 0,
+                upsertedId: null
+            });
+
+            const items = await service.toggleActiveAllItem(true);
+            expect(spy).toBeCalledTimes(1);
+            expect(items.status).toBe(OperationResult.update);
             done();
         });
     });

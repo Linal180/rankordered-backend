@@ -22,6 +22,7 @@ import { UpdateComparisonItemDto } from '../dto/UpdateComparisonItem.dto';
 import { ComparisonItemWithScore } from '../schemas/ComparisonItemWithScore';
 import { ComparisonItemV1Service } from './comparison-item-v1.service';
 import { ActivateComparisonItemDto } from '../dto/ActivateComparisonItem.dto';
+import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 
 @ApiTags('Comparison Items')
 @Controller({ path: 'comparison-item', version: '1' })
@@ -60,11 +61,21 @@ export class ComparisonItemV1Controller {
         );
     }
 
+    @Get('check-active')
+    getItemsActivationStatus(): Promise<MongoResultQuery<boolean>> {
+        return this.itemService.checkItemsActivationStatus();
+    }
+
     @Get(':id')
     @ApiQuery({
         name: 'categoryId',
         required: false,
         type: String
+    })
+    @ApiQuery({
+        name: 'active',
+        required: false,
+        type: Boolean
     })
     getComparisonItem(
         @Param('id') id: string,
@@ -102,14 +113,13 @@ export class ComparisonItemV1Controller {
         return this.itemService.createItem(createItemData);
     }
 
-    @Put(':id')
+    @Put('activate-all')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    updateComparisonItem(
-        @Param('id') id: string,
-        @Body() updateItemData: UpdateComparisonItemDto
-    ): Promise<MongoResultQuery<ComparisonItemDto>> {
-        return this.itemService.updateItem(id, updateItemData);
+    updateActivateAllItem(
+        @Body() data: ActivateComparisonItemDto
+    ): Promise<{ status: OperationResult }> {
+        return this.itemService.toggleActiveAllItem(data.active);
     }
 
     @Put('activate/:id')
@@ -120,6 +130,16 @@ export class ComparisonItemV1Controller {
         @Body() data: ActivateComparisonItemDto
     ): Promise<MongoResultQuery<ComparisonItemDto>> {
         return this.itemService.toggleActiveComparisonItem(id, data.active);
+    }
+
+    @Put(':id')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    updateComparisonItem(
+        @Param('id') id: string,
+        @Body() updateItemData: UpdateComparisonItemDto
+    ): Promise<MongoResultQuery<ComparisonItemDto>> {
+        return this.itemService.updateItem(id, updateItemData);
     }
 
     @Delete(':id')

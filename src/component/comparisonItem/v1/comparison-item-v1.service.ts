@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -135,7 +135,6 @@ export class ComparisonItemV1Service {
         res.data = (
             await this.itemModel
                 .aggregate([
-                    this.filterActive,
                     this.itemScoreLookup(categoryId),
                     this.itemScoreRefine,
                     {
@@ -303,6 +302,31 @@ export class ComparisonItemV1Service {
         }
 
         res.status = OperationResult.update;
+        return res;
+    }
+
+    async toggleActiveAllItem(
+        active: boolean
+    ): Promise<{ status: OperationResult }> {
+        console.log('running');
+        const res = await this.itemModel.updateMany({}, { active: active });
+
+        if (!res.acknowledged) {
+            throw new HttpException(
+                'Update activation failed',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        return { status: OperationResult.update };
+    }
+
+    async checkItemsActivationStatus(): Promise<MongoResultQuery<boolean>> {
+        const res = new MongoResultQuery<boolean>();
+
+        res.data = (await this.itemModel.find({ active: true }).count()) > 0;
+        res.status = OperationResult.fetch;
+
         return res;
     }
 
