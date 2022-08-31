@@ -66,6 +66,37 @@ export class ComparisonItemV1Controller {
         return this.itemService.checkItemsActivationStatus();
     }
 
+    @Get('admin')
+    @ApiQuery({
+        name: 'categoryId',
+        required: false,
+        type: String
+    })
+    getComparisonItemsForAdmin(
+        @Query(
+            new ValidationPipe({
+                transform: true,
+                transformOptions: {
+                    enableImplicitConversion: true
+                }
+            })
+        )
+        pagination: PaginationDto,
+        @Query('categoryId') categoryid?: string
+    ) {
+        const filter: any = {};
+
+        if (categoryid) {
+            filter.category = categoryid;
+        }
+
+        return this.itemService.findByQuery({
+            filter: filter,
+            page: pagination.currentPage,
+            limit: pagination.limit
+        });
+    }
+
     @Get(':id')
     @ApiQuery({
         name: 'categoryId',

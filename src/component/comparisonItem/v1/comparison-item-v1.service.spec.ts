@@ -140,11 +140,22 @@ describe('ComparisonItemV1Service', () => {
     describe('findByQuery', () => {
         it('should return comparison items', async (done) => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
+                skip: jest.fn().mockReturnValue({
+                    limit: jest.fn().mockReturnValue({
+                        exec: jest
+                            .fn()
+                            .mockResolvedValueOnce([mockComparisonItem])
+                    })
+                }),
                 exec: jest.fn().mockResolvedValueOnce([mockComparisonItem]),
                 count: jest.fn().mockResolvedValueOnce(1)
             } as any);
 
-            const items = await service.findByQuery();
+            const items = await service.findByQuery({
+                filter: {},
+                page: 1,
+                limit: 10
+            });
 
             expect(items.status).toBe(OperationResult.fetch);
             expect(items.count).toBe(1);

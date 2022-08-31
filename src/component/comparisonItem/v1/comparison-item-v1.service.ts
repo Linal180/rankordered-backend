@@ -39,12 +39,22 @@ export class ComparisonItemV1Service {
         return res;
     }
 
-    async findByQuery(
-        filter: any = {}
-    ): Promise<MongoResultQuery<ComparisonItem[]>> {
+    async findByQuery({
+        filter,
+        page = 0,
+        limit = 10
+    }: {
+        filter: any;
+        page: number;
+        limit: number;
+    }): Promise<MongoResultQuery<ComparisonItem[]>> {
         const res = new MongoResultQuery<ComparisonItem[]>();
-        res.data = await this.itemModel.find(filter).exec();
-        res.count = await this.itemModel.find().count();
+        res.data = await this.itemModel
+            .find(filter)
+            .skip(page * limit)
+            .limit(limit)
+            .exec();
+        res.count = await this.itemModel.find(filter).count();
         res.status = OperationResult.fetch;
         return res;
     }
