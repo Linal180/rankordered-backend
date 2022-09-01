@@ -283,7 +283,12 @@ export class ComparisonItemV1Service {
 
         res.data = await this.itemModel
             .aggregate([
-                { $match: { category: new Types.ObjectId(categoryId) } },
+                {
+                    $match: {
+                        category: new Types.ObjectId(categoryId),
+                        active: true
+                    }
+                },
                 { $sample: { size: 2 } },
                 this.imagesLookup,
                 this.defaultImageLookup,
