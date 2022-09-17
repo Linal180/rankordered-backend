@@ -41,6 +41,11 @@ export class ComparisonItemV1Controller {
         required: false,
         type: Boolean
     })
+    @ApiQuery({
+        name: 'search',
+        required: false,
+        type: String
+    })
     getComparisonItems(
         @Query(
             new ValidationPipe({
@@ -51,14 +56,16 @@ export class ComparisonItemV1Controller {
             })
         )
         pagination: PaginationDto,
-        @Query('categoryId') categoryid?: string,
-        @Query('active') active?: boolean
+        @Query('categoryId') categoryId?: string,
+        @Query('active') active?: boolean,
+        @Query('search') search?: string
     ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
-        return this.itemService.findAllWithRanking(
-            categoryid,
+        return this.itemService.findAllWithRanking({
+            categoryId,
             pagination,
+            search,
             active
-        );
+        });
     }
 
     @Get('check-active')
@@ -72,6 +79,11 @@ export class ComparisonItemV1Controller {
         required: false,
         type: String
     })
+    @ApiQuery({
+        name: 'search',
+        required: false,
+        type: String
+    })
     getComparisonItemsForAdmin(
         @Query(
             new ValidationPipe({
@@ -82,12 +94,17 @@ export class ComparisonItemV1Controller {
             })
         )
         pagination: PaginationDto,
-        @Query('categoryId') categoryid?: string
+        @Query('categoryId') categoryid?: string,
+        @Query('search') search?: string
     ) {
         const filter: any = {};
 
         if (categoryid) {
             filter.category = categoryid;
+        }
+
+        if (search && search.length) {
+            filter.name = new RegExp(search, 'i');
         }
 
         return this.itemService.findByQuery({

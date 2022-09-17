@@ -337,14 +337,14 @@ describe('ComparisonItemV1Service', () => {
                 count: jest.fn().mockResolvedValueOnce(1)
             } as any);
 
-            const items = await service.findAllWithRanking(
-                '61f17467ea59d46cf3a21364',
-                {
+            const items = await service.findAllWithRanking({
+                categoryId: '61f17467ea59d46cf3a21364',
+                pagination: {
                     page: 2,
                     limit: 10,
                     currentPage: 1
                 }
-            );
+            });
 
             expect(aggregateSpy).toBeCalledTimes(1);
             expect(findSpy).toBeCalledTimes(1);
@@ -366,10 +366,13 @@ describe('ComparisonItemV1Service', () => {
                 count: jest.fn().mockResolvedValueOnce(1)
             } as any);
 
-            const items = await service.findAllWithRanking(undefined, {
-                page: 2,
-                limit: 10,
-                currentPage: 1
+            const items = await service.findAllWithRanking({
+                categoryId: undefined,
+                pagination: {
+                    page: 2,
+                    limit: 10,
+                    currentPage: 1
+                }
             });
 
             expect(aggregateSpy).toBeCalledTimes(1);

@@ -30,14 +30,14 @@ export class ScoreSnapshotConsumer {
 
         do {
             const { data, count } =
-                await this.comparisonItemService.findAllWithRanking(
-                    job.data._id,
-                    {
+                await this.comparisonItemService.findAllWithRanking({
+                    categoryId: job.data._id,
+                    pagination: {
                         page: page,
                         limit: 10,
                         currentPage: page - 1
                     }
-                );
+                });
 
             data.forEach((item) => {
                 this.scoreSnapshotService.addSnapshot(

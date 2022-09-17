@@ -223,25 +223,43 @@ export class ComparisonItemV1Service {
         return res;
     }
 
-    async findAllWithRanking(
-        categoryId: string = null,
-        pagination: PaginationDto,
-        active?: boolean | string
-    ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
+    async findAllWithRanking({
+        categoryId = null,
+        pagination,
+        search,
+        active
+    }: {
+        categoryId: string;
+        pagination: PaginationDto;
+        search?: string;
+        active?: boolean | string;
+    }): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
         // eslint-disable-next-line prefer-const
         let aggregateOperation = [];
-        let options: any = {};
+        const options: any = {};
+
+        if (search && search.length) {
+            aggregateOperation.push({
+                $match: {
+                    name: {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                }
+            });
+
+            options.name = new RegExp(search, 'i');
+        }
 
         if (categoryId) {
             aggregateOperation.push({
                 $match: { category: new Types.ObjectId(categoryId) }
             });
 
-            options = { category: categoryId };
+            options.category = categoryId;
         }
 
         if (active !== undefined) {
-            console.log(typeof active);
             aggregateOperation.push({
                 $match: { active: active === 'true' }
             });
@@ -268,6 +286,8 @@ export class ComparisonItemV1Service {
         );
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
+
+        console.log(options);
 
         res.data = await this.itemModel.aggregate(aggregateOperation).exec();
         res.count = await this.itemModel.find(options).count();
