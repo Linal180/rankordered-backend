@@ -443,9 +443,25 @@ export class ComparisonItemV1Service {
                         }
                     },
                     {
+                        $group: {
+                            _id: {
+                                $dateToString: {
+                                    format: '%Y-%m-%d',
+                                    date: '$createdAt'
+                                }
+                            },
+                            score: { $last: '$$ROOT' }
+                        }
+                    },
+                    {
                         $sort: {
-                            createdAt: -1
+                            'score.createdAt': -1
                         } as const
+                    },
+                    {
+                        $replaceRoot: {
+                            newRoot: '$score'
+                        }
                     },
                     {
                         $limit: 10
