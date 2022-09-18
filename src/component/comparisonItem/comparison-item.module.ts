@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { CacheModule, Module } from '@nestjs/common';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import {
     ComparisonItem,
     ComparisonItemSchema
@@ -14,6 +14,8 @@ import { ItemScoreModule } from '../item-score/item-score.module';
 import { CollegeQueueConsumer } from './consumer/CollegeQueue.consumer';
 import { BullModule } from '@nestjs/bull';
 import { GalleryModule } from '../gallery/gallery.module';
+import * as mongooseStore from 'cache-manager-mongoose';
+import * as mongoose from 'mongoose';
 
 @Module({
     imports: [
@@ -22,6 +24,15 @@ import { GalleryModule } from '../gallery/gallery.module';
             { name: ItemScore.name, schema: ItemScoreSchema }
         ]),
         BullModule.registerQueue({ name: 'college_migration' }),
+        CacheModule.registerAsync({
+            useFactory: (connection: mongoose.Connection) => ({
+                ttl: 3600,
+                store: mongooseStore,
+                mongoose: mongoose,
+                connection: connection
+            }),
+            inject: [getConnectionToken()]
+        }),
         GalleryModule,
         ItemScoreModule
     ],

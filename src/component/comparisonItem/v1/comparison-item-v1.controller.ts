@@ -23,6 +23,7 @@ import { ComparisonItemWithScore } from '../schemas/ComparisonItemWithScore';
 import { ComparisonItemV1Service } from './comparison-item-v1.service';
 import { ActivateComparisonItemDto } from '../dto/ActivateComparisonItem.dto';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
+import { HttpCacheInterceptor } from 'src/shared/request/HttpCache.Interceptor';
 
 @ApiTags('Comparison Items')
 @Controller({ path: 'comparison-item', version: '1' })
@@ -31,6 +32,7 @@ export class ComparisonItemV1Controller {
     constructor(private itemService: ComparisonItemV1Service) {}
 
     @Get()
+    @UseInterceptors(HttpCacheInterceptor)
     @ApiQuery({
         name: 'categoryId',
         required: false,
