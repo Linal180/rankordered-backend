@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { CreateComparisonItemDto } from '../dto/CreateComparisonItem.dto';
@@ -101,7 +102,8 @@ describe('ComparisonItemV1Controller', () => {
                         updateItem: jest.fn(),
                         deleteItem: jest.fn()
                     }
-                }
+                },
+                { provide: CACHE_MANAGER, useFactory: jest.fn() }
             ]
         }).compile();
 
