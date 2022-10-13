@@ -238,19 +238,6 @@ export class ComparisonItemV1Service {
         let aggregateOperation = [];
         const options: any = {};
 
-        if (search && search.length) {
-            aggregateOperation.push({
-                $match: {
-                    name: {
-                        $regex: search,
-                        $options: 'i'
-                    }
-                }
-            });
-
-            options.name = new RegExp(search, 'i');
-        }
-
         if (categoryId) {
             aggregateOperation.push({
                 $match: { category: new Types.ObjectId(categoryId) }
@@ -268,12 +255,27 @@ export class ComparisonItemV1Service {
         }
 
         aggregateOperation.push(
-            // this.filterActive,
             this.itemScoreLookup(categoryId),
             this.itemScoreRefine,
             this.scoreCategoryLookup,
             this.scoreCategoryRefine,
-            this.scoreSort,
+            this.scoreSort
+        );
+
+        if (search && search.length) {
+            aggregateOperation.push({
+                $match: {
+                    name: {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                }
+            });
+
+            options.name = new RegExp(search, 'i');
+        }
+
+        aggregateOperation.push(
             this.skip(pagination.currentPage * pagination.limit),
             this.limit(pagination.limit),
             this.categoryLookup,
