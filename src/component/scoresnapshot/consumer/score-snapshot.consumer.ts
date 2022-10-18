@@ -37,12 +37,12 @@ export class ScoreSnapshotConsumer {
                     pagination: {
                         page: page,
                         limit: 10,
-                        currentPage: page
+                        currentPage: page - 1
                     }
                 });
 
-            data.forEach((item) => {
-                this.scoreSnapshotService.addSnapshot(
+            data.forEach(async (item) => {
+                await this.scoreSnapshotService.addSnapshot(
                     CreateSnapshotDto.create({
                         itemId: item._id,
                         categoryId: job.data._id,
@@ -56,10 +56,8 @@ export class ScoreSnapshotConsumer {
             total += data.length;
             console.log(`total data: ${total}, count is ${count}`);
 
-            haveNextPage = page * 10 < count;
-            if (haveNextPage) {
-                page += 1;
-            }
+            page += 1;
+            haveNextPage = total < count;
         } while (haveNextPage);
 
         this.logger.log('saving snapshots complete');

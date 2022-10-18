@@ -248,7 +248,10 @@ export class ComparisonItemV1Service {
 
         if (active !== undefined) {
             aggregateOperation.push({
-                $match: { active: active === 'true' }
+                $match: {
+                    active:
+                        typeof active === 'string' ? active == 'true' : active
+                }
             });
 
             options.active = active;
