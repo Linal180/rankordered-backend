@@ -30,7 +30,9 @@ export class ScoreSnapshotCronService {
 
     async saveItemScoreAndRanking() {
         try {
-            const { data } = await this.categoryService.findByQuery();
+            const { data } = await this.categoryService.findByQuery({
+                active: true
+            });
 
             data.forEach((category) => {
                 this.scoreSnapshotQueue.add('saveScoreByCategory', category, {
