@@ -56,8 +56,10 @@ export class ScoreSnapshotConsumer {
             total += data.length;
             console.log(`total data: ${total}, count is ${count}`);
 
-            page += 1;
             haveNextPage = page * 10 < count;
+            if (haveNextPage) {
+                page += 1;
+            }
         } while (haveNextPage);
 
         this.logger.log('saving snapshots complete');
