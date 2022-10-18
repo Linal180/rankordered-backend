@@ -289,8 +289,6 @@ export class ComparisonItemV1Service {
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
-        console.log(options);
-
         res.data = await this.itemModel.aggregate(aggregateOperation).exec();
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;

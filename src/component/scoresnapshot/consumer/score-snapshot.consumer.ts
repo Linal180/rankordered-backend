@@ -27,15 +27,17 @@ export class ScoreSnapshotConsumer {
         );
 
         let haveNextPage: boolean;
+        let total = 0;
 
         do {
             const { data, count } =
                 await this.comparisonItemService.findAllWithRanking({
                     categoryId: job.data._id,
+                    active: true,
                     pagination: {
                         page: page,
                         limit: 10,
-                        currentPage: page - 1
+                        currentPage: page
                     }
                 });
 
@@ -50,6 +52,9 @@ export class ScoreSnapshotConsumer {
                     })
                 );
             });
+
+            total += data.length;
+            console.log(`total data: ${total}`);
 
             page += 1;
             haveNextPage = page * 10 < count;
