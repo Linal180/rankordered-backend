@@ -1,0 +1,105 @@
+# This is a basic workflow to help you get started with Actions
+
+name: production
+
+# Controls when the workflow will run
+on:
+    # Triggers the workflow on push or pull request events but only for the master branch
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+
+# to ensure only the latest workflow is running through the action
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+# env:
+#     URL: http://localhost
+#     PORT: 4002
+#     DATABASE_URL: ${{secrets.DATABASE_URL}}
+#     DATABASE_NAME: ${{secrets.PROD_DATABASE_NAME}}
+#     MONGO_USERNAME: ${{secrets.MONGO_USERNAME}}
+#     MONGO_PASSWORD: ${{secrets.MONGO_PASSWORD}}
+#     MONGO_AUTHSOURCE: ${{secrets.MONGO_AUTHSOURCE}}
+#     JWT_SECRET: ${{secrets.JWT_SECRET}}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    create-envfile:
+        runs-on: self-hosted
+        steps:
+            - uses: actions/checkout@v2
+            - name: Create env file
+              run: |
+                  sudo touch .env
+                  sudo echo URL="http://localhost" >> .env
+                  sudo echo PORT="4001" >> .env
+                  sudo echo DATABASE_URL=${{secrets.DATABASE_URL}} >> .env
+                  sudo echo DATABASE_NAME=${{secrets.PROD_DATABASE_NAME}} >> .env
+                  sudo echo MONGO_USERNAME=${{secrets.MONGO_USERNAME}} >> .env
+                  sudo echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
+                  sudo echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
+                  sudo echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
+                  cat .env
+
+    copy:
+        runs-on: self-hosted
+        needs: create-envfile
+        steps:
+            - name: copy application
+              run: sudo rsync -avuq --delete "./" "/home/rankordered/prod-rankordered-backend-nest" --exclude "public" --exclude ".git" --exclude "node_modules"
+
+    install:
+        runs-on: self-hosted
+        needs: copy
+        steps:
+            - name: install
+              working-directory: '/home/rankordered/prod-rankordered-backend-nest'
+              run: yarn install --silent
+
+    lint:
+        runs-on: self-hosted
+        needs: install
+        if: success()
+        steps:
+            - name: lint
+              working-directory: '/home/rankordered/prod-rankordered-backend-nest'
+              run: yarn lint
+
+    test:
+        runs-on: self-hosted
+        needs: lint
+        if: success()
+        steps:
+            - name: test
+              working-directory: '/home/rankordered/prod-rankordered-backend-nest'
+              run: yarn test --silent
+
+    build:
+        runs-on: self-hosted
+        needs: test
+        if: success()
+        steps:
+            - name: build
+              working-directory: '/home/rankordered/prod-rankordered-backend-nest'
+              run: yarn build
+
+    deploy:
+        runs-on: self-hosted
+        needs: build
+        if: success()
+        steps:
+            # - name: list pm2
+            #   run: sudo pm2 list
+            # - name: start pm2
+            #   working-directory: '/home/rankordered/prod-rankordered-backend-nest'
+            #   run: sudo pm2 start pm2.dev.config.js
+            - name: reload application
+              run: sudo pm2 reload rankordered-backend-production
+            - name: save pm2 config
+              run: sudo pm2 save
