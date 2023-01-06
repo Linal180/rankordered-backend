@@ -46,7 +46,7 @@ export class ScoreSnapshotConsumer {
                     CreateSnapshotDto.create({
                         itemId: item._id,
                         categoryId: job.data._id,
-                        score: item.score.score,
+                        score: item.score.score ?? 0,
                         ranking: item.ranking,
                         date: today.toJSDate()
                     })
