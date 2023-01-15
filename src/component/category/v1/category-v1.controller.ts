@@ -19,6 +19,9 @@ import { CreateCategoryDto } from '../dto/CreateCategory.dto';
 import { UpdateCategoryDto } from '../dto/UpdateCategory.dto';
 import { CategoryV1Service } from './category-v1.service';
 import { activateCategoryDto } from '../dto/ActivateCategory.dto';
+import { Roles } from 'src/component/auth/roles.decorator';
+import { RolesGuard } from 'src/component/auth/roles.guard';
+import { UserType } from 'src/component/user/dto/UserType';
 
 @ApiTags('Categories')
 @Controller({
@@ -63,8 +66,9 @@ export class CategoryV1Controller {
     }
 
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     createCategory(
         @Body() createCategoryData: CreateCategoryDto
     ): Promise<MongoResultQuery<CategoryDto>> {
@@ -72,8 +76,9 @@ export class CategoryV1Controller {
     }
 
     @Put(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     updateCategory(
         @Param('id') id: string,
         @Body() updateCategoryData: UpdateCategoryDto
@@ -82,8 +87,9 @@ export class CategoryV1Controller {
     }
 
     @Put('activate/:id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     activateCategory(
         @Param('id') id: string,
         @Body() activeCategoryData: activateCategoryDto
@@ -95,8 +101,9 @@ export class CategoryV1Controller {
     }
 
     @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     deleteCategory(
         @Param('id') id: string
     ): Promise<MongoResultQuery<CategoryDto>> {

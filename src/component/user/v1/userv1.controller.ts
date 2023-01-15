@@ -17,29 +17,35 @@ import { CreateUserDto } from '../dto/CreateUser.dto';
 import { UpdateUserDto } from '../dto/UpdateUser.dto';
 import { UserDto } from '../dto/User.dto';
 import { Userv1Service } from './userv1.service';
+import { RolesGuard } from 'src/component/auth/roles.guard';
+import { Roles } from 'src/component/auth/roles.decorator';
+import { UserType } from '../dto/UserType';
 
 @ApiTags('Users')
 @Controller({
     version: '1',
     path: 'user'
 })
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 @UseInterceptors(TransformInterceptor)
 export class Userv1Controller {
     constructor(private userService: Userv1Service) {}
 
     @Get()
+    @Roles(UserType.ADMIN)
     getUsers(): Promise<MongoResultQuery<UserDto[]>> {
         return this.userService.findByQuery();
     }
 
     @Get(':id')
+    @Roles(UserType.ADMIN)
     getUserById(@Param('id') id: string): Promise<MongoResultQuery<UserDto>> {
         return this.userService.findById(id);
     }
 
     @Post()
+    @Roles(UserType.ADMIN)
     createUser(
         @Body() createUserDto: CreateUserDto
     ): Promise<MongoResultQuery<UserDto>> {
@@ -47,6 +53,7 @@ export class Userv1Controller {
     }
 
     @Put(':id')
+    @Roles(UserType.ADMIN)
     updateUser(
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto
@@ -55,6 +62,7 @@ export class Userv1Controller {
     }
 
     @Delete(':id')
+    @Roles(UserType.ADMIN)
     deleteUser(@Param('id') id: string): Promise<MongoResultQuery<UserDto>> {
         return this.userService.deleteUser(id);
     }

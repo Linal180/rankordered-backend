@@ -24,6 +24,9 @@ import { ComparisonItemV1Service } from './comparison-item-v1.service';
 import { ActivateComparisonItemDto } from '../dto/ActivateComparisonItem.dto';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { HttpCacheInterceptor } from 'src/shared/request/HttpCache.Interceptor';
+import { Roles } from 'src/component/auth/roles.decorator';
+import { RolesGuard } from 'src/component/auth/roles.guard';
+import { UserType } from 'src/component/user/dto/UserType';
 
 @ApiTags('Comparison Items')
 @Controller({ path: 'comparison-item', version: '1' })
@@ -155,8 +158,9 @@ export class ComparisonItemV1Controller {
     }
 
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     createComparisonItem(
         @Body() createItemData: CreateComparisonItemDto
     ): Promise<MongoResultQuery<ComparisonItemDto>> {
@@ -164,8 +168,9 @@ export class ComparisonItemV1Controller {
     }
 
     @Put('activate-all')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     updateActivateAllItem(
         @Body() data: ActivateComparisonItemDto
     ): Promise<{ status: OperationResult }> {
@@ -173,8 +178,9 @@ export class ComparisonItemV1Controller {
     }
 
     @Put('activate/:id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     updateComparisonItemStatus(
         @Param('id') id: string,
         @Body() data: ActivateComparisonItemDto
@@ -183,8 +189,9 @@ export class ComparisonItemV1Controller {
     }
 
     @Put(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     updateComparisonItem(
         @Param('id') id: string,
         @Body() updateItemData: UpdateComparisonItemDto
@@ -193,8 +200,9 @@ export class ComparisonItemV1Controller {
     }
 
     @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     deleteComparisonItem(
         @Param('id') id: string
     ): Promise<MongoResultQuery<ComparisonItemDto>> {

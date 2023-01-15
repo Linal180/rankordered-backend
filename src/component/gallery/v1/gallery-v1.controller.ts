@@ -28,6 +28,9 @@ import { GalleryV1Service } from './gallery-v1.service';
 import { UploadedFileWithSource } from '../schemas/UploadedFile.data';
 import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
 import { UpdateGalleryDto } from '../dto/updateGallery.dto';
+import { Roles } from 'src/component/auth/roles.decorator';
+import { RolesGuard } from 'src/component/auth/roles.guard';
+import { UserType } from 'src/component/user/dto/UserType';
 
 @ApiTags('Gallery')
 @Controller({ version: '1', path: 'gallery' })
@@ -58,8 +61,9 @@ export class GalleryV1Controller {
     }
 
     @Post()
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     @ApiConsumes('multipart/form-data')
     // @ApiBody({
     //     description: 'List of image. File limit will be 20MB',
@@ -99,8 +103,9 @@ export class GalleryV1Controller {
     }
 
     @Put(':id/source')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     async editGalleryItemByid(
         @Param('id') id: string,
         @Body() updateGalleryData: UpdateGalleryDto
@@ -109,8 +114,9 @@ export class GalleryV1Controller {
     }
 
     @Delete(':id')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
     async deleteGalleryItemById(
         @Param('id') id: string
     ): Promise<MongoResultQuery<GalleryDto>> {

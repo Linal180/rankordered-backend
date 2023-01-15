@@ -27,7 +27,7 @@ describe('JwtStrategy', () => {
 
     describe('validate', () => {
         it('should validate user', async (done) => {
-            const response = await strategy.validate({
+            const response = strategy.validate({
                 sub: 'asd',
                 username: 'uio'
             });
