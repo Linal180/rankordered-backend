@@ -16,6 +16,7 @@ import {
 } from '../dto/login.dto';
 import { JwtAuthGuard } from '../jwt-auth.guard';
 import { LocalAuthGuard } from '../local-auth.guard';
+import { AdminAuthGuard } from '../admin-auth.guard';
 
 @ApiTags('Auth')
 @Controller({
@@ -40,20 +41,20 @@ export class AuthController {
         };
     }
 
-    // @Post('admin/login')
-    // @ApiOperation({ summary: 'Login Admin' })
-    // @UseGuards(LocalAuthGuard)
-    // async loginAdmin(
-    //     @Body() _loginData: LoginRequestDto,
-    //     @Request() req
-    // ): Promise<LoginResponseDto> {
-    //     const tokens = await this.authService.adminlogin(req.user);
-    //     return {
-    //         access_token: tokens.access_token,
-    //         refresh_token: tokens.refresh_token,
-    //         login_user: req.user
-    //     };
-    // }
+    @Post('admin/login')
+    @ApiOperation({ summary: 'Login Admin' })
+    @UseGuards(AdminAuthGuard)
+    async loginAdmin(
+        @Body() _loginData: LoginRequestDto,
+        @Request() req
+    ): Promise<LoginResponseDto> {
+        const tokens = await this.authService.login(req.user);
+        return {
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            login_user: req.user
+        };
+    }
 
     @Post('token/refresh')
     @ApiOperation({ summary: 'Get new token by refresh token' })
