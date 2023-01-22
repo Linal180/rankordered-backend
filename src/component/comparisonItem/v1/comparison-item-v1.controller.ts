@@ -78,6 +78,47 @@ export class ComparisonItemV1Controller {
         return this.itemService.checkItemsActivationStatus();
     }
 
+    @Get('list')
+    @ApiQuery({
+        name: 'categoryId',
+        required: false,
+        type: String
+    })
+    @ApiQuery({
+        name: 'active',
+        required: false,
+        type: Boolean
+    })
+    getComparisonItemList(
+        @Query(
+            new ValidationPipe({
+                transform: true,
+                transformOptions: {
+                    enableImplicitConversion: true
+                }
+            })
+        )
+        pagination: PaginationDto,
+        @Query('categoryId') categoryid?: string,
+        @Query('active') active?: boolean
+    ) {
+        const filter: any = {};
+
+        if (categoryid) {
+            filter.category = categoryid;
+        }
+
+        if (active !== undefined) {
+            filter.active = active;
+        }
+
+        return this.itemService.findByQuery({
+            filter: filter,
+            page: pagination.currentPage,
+            limit: pagination.limit
+        });
+    }
+
     @Get('admin')
     @ApiQuery({
         name: 'categoryId',
@@ -88,6 +129,11 @@ export class ComparisonItemV1Controller {
         name: 'search',
         required: false,
         type: String
+    })
+    @ApiQuery({
+        name: 'active',
+        required: false,
+        type: Boolean
     })
     getComparisonItemsForAdmin(
         @Query(
@@ -100,7 +146,8 @@ export class ComparisonItemV1Controller {
         )
         pagination: PaginationDto,
         @Query('categoryId') categoryid?: string,
-        @Query('search') search?: string
+        @Query('search') search?: string,
+        @Query('active') active?: boolean
     ) {
         const filter: any = {};
 
@@ -110,6 +157,10 @@ export class ComparisonItemV1Controller {
 
         if (search && search.length) {
             filter.name = new RegExp(search, 'i');
+        }
+
+        if (active !== undefined) {
+            filter.active = active;
         }
 
         return this.itemService.findByQuery({
