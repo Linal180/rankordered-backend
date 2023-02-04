@@ -65,7 +65,7 @@ export class ComparisonItemV1Controller {
         @Query('active') active?: boolean,
         @Query('search') search?: string
     ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
-        return this.itemService.findAllWithRanking({
+        return this.itemService.findAllWithRankingfromSnapshot({
             categoryId,
             pagination,
             search,

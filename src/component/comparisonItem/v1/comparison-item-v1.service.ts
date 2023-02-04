@@ -190,21 +190,14 @@ export class ComparisonItemV1Service {
             await this.itemModel
                 .aggregate([
                     this.filterActive,
-                    this.itemScoreLookup(categoryId),
-                    this.itemScoreRefine,
-                    this.scoreCategoryLookup,
-                    this.scoreCategoryRefine,
-                    {
-                        $setWindowFields: {
-                            sortBy: { 'score.score': -1 },
-                            output: { ranking: { $documentNumber: {} } }
-                        }
-                    },
                     {
                         $match: {
                             slug: slug
                         }
                     },
+                    this.itemScoreBySnapshotLookup(categoryId),
+                    this.itemScoreRefine,
+                    this.addRanking,
                     this.imagesLookup,
                     this.defaultImageLookup,
                     this.defaultImageRefine,
@@ -279,6 +272,78 @@ export class ComparisonItemV1Service {
         }
 
         aggregateOperation.push(
+            this.skip(pagination.currentPage * pagination.limit),
+            this.limit(pagination.limit),
+            this.categoryLookup,
+            this.defaultCategotyLookup,
+            this.defaultCategoryRefine,
+            this.imagesLookup,
+            this.defaultImageLookup,
+            this.defaultImageRefine,
+            this.scoreSnapshotLookup(categoryId)
+        );
+
+        const res = new MongoResultQuery<ComparisonItemWithScore[]>();
+
+        res.data = await this.itemModel.aggregate(aggregateOperation).exec();
+        res.count = await this.itemModel.find(options).count();
+        res.status = OperationResult.fetch;
+
+        return res;
+    }
+
+    async findAllWithRankingfromSnapshot({
+        categoryId = null,
+        pagination,
+        search,
+        active
+    }: {
+        categoryId: string;
+        pagination: PaginationDto;
+        search?: string;
+        active?: boolean | string;
+    }): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
+        // eslint-disable-next-line prefer-const
+        let aggregateOperation = [];
+        const options: any = {};
+
+        if (categoryId) {
+            aggregateOperation.push({
+                $match: { category: new Types.ObjectId(categoryId) }
+            });
+
+            options.category = categoryId;
+        }
+
+        if (active !== undefined) {
+            aggregateOperation.push({
+                $match: {
+                    active:
+                        typeof active === 'string' ? active == 'true' : active
+                }
+            });
+
+            options.active = active;
+        }
+
+        if (search && search.length) {
+            aggregateOperation.push({
+                $match: {
+                    name: {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                }
+            });
+
+            options.name = new RegExp(search, 'i');
+        }
+
+        aggregateOperation.push(
+            this.itemScoreBySnapshotLookup(categoryId),
+            this.itemScoreRefine,
+            this.addRanking,
+            this.rankingSort,
             this.skip(pagination.currentPage * pagination.limit),
             this.limit(pagination.limit),
             this.categoryLookup,
@@ -405,6 +470,55 @@ export class ComparisonItemV1Service {
                 as: 'score'
             }
         };
+    };
+
+    itemScoreBySnapshotLookup = (categoryId = null) => ({
+        $lookup: {
+            from: 'scoresnapshots',
+            let: {
+                itemId: '$_id',
+                categoryId: categoryId
+                    ? new Types.ObjectId(categoryId)
+                    : '$defaultCategory'
+            },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                {
+                                    $eq: ['$itemId', '$$itemId']
+                                },
+                                {
+                                    $eq: ['$categoryId', '$$categoryId']
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    $sort: {
+                        createdAt: -1
+                    } as const
+                },
+                {
+                    $limit: 1
+                }
+            ],
+            as: 'score'
+        }
+    });
+
+    addRanking = {
+        $addFields: {
+            ranking: '$score.ranking'
+        }
+    };
+
+    rankingSort = {
+        $sort: {
+            ranking: 1
+        }
     };
 
     filterActive = {
