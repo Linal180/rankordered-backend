@@ -13,7 +13,7 @@ import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectN
 export class Userv1Service {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>
-    ) {}
+    ) { }
 
     async findById(id: string): Promise<MongoResultQuery<User>> {
         const res = new MongoResultQuery<User>();
@@ -41,6 +41,15 @@ export class Userv1Service {
 
     async createUser(user: CreateUserDto): Promise<MongoResultQuery<User>> {
         const res = new MongoResultQuery<User>();
+
+        // Check if user with the same email already exists
+        const existingUser = await this.userModel.findOne({ email: user.email });
+
+        if (existingUser) {
+            res.data = existingUser;
+            res.status = OperationResult.create;
+            return res;
+        }
 
         user.password = await hash(user.password, 10);
         const newUser = await this.userModel.create(user);

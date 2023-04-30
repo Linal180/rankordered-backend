@@ -12,7 +12,8 @@ import { AuthService } from '../auth.service';
 import {
     LoginRequestDto,
     LoginResponseDto,
-    RefreshRequestDto
+    RefreshRequestDto,
+    SsoLoginRequestDto
 } from '../dto/login.dto';
 import { JwtAuthGuard } from '../jwt-auth.guard';
 import { LocalAuthGuard } from '../local-auth.guard';
@@ -24,7 +25,19 @@ import { AdminAuthGuard } from '../admin-auth.guard';
     path: 'auth'
 })
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService) { }
+
+    @Post('sso/login')
+    @ApiOperation({ summary: 'Login User with SSO' })
+    // @UseGuards(LocalAuthGuard)
+    async ssoLogin(
+        @Body() _loginData: SsoLoginRequestDto,
+        @Request() req
+    ): Promise<any> {
+        const { accessToken, sso } = _loginData;
+        const response = await this.authService.feedSsoUser(sso, accessToken)
+        return response;
+    }
 
     @Post('login')
     @ApiOperation({ summary: 'Login User' })

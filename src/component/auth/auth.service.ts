@@ -3,13 +3,15 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
-
+import { getGoogleUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
+import { CreateSsoUserDto } from './dto/login.dto';
+import { UserType } from '../user/dto/UserType';
 @Injectable()
 export class AuthService {
     constructor(
         private userService: Userv1Service,
         private jwtService: JwtService
-    ) {}
+    ) { }
 
     async validateUser(
         username: string,
@@ -56,5 +58,25 @@ export class AuthService {
 
     async getPayload(token: string): Promise<any> {
         return this.jwtService.decode(token);
+    }
+
+    async feedSsoUser(sso: string, accessToken: string) {
+        try {
+            let ssoUser: CreateSsoUserDto;
+
+            switch (sso) {
+                case 'youtube':
+                case 'google':
+                    ssoUser = await getGoogleUserInfo(accessToken) as CreateSsoUserDto;
+
+            }
+
+            const { email, name } = ssoUser
+            this.userService.createUser({
+                email, name, password: 'user@123', username: name, type: 'user' as UserType
+            });
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
