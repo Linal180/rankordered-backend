@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserType } from './UserType';
+import { PrimaryProfileDto } from 'src/component/social-provider/dto/PrimaryProfile.dto';
 
 export class UserDto {
     @ApiProperty()
@@ -42,4 +43,21 @@ export class GoogleUserDto {
 
     @ApiProperty()
     locale: string;
+}
+
+export class CurrentUserDto {
+    // @ApiProperty()
+    // id: string;
+
+    @ApiProperty()
+    email: string;
+
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    username: string;
+
+    @ApiProperty()
+    primaryProfile: PrimaryProfileDto;
 }

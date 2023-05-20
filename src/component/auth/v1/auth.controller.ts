@@ -5,9 +5,10 @@ import {
     Post,
     UseGuards,
     Request,
-    UnauthorizedException
+    UnauthorizedException,
+    Req
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth.service';
 import {
     LoginRequestDto,
@@ -18,6 +19,9 @@ import {
 import { JwtAuthGuard } from '../jwt-auth.guard';
 import { LocalAuthGuard } from '../local-auth.guard';
 import { AdminAuthGuard } from '../admin-auth.guard';
+import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
+import { CurrentUserDto, UserDto } from 'src/component/user/dto/User.dto';
+import { Userv1Service } from 'src/component/user/v1/userv1.service';
 
 @ApiTags('Auth')
 @Controller({
@@ -26,6 +30,15 @@ import { AdminAuthGuard } from '../admin-auth.guard';
 })
 export class AuthController {
     constructor(private authService: AuthService) { }
+
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    async me(@Req() request: any): Promise<CurrentUserDto> {
+        const { user } = request;
+        const currentUser = await this.authService.getCurrentUser(user.userId);
+
+        return currentUser;
+    }
 
     @Post('sso/login')
     @ApiOperation({ summary: 'Login User with SSO' })

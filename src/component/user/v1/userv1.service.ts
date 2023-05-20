@@ -8,11 +8,13 @@ import { UpdateUserDto } from '../dto/UpdateUser.dto';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
+import { SocialProfileV1Service } from 'src/component/social-provider/v1/social-profile-v1.service';
 
 @Injectable()
 export class Userv1Service {
     constructor(
-        @InjectModel(User.name) private userModel: Model<UserDocument>
+        @InjectModel(User.name) private userModel: Model<UserDocument>,
+        private socialService: SocialProfileV1Service
     ) { }
 
     async findById(id: string): Promise<MongoResultQuery<User>> {
@@ -56,6 +58,22 @@ export class Userv1Service {
 
         if (!newUser) {
             this.throwObjectNotFoundError();
+        }
+
+        const { email, profilePicture, provider } = user;
+
+        if (provider) {
+            const profiles = await this.socialService.getUserSocialProfiles(
+                newUser._id.toString()
+            )
+
+            await this.socialService.create({
+                email,
+                profilePicture,
+                provider: provider === 'google' ? 'youtube' : provider,
+                userId: newUser.id,
+                primary: profiles.length === 0
+            })
         }
 
         newUser.password = undefined;
@@ -109,6 +127,17 @@ export class Userv1Service {
                 'email',
                 'password',
                 'type'
+            ])
+            .exec();
+    }
+
+    async getByEmail(email: string): Promise<User> {
+        return this.userModel
+            .findOne({ email }, { _id: 1 }, [
+                'username',
+                'email',
+                'password',
+                'type',
             ])
             .exec();
     }

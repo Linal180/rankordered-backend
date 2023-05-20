@@ -53,25 +53,3 @@ export class RefreshRequestDto {
     @IsNotEmpty()
     refresh_token: string;
 }
-
-@Exclude()
-export class CreateSsoUserDto {
-    @Expose()
-    @ApiProperty()
-    @IsNotEmpty()
-    name: string;
-
-    @Expose()
-    @ApiProperty()
-    @IsNotEmpty()
-    email: string;
-
-    @Expose()
-    @ApiProperty({ default: 'user@123' })
-    @IsNotEmpty()
-    password: string;
-
-    @Expose()
-    @ApiProperty({ default: 'user' })
-    type: UserType;
-}

@@ -1,16 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
 import { getGoogleUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
-import { CreateSsoUserDto } from './dto/login.dto';
+import { CreateSsoUserDto } from './dto/CreateSsoUser.dto';
 import { UserType } from '../user/dto/UserType';
+import { oauth2_v2 } from 'googleapis';
+import { OperationResult } from 'src/shared/mongoResult/OperationResult';
+import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
+import { CurrentUserDto } from '../user/dto/User.dto';
+import { SocialProfile } from '../social-provider/schemas/SocialProfile.schema';
+
 @Injectable()
 export class AuthService {
     constructor(
         private userService: Userv1Service,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private profileService: SocialProfileV1Service
     ) { }
 
     async validateUser(
@@ -23,6 +30,19 @@ export class AuthService {
             return user;
         }
         return null;
+    }
+
+    async getCurrentUser(userId: string): Promise<CurrentUserDto | null> {
+        try {
+            const user = (await this.userService.findById(userId)).data;
+            const profile = await this.profileService.getUserPrimaryProfile(userId)
+
+            if (user) {
+                return this.setCurrentUserPayload(user, profile ?? null);
+            } else return null
+        } catch (error) {
+            throw error;
+        }
     }
 
     async login(user: any) {
@@ -62,21 +82,52 @@ export class AuthService {
 
     async feedSsoUser(sso: string, accessToken: string) {
         try {
-            let ssoUser: CreateSsoUserDto;
+            let ssoUser;
 
             switch (sso) {
                 case 'youtube':
                 case 'google':
-                    ssoUser = await getGoogleUserInfo(accessToken) as CreateSsoUserDto;
+                    ssoUser = await getGoogleUserInfo(accessToken);
 
             }
 
-            const { email, name } = ssoUser
-            this.userService.createUser({
-                email, name, password: 'user@123', username: name, type: 'user' as UserType
-            });
+            const { email, name, picture } = ssoUser
+            const user: any = await this.userService.getByEmail(email);
+            let userPayload;
+
+            if (!user) {
+                const { data, status } = await this.userService.createUser({
+                    email, name, password: 'user@123', username: name, type: 'user' as UserType, provider: sso, profilePicture: picture
+                });
+
+                if (status === OperationResult.create) {
+                    userPayload = data;
+                }
+            } else {
+                userPayload = user
+            }
+
+            const { access_token, refresh_token } = await this.login(userPayload);
+
+            return {
+                access_token, refresh_token
+            }
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    setCurrentUserPayload(user: User, profile: SocialProfile | null): CurrentUserDto {
+        const { email, name, username } = user;
+        const { email: primaryEmail, profilePicture, provider } = profile || {};
+
+        return {
+            email, name, username,
+            ...(profile && {
+                primaryProfile: {
+                    email: primaryEmail, profilePicture, provider
+                }
+            })
         }
     }
 }
