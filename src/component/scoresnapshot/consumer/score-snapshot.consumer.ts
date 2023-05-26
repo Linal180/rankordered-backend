@@ -74,7 +74,7 @@ export class ScoreSnapshotConsumer {
             data.map(async (item) => {
                 try {
                     await this.comparisonItemService.updateItem(item._id, {
-                        calculatedRanking: item.ranking
+                        ranking: item.ranking
                     });
                 } catch (err) {}
             })

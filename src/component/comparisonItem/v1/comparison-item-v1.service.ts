@@ -400,7 +400,7 @@ export class ComparisonItemV1Service {
                     skip: pagination.currentPage * pagination.limit,
                     limit: pagination.limit,
                     sort: {
-                        calculatedRanking: 1
+                        ranking: 1
                     }
                 }
             )

@@ -71,7 +71,7 @@ class ComparisonItem {
     active: boolean;
 
     @Prop({ default: 0 })
-    calculatedRanking?: number;
+    ranking?: number;
 }
 
 const ComparisonItemSchema = SchemaFactory.createForClass(ComparisonItem);
