@@ -60,6 +60,26 @@ export class ScoreSnapshotConsumer {
             haveNextPage = total < count;
         } while (haveNextPage);
 
+        const { data } =
+            await this.comparisonItemService.findAllWithRankingfromSnapshot({
+                categoryId: undefined,
+                pagination: {
+                    limit: await this.comparisonItemService.getComparisonItemTotalCount(),
+                    currentPage: 0,
+                    page: 1
+                }
+            });
+
+        await Promise.all(
+            data.map(async (item) => {
+                try {
+                    await this.comparisonItemService.updateItem(item._id, {
+                        calculatedRanking: item.ranking
+                    });
+                } catch (err) {}
+            })
+        );
+
         this.logger.log('saving snapshots complete');
     }
 }

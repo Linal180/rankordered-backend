@@ -364,6 +364,57 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async findAllWithRankingfromSnapshotOptimized({
+        categoryId = null,
+        pagination,
+        search,
+        active
+    }: {
+        categoryId: string;
+        pagination: PaginationDto;
+        search?: string;
+        active?: boolean | string;
+    }): Promise<MongoResultQuery<ComparisonItem[]>> {
+        // eslint-disable-next-line prefer-const
+        const options: any = {};
+
+        if (categoryId) {
+            options.category = categoryId;
+        }
+
+        if (active !== undefined) {
+            options.active = active;
+        }
+
+        if (search && search.length) {
+            options.name = new RegExp(search, 'i');
+        }
+
+        const res = new MongoResultQuery<ComparisonItem[]>();
+
+        res.data = await this.itemModel
+            .find(
+                options,
+                {},
+                {
+                    skip: pagination.currentPage * pagination.limit,
+                    limit: pagination.limit,
+                    sort: {
+                        calculatedRanking: 1
+                    }
+                }
+            )
+            .exec();
+        res.count = await this.itemModel.find(options).count();
+        res.status = OperationResult.fetch;
+
+        return res;
+    }
+
+    async getComparisonItemTotalCount() {
+        return this.itemModel.find().count();
+    }
+
     async getComparisonItem(
         categoryId: string
     ): Promise<MongoResultQuery<ComparisonItem[]>> {
