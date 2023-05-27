@@ -1,27 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { User } from 'src/component/user/schemas/user.schema';
 
 export type SocialProfileDocument = SocialProfile & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class SocialProfile {
-	@Prop({ required: true, enum: ['instagram', 'tiktok', 'youtube'] })
+	@Prop({ required: true, enum: ['instagram', 'tiktok', 'youtube', 'twitter'] })
 	provider: string;
 
 	@Prop({ required: true })
 	email: string;
 
-	@Prop({ required: true })
+	@Prop()
 	primary: boolean;
 
-	@Prop({
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User',
-		autopopulate: true,
-		required: true
-	})
-	userId: User;
+	@Prop()
+	isFavorite: boolean;
+
+	@Prop({ required: true })
+	userId: string;
 
 	@Prop({ type: String, required: true })
 	profilePicture: string;

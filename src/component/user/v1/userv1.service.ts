@@ -43,42 +43,44 @@ export class Userv1Service {
 
     async createUser(user: CreateUserDto): Promise<MongoResultQuery<User>> {
         const res = new MongoResultQuery<User>();
-
+        let dbUser;
         // Check if user with the same email already exists
         const existingUser = await this.userModel.findOne({ email: user.email });
 
         if (existingUser) {
             res.data = existingUser;
             res.status = OperationResult.create;
-            return res;
-        }
+            dbUser = existingUser;
+        } else {
+            user.password = await hash(user.password, 10);
+            const newUser = await this.userModel.create(user);
 
-        user.password = await hash(user.password, 10);
-        const newUser = await this.userModel.create(user);
+            if (!newUser) {
+                this.throwObjectNotFoundError();
+            }
 
-        if (!newUser) {
-            this.throwObjectNotFoundError();
+            dbUser = newUser;
         }
 
         const { email, profilePicture, provider } = user;
 
         if (provider) {
             const profiles = await this.socialService.getUserSocialProfiles(
-                newUser._id.toString()
+                dbUser._id.toString()
             )
 
             await this.socialService.create({
                 email,
                 profilePicture,
                 provider: provider === 'google' ? 'youtube' : provider,
-                userId: newUser.id,
+                userId: dbUser.id,
                 primary: profiles.length === 0
             })
         }
 
-        newUser.password = undefined;
+        dbUser.password = undefined;
 
-        res.data = newUser;
+        res.data = dbUser;
         res.status = OperationResult.create;
 
         return res;

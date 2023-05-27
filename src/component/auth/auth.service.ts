@@ -1,12 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
-import { getGoogleUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
-import { CreateSsoUserDto } from './dto/CreateSsoUser.dto';
+import { getGoogleUserInfo, getTwitterUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
 import { UserType } from '../user/dto/UserType';
-import { oauth2_v2 } from 'googleapis';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
 import { CurrentUserDto } from '../user/dto/User.dto';
@@ -80,14 +78,30 @@ export class AuthService {
         return this.jwtService.decode(token);
     }
 
-    async feedSsoUser(sso: string, accessToken: string) {
+    async feedSsoUser(sso: string, accessToken: string, accessSecret = '') {
         try {
             let ssoUser;
 
             switch (sso) {
                 case 'youtube':
                 case 'google':
-                    ssoUser = await getGoogleUserInfo(accessToken);
+                    const googleUser = await getGoogleUserInfo(accessToken);
+                    ssoUser = {
+                        email: googleUser.email,
+                        name: googleUser.name,
+                        picture: googleUser.picture
+                    }
+                    break;
+
+                case 'twitter':
+                    const twitterUser: any = await getTwitterUserInfo(accessToken, accessSecret)
+                    console.log(twitterUser)
+                    ssoUser = {
+                        email: twitterUser.email,
+                        name: twitterUser?.name,
+                        picture: twitterUser.profile_image_url
+                    }
+                    break;
 
             }
 
@@ -104,7 +118,13 @@ export class AuthService {
                     userPayload = data;
                 }
             } else {
-                userPayload = user
+                const profile = await this.profileService.findSocialProfileByIdAndProvider(user?._id, sso)
+
+                if (!profile) {
+                    await this.profileService.create({ email, provider: sso === 'google' ? 'youtube' : sso, profilePicture: picture, userId: user?._id.toString() })
+                }
+                userPayload = user;
+
             }
 
             const { access_token, refresh_token } = await this.login(userPayload);

@@ -17,6 +17,9 @@ export class CreateSocialProfileDTO {
 	@ApiProperty()
 	primary?: boolean;
 
+	@ApiProperty()
+	isFavorite?: boolean;
+
 	@ApiProperty({ example: 'URL' })
 	@IsNotEmpty()
 	profilePicture: string;

@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
 import { UserDto } from '../../user/dto/User.dto';
-import { UserType } from 'src/component/user/dto/UserType';
 
 @Exclude()
 export class LoginResponseDto {
@@ -44,6 +43,9 @@ export class SsoLoginRequestDto {
     @IsNotEmpty()
     sso: 'youtube' | 'google' | 'instagram' | 'tiktok' | 'twitter' | 'snapchat' | 'pinterest';
 
+    @Expose()
+    @ApiProperty()
+    accessSecret: string;
 }
 
 @Exclude()

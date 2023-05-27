@@ -8,7 +8,7 @@ import {
     UnauthorizedException,
     Req
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth.service';
 import {
     LoginRequestDto,
@@ -19,9 +19,7 @@ import {
 import { JwtAuthGuard } from '../jwt-auth.guard';
 import { LocalAuthGuard } from '../local-auth.guard';
 import { AdminAuthGuard } from '../admin-auth.guard';
-import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
-import { CurrentUserDto, UserDto } from 'src/component/user/dto/User.dto';
-import { Userv1Service } from 'src/component/user/v1/userv1.service';
+import { CurrentUserDto } from 'src/component/user/dto/User.dto';
 
 @ApiTags('Auth')
 @Controller({
@@ -47,8 +45,8 @@ export class AuthController {
         @Body() _loginData: SsoLoginRequestDto,
         @Request() req
     ): Promise<any> {
-        const { accessToken, sso } = _loginData;
-        const response = await this.authService.feedSsoUser(sso, accessToken)
+        const { accessToken, sso, accessSecret } = _loginData;
+        const response = await this.authService.feedSsoUser(sso, accessToken, accessSecret)
         return response;
     }
 
