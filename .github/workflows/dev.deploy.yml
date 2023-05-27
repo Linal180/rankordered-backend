@@ -6,9 +6,9 @@ name: development
 on:
     # Triggers the workflow on push or pull request events but only for the master branch
     push:
-        branches: [master]
+        branches: [feature/social-media-sign-in]
     pull_request:
-        branches: [master]
+        branches: [feature/social-media-sign-in]
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
@@ -45,6 +45,8 @@ jobs:
                   sudo echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
                   sudo echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
                   sudo echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
+                  sudo echo TWITTER_CONSUMER_KEY=${{secrets.TWITTER_CONSUMER_KEY}} >> .env
+                  sudo echo TWITTER_CONSUMER_SECRET=${{secrets.TWITTER_CONSUMER_SECRET}} >> .env
                   cat .env
 
     copy:

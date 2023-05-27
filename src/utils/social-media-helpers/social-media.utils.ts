@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { Exception } from 'handlebars';
 import * as Twit from 'twit';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
@@ -18,6 +19,10 @@ export const getTwitterUserInfo = async (userAccessToken: string, userAccessSecr
       access_token: userAccessToken,
       access_token_secret: userAccessSecret,
     });
+
+    if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
+      throw new Exception('Twitter Env missing!')
+    }
 
     const { data } = await T.get('account/verify_credentials', { skip_status: true, include_email: true });
 
