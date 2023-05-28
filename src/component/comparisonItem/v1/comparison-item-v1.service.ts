@@ -255,7 +255,7 @@ export class ComparisonItemV1Service {
             this.itemScoreRefine,
             this.scoreCategoryLookup,
             this.scoreCategoryRefine,
-            this.scoreSort
+            ...this.scoreSort
         );
 
         if (search && search.length) {
@@ -711,12 +711,27 @@ export class ComparisonItemV1Service {
         }
     };
 
-    scoreSort = {
-        $setWindowFields: {
-            sortBy: { 'score.score': -1 },
-            output: { ranking: { $documentNumber: {} } }
+    scoreSort = [
+        {
+            $sort: { 'score.score': -1 }
+        },
+        {
+            $addFields: {
+                ranking: {
+                    $indexOfArray: [
+                        {
+                            $map: {
+                                input: '$$ROOT',
+                                as: 'doc',
+                                in: '$$doc._id'
+                            }
+                        },
+                        '$_id'
+                    ]
+                }
+            }
         }
-    };
+    ];
 
     skip = (skip = 0) => {
         return {
