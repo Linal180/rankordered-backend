@@ -419,7 +419,8 @@ export class ComparisonItemV1Service {
             this.defaultCategotyLookup,
             this.defaultCategoryRefine,
             this.defaultImageLookup,
-            this.defaultImageRefine
+            this.defaultImageRefine,
+            this.scoreSnapshotsLookup
         );
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
@@ -734,24 +735,17 @@ export class ComparisonItemV1Service {
     scoreSort = [
         {
             $sort: { 'score.score': -1 }
-        },
-        {
-            $addFields: {
-                ranking: {
-                    $indexOfArray: [
-                        {
-                            $map: {
-                                input: '$$ROOT',
-                                as: 'doc',
-                                in: '$$doc._id'
-                            }
-                        },
-                        '$_id'
-                    ]
-                }
-            }
         }
     ];
+
+    scoreSnapshotsLookup = {
+        $lookup: {
+            from: 'scoresnapshots',
+            localField: 'scoreSnapshotIds',
+            foreignField: '_id',
+            as: 'scoreSnapshot'
+        }
+    };
 
     skip = (skip = 0) => {
         return {

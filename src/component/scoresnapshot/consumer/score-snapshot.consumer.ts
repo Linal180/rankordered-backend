@@ -62,7 +62,7 @@ export class ScoreSnapshotConsumer {
 
         const { data } =
             await this.comparisonItemService.findAllWithRankingfromSnapshot({
-                categoryId: undefined,
+                categoryId: job.data._id,
                 pagination: {
                     limit: await this.comparisonItemService.getComparisonItemTotalCount(),
                     currentPage: 0,
@@ -74,7 +74,10 @@ export class ScoreSnapshotConsumer {
             data.map(async (item) => {
                 try {
                     await this.comparisonItemService.updateItem(item._id, {
-                        ranking: item.ranking
+                        ranking: item.ranking,
+                        scoreSnapshotIds: Array.isArray(item.scoreSnapshot)
+                            ? item.scoreSnapshot.map((score) => score._id)
+                            : []
                     });
                 } catch (err) {}
             })

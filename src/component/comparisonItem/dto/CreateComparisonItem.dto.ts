@@ -39,4 +39,6 @@ export class CreateComparisonItemDto {
     images?: string[];
 
     ranking?: number;
+
+    scoreSnapshotIds?: string[];
 }
