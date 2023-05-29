@@ -376,35 +376,55 @@ export class ComparisonItemV1Service {
         active?: boolean | string;
     }): Promise<MongoResultQuery<ComparisonItem[]>> {
         // eslint-disable-next-line prefer-const
+        let aggregateOperation = [];
         const options: any = {};
 
         if (categoryId) {
+            aggregateOperation.push({
+                $match: { category: new Types.ObjectId(categoryId) }
+            });
+
             options.category = categoryId;
         }
 
         if (active !== undefined) {
+            aggregateOperation.push({
+                $match: {
+                    active:
+                        typeof active === 'string' ? active == 'true' : active
+                }
+            });
+
             options.active = active;
         }
 
         if (search && search.length) {
+            aggregateOperation.push({
+                $match: {
+                    name: {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                }
+            });
+
             options.name = new RegExp(search, 'i');
         }
 
-        const res = new MongoResultQuery<ComparisonItem[]>();
+        aggregateOperation.push(
+            this.rankingSort,
+            this.skip(pagination.currentPage * pagination.limit),
+            this.limit(pagination.limit),
+            this.categoryLookup,
+            this.defaultCategotyLookup,
+            this.defaultCategoryRefine,
+            this.defaultImageLookup,
+            this.defaultImageRefine
+        );
 
-        res.data = await this.itemModel
-            .find(
-                options,
-                {},
-                {
-                    skip: pagination.currentPage * pagination.limit,
-                    limit: pagination.limit,
-                    sort: {
-                        ranking: 1
-                    }
-                }
-            )
-            .exec();
+        const res = new MongoResultQuery<ComparisonItemWithScore[]>();
+
+        res.data = await this.itemModel.aggregate(aggregateOperation).exec();
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;
 
