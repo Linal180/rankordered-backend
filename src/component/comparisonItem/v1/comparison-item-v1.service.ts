@@ -255,7 +255,7 @@ export class ComparisonItemV1Service {
             this.itemScoreRefine,
             this.scoreCategoryLookup,
             this.scoreCategoryRefine,
-            this.scoreSort
+            ...this.scoreSort
         );
 
         if (search && search.length) {
@@ -285,8 +285,14 @@ export class ComparisonItemV1Service {
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
-        res.data = await this.itemModel.aggregate(aggregateOperation).exec();
-        res.count = await this.itemModel.find(options).count();
+        try {
+            res.data = await this.itemModel
+                .aggregate(aggregateOperation)
+                .exec();
+            res.count = await this.itemModel.find(options).count();
+        } catch (error) {
+            console.log('error', error);
+        }
         res.status = OperationResult.fetch;
 
         return res;
@@ -732,12 +738,35 @@ export class ComparisonItemV1Service {
         }
     };
 
-    scoreSort = {
-        $setWindowFields: {
-            sortBy: { 'score.score': -1 },
-            output: { ranking: { $documentNumber: {} } }
-        }
-    };
+    scoreSort = [
+        { $sort: { 'score.score': -1 } },
+        {
+            $group: {
+                _id: null,
+                documents: { $push: '$$ROOT' },
+                ranking: { $push: '$$CURRENT' }
+            }
+        },
+        { $unwind: '$documents' },
+        {
+            $addFields: {
+                ranking: {
+                    $map: {
+                        input: '$ranking',
+                        as: 'rank',
+                        in: {
+                            $cond: [
+                                { $eq: ['$$rank', '$$CURRENT'] },
+                                { $indexOfArray: ['$ranking', '$$rank'] },
+                                '$$rank'
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        { $replaceRoot: { newRoot: '$documents' } }
+    ];
 
     scoreSnapshotsLookup = {
         $lookup: {
