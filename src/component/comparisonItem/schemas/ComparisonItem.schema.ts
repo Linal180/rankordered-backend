@@ -71,7 +71,7 @@ class ComparisonItem {
     @Prop({ default: true })
     active: boolean;
 
-    @Prop({ default: 0 })
+    @Prop({ default: 0, required: false })
     ranking?: number;
 
     @Prop({
