@@ -431,9 +431,12 @@ export class ComparisonItemV1Service {
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
-        res.data = await this.itemModel.aggregate(aggregateOperation).exec();
+        const unsortedData = await this.itemModel
+            .aggregate(aggregateOperation)
+            .exec();
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;
+        res.data = unsortedData.map((item, i) => ({ ...item, ranking: i + 1 }));
 
         return res;
     }
@@ -739,33 +742,9 @@ export class ComparisonItemV1Service {
     };
 
     scoreSort = [
-        { $sort: { 'score.score': -1 } },
         {
-            $group: {
-                _id: null,
-                documents: { $push: '$$ROOT' },
-                ranking: { $push: '$$CURRENT' }
-            }
-        },
-        { $unwind: '$documents' },
-        {
-            $addFields: {
-                ranking: {
-                    $map: {
-                        input: '$ranking',
-                        as: 'rank',
-                        in: {
-                            $cond: [
-                                { $eq: ['$$rank', '$$CURRENT'] },
-                                { $indexOfArray: ['$ranking', '$$rank'] },
-                                '$$rank'
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        { $replaceRoot: { newRoot: '$documents' } }
+            $sort: { 'score.score': -1 }
+        }
     ];
 
     scoreSnapshotsLookup = {
