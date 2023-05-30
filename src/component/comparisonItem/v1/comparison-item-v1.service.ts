@@ -431,12 +431,9 @@ export class ComparisonItemV1Service {
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
-        const unsortedData = await this.itemModel
-            .aggregate(aggregateOperation)
-            .exec();
+        res.data = await this.itemModel.aggregate(aggregateOperation).exec();
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;
-        res.data = unsortedData.map((item, i) => ({ ...item, ranking: i + 1 }));
 
         return res;
     }
