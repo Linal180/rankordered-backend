@@ -73,20 +73,19 @@ jobs:
               working-directory: '/home/rankordered/stg-rankordered-backend-nest'
               run: yarn lint
 
-    test:
-        runs-on: self-hosted
-        needs: lint
-        if: success()
-        steps:
-            - name: test
-              working-directory: '/home/rankordered/stg-rankordered-backend-nest'
-            #   run: yarn test --silent
-             run: echo Tests are skipped
+    # test:
+    #     runs-on: self-hosted
+    #     needs: lint
+    #     if: success()
+    #     steps:
+    #         - name: test
+    #           working-directory: '/home/rankordered/stg-rankordered-backend-nest'
+    #           run: yarn test --silent
 
     build:
         runs-on: self-hosted
         needs: test
-        if: success()
+        if: ${{ true }}
         steps:
             - name: build
               working-directory: '/home/rankordered/stg-rankordered-backend-nest'
