@@ -255,7 +255,7 @@ export class ComparisonItemV1Service {
             this.itemScoreRefine,
             this.scoreCategoryLookup,
             this.scoreCategoryRefine,
-            ...this.scoreSort
+            this.scoreSort
         );
 
         if (search && search.length) {
@@ -741,11 +741,12 @@ export class ComparisonItemV1Service {
         }
     };
 
-    scoreSort = [
-        {
-            $sort: { 'score.score': -1 }
+    scoreSort = {
+        $setWindowFields: {
+            sortBy: { 'score.score': -1 },
+            output: { ranking: { $documentNumber: {} } }
         }
-    ];
+    };
 
     scoreSnapshotsLookup = {
         $lookup: {
