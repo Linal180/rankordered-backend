@@ -81,7 +81,7 @@ jobs:
             - name: test
               working-directory: '/home/rankordered/stg-rankordered-backend-nest'
             #   run: yarn test --silent
-             run: echo "Tests are skipped"
+             run: echo Tests are skipped
 
     build:
         runs-on: self-hosted
