@@ -72,17 +72,16 @@ export class ScoreSnapshotConsumer {
                 }
             });
 
-        const { data: updatedCategory } =
-            await this.categoryService.updateCategory(job.data._id, {
-                categoryRankingItems: data
-                    .sort((first, second) => first.ranking - second.ranking)
-                    .map((item) => ({
-                        itemId: item._id,
-                        scoreSnapshot: item.scoreSnapshot
-                            .map((snapshot) => (snapshot as any)._id as string)
-                            .filter((v) => !!v)
-                    }))
-            });
+        await this.categoryService.updateCategory(job.data._id, {
+            categoryRankingItems: data
+                .sort((first, second) => first.ranking - second.ranking)
+                .map((item) => ({
+                    itemId: item._id,
+                    scoreSnapshot: item.scoreSnapshot
+                        .map((snapshot) => (snapshot as any)._id as string)
+                        .filter((v) => !!v)
+                }))
+        });
 
         this.logger.log('saving snapshots complete');
     }

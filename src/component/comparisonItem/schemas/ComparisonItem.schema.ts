@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Gallery } from '../../gallery/schemas/gallery.schema';
 import { Category } from '../../category/schemas/category.schema';
-import { ScoreSnapshot } from 'src/component/scoresnapshot/schemas/score-snapshot.schema';
 
 type ComparisonItemDocument = ComparisonItem & mongoose.Document;
 
