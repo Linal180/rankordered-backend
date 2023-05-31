@@ -308,9 +308,7 @@ export class ComparisonItemV1Service {
 
     async findAllWithRankingfromSnapshot({
         categoryId = null,
-        pagination,
-        search,
-        active
+        pagination
     }: {
         categoryId: string;
         pagination: PaginationDto;
@@ -327,30 +325,6 @@ export class ComparisonItemV1Service {
             });
 
             options.category = categoryId;
-        }
-
-        if (active !== undefined) {
-            aggregateOperation.push({
-                $match: {
-                    active:
-                        typeof active === 'string' ? active == 'true' : active
-                }
-            });
-
-            options.active = active;
-        }
-
-        if (search && search.length) {
-            aggregateOperation.push({
-                $match: {
-                    name: {
-                        $regex: search,
-                        $options: 'i'
-                    }
-                }
-            });
-
-            options.name = new RegExp(search, 'i');
         }
 
         aggregateOperation.push(
@@ -443,14 +417,18 @@ export class ComparisonItemV1Service {
             .limit(pagination.limit)
             .exec();
 
-        res.data = items.map((item) => ({
-            ...(item as any)._doc,
-            scoreSnapshot: scoreSnapshots.filter(
-                (score) => score.itemId.toString() === item.id
-            ),
-            ranking:
-                categoryItemsIds.map((item) => item.itemId).indexOf(item.id) + 1
-        }));
+        res.data = items
+            .map((item) => ({
+                ...(item as any)._doc,
+                scoreSnapshot: scoreSnapshots.filter(
+                    (score) => score.itemId.toString() === item.id
+                ),
+                ranking:
+                    categoryItemsIds
+                        .map((item) => item.itemId)
+                        .indexOf(item.id) + 1
+            }))
+            .sort((first, last) => first.ranking - last.ranking);
 
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;

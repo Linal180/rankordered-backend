@@ -62,7 +62,7 @@ export class ScoreSnapshotConsumer {
             haveNextPage = total < count;
         } while (haveNextPage);
 
-        const { data } =
+        const { data, count } =
             await this.comparisonItemService.findAllWithRankingfromSnapshot({
                 categoryId: job.data._id,
                 pagination: {
@@ -74,12 +74,13 @@ export class ScoreSnapshotConsumer {
 
         await this.categoryService.updateCategory(job.data._id, {
             categoryRankingItems: data
-                .sort((first, second) => first.ranking - second.ranking)
+                .sort((first, second) => second.ranking - first.ranking)
                 .map((item) => ({
                     itemId: item._id,
                     scoreSnapshot: item.scoreSnapshot
                         .map((snapshot) => (snapshot as any)._id as string)
                         .filter((v) => !!v)
+                        .reverse()
                 }))
         });
 
