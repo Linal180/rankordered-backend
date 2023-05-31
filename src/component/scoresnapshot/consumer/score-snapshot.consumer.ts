@@ -6,6 +6,7 @@ import { Job } from 'bull';
 import { CategoryDocument } from 'src/component/category/schemas/category.schema';
 import { ScoreSnapshotV1Service } from '../v1/score-snapshot-v1.service';
 import { CreateSnapshotDto } from '../dto/CreateSnapshot.dto';
+import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
 
 @Processor('score_snapshot')
 export class ScoreSnapshotConsumer {
@@ -13,7 +14,8 @@ export class ScoreSnapshotConsumer {
 
     constructor(
         private comparisonItemService: ComparisonItemV1Service,
-        private scoreSnapshotService: ScoreSnapshotV1Service
+        private scoreSnapshotService: ScoreSnapshotV1Service,
+        private categoryService: CategoryV1Service
     ) {}
 
     @Process('saveScoreByCategory')
@@ -70,18 +72,17 @@ export class ScoreSnapshotConsumer {
                 }
             });
 
-        await Promise.all(
-            data.map(async (item) => {
-                try {
-                    await this.comparisonItemService.updateItem(item._id, {
-                        ranking: item.ranking,
-                        scoreSnapshotIds: Array.isArray(item.scoreSnapshot)
-                            ? item.scoreSnapshot.map((score) => score._id)
-                            : []
-                    });
-                } catch (err) {}
-            })
-        );
+        const { data: updatedCategory } =
+            await this.categoryService.updateCategory(job.data._id, {
+                categoryRankingItems: data
+                    .sort((first, second) => first.ranking - second.ranking)
+                    .map((item) => ({
+                        itemId: item._id,
+                        scoreSnapshot: item.scoreSnapshot
+                            .map((snapshot) => (snapshot as any)._id as string)
+                            .filter((v) => !!v)
+                    }))
+            });
 
         this.logger.log('saving snapshots complete');
     }

@@ -16,14 +16,22 @@ import {
     ComparisonItemDocument
 } from '../schemas/ComparisonItem.schema';
 import { ComparisonItemWithScore } from '../schemas/ComparisonItemWithScore';
+import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
+import {
+    ScoreSnapshot,
+    ScoreSnapshotDocument
+} from 'src/component/scoresnapshot/schemas/score-snapshot.schema';
 
 @Injectable()
 export class ComparisonItemV1Service {
     constructor(
         @InjectModel(ComparisonItem.name)
         private itemModel: Model<ComparisonItemDocument>,
+        @InjectModel(ScoreSnapshot.name)
+        private scoreSnapshotModel: Model<ScoreSnapshotDocument>,
 
-        private eventEmitter: EventEmitter2
+        private eventEmitter: EventEmitter2,
+        private readonly categoryService: CategoryV1Service
     ) {}
 
     async findById(id: string): Promise<MongoResultQuery<ComparisonItem>> {
@@ -382,56 +390,70 @@ export class ComparisonItemV1Service {
         active?: boolean | string;
     }): Promise<MongoResultQuery<ComparisonItem[]>> {
         // eslint-disable-next-line prefer-const
-        let aggregateOperation = [];
         const options: any = {};
 
         if (categoryId) {
-            aggregateOperation.push({
-                $match: { category: new Types.ObjectId(categoryId) }
-            });
-
             options.category = categoryId;
         }
 
         if (active !== undefined) {
-            aggregateOperation.push({
-                $match: {
-                    active:
-                        typeof active === 'string' ? active == 'true' : active
-                }
-            });
-
             options.active = active;
         }
 
         if (search && search.length) {
-            aggregateOperation.push({
-                $match: {
-                    name: {
-                        $regex: search,
-                        $options: 'i'
-                    }
-                }
-            });
-
             options.name = new RegExp(search, 'i');
         }
 
-        aggregateOperation.push(
-            this.rankingSort,
-            this.skip(pagination.currentPage * pagination.limit),
-            this.limit(pagination.limit),
-            this.categoryLookup,
-            this.defaultCategotyLookup,
-            this.defaultCategoryRefine,
-            this.defaultImageLookup,
-            this.defaultImageRefine,
-            this.scoreSnapshotsLookup
-        );
-
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
-        res.data = await this.itemModel.aggregate(aggregateOperation).exec();
+        const category = await this.categoryService.findById(categoryId, true);
+
+        const skip = pagination.currentPage * pagination.limit;
+
+        const categoryItemsIds = category.data.categoryRankingItems;
+
+        const targetItems = categoryItemsIds.slice(
+            skip,
+            skip + pagination.limit
+        );
+
+        const targetIds = targetItems.map((item) => item.itemId);
+        const targetSnapshotsIds = targetItems.reduce(
+            (acc, curr) => [...acc, ...curr.scoreSnapshot],
+            []
+        );
+
+        const scoreSnapshots = await this.scoreSnapshotModel
+            .find({
+                _id: {
+                    $in: targetSnapshotsIds
+                },
+                categoryId: categoryId
+            })
+            .sort({ date: 1 });
+
+        const items = await this.itemModel
+            .find({
+                _id: {
+                    $in: targetIds
+                },
+                ...options
+            })
+            .skip(pagination.currentPage * pagination.limit)
+            .limit(pagination.limit)
+            .exec();
+
+        // @ts-ignore
+        res.data = items.map((item) => ({
+            // @ts-ignore
+            ...item._doc,
+            scoreSnapshot: scoreSnapshots.filter(
+                (score) => score.itemId.toString() === item.id
+            ),
+            ranking:
+                categoryItemsIds.map((item) => item.itemId).indexOf(item.id) + 1
+        }));
+
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;
 

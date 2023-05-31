@@ -70,17 +70,6 @@ class ComparisonItem {
 
     @Prop({ default: true })
     active: boolean;
-
-    @Prop({ default: 0, required: false })
-    ranking?: number;
-
-    @Prop({
-        type: [{ type: mongoose.Schema.Types.ObjectId }],
-        ref: 'ScoreSnapshot',
-        autopopulate: true,
-        required: false
-    })
-    scoreSnapshotIds?: ScoreSnapshot[];
 }
 
 const ComparisonItemSchema = SchemaFactory.createForClass(ComparisonItem);
