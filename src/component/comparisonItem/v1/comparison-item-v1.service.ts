@@ -443,10 +443,8 @@ export class ComparisonItemV1Service {
             .limit(pagination.limit)
             .exec();
 
-        // @ts-ignore
         res.data = items.map((item) => ({
-            // @ts-ignore
-            ...item._doc,
+            ...(item as any)._doc,
             scoreSnapshot: scoreSnapshots.filter(
                 (score) => score.itemId.toString() === item.id
             ),
