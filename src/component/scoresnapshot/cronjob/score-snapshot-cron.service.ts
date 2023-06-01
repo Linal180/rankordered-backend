@@ -16,9 +16,7 @@ export class ScoreSnapshotCronService {
         private scoreSnapshotService: ScoreSnapshotV1Service,
         // @InjectQueue('score_snapshot')
         private scoreSnapshotQueue: ScoreSnapshotConsumer
-    ) {
-        this.handleCron();
-    }
+    ) {}
 
     @Cron(CronExpression.EVERY_HOUR)
     async handleCron() {
@@ -38,7 +36,7 @@ export class ScoreSnapshotCronService {
                 active: true
             });
             for (const category of data) {
-                this.scoreSnapshotQueue.handleSaveScoreByCategory({
+                await this.scoreSnapshotQueue.handleSaveScoreByCategory({
                     data: category as CategoryDocument
                 } as any);
             }

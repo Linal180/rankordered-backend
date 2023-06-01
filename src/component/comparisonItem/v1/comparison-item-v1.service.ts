@@ -384,14 +384,22 @@ export class ComparisonItemV1Service {
 
         const skip = pagination.currentPage * pagination.limit;
 
-        const categoryItemsIds = category.data.categoryRankingItems;
-
         const items = await this.itemModel
             .find({
                 ...options,
                 category: { $elemMatch: { $eq: categoryId } }
             })
             .exec();
+
+        const categoryItemsIds = category.data.categoryRankingItems.filter(
+            (item) => {
+                const foundItem = items.find(
+                    (v) => v._id.toString() === item.itemId.toString()
+                );
+
+                return foundItem && foundItem.active;
+            }
+        );
 
         const sortedItems = items
             .map((item) => ({
