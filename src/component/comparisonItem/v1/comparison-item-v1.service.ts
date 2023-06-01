@@ -402,6 +402,12 @@ export class ComparisonItemV1Service {
         );
 
         const sortedItems = items
+            .filter(
+                (item) =>
+                    !!categoryItemsIds.find(
+                        (cate) => cate.itemId === item._id.toString()
+                    )
+            )
             .map((item) => ({
                 ...(item as any)._doc,
                 ranking:
