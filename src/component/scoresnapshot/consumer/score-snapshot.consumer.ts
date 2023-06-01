@@ -1,5 +1,5 @@
 import { Process, Processor } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ComparisonItemV1Service } from 'src/component/comparisonItem/v1/comparison-item-v1.service';
 import { DateTime } from 'luxon';
 import { Job } from 'bull';
@@ -8,7 +8,8 @@ import { ScoreSnapshotV1Service } from '../v1/score-snapshot-v1.service';
 import { CreateSnapshotDto } from '../dto/CreateSnapshot.dto';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
 
-@Processor('score_snapshot')
+// @Processor('score_snapshot')
+@Injectable()
 export class ScoreSnapshotConsumer {
     private readonly logger = new Logger(ScoreSnapshotConsumer.name);
 
@@ -18,7 +19,7 @@ export class ScoreSnapshotConsumer {
         private categoryService: CategoryV1Service
     ) {}
 
-    @Process('saveScoreByCategory')
+    // @Process('saveScoreByCategory')
     async handleSaveScoreByCategory(job: Job<CategoryDocument>) {
         try {
             const today = DateTime.now().toUTC().startOf('day');

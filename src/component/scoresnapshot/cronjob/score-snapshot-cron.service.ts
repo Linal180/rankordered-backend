@@ -4,6 +4,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Queue } from 'bull';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
 import { ScoreSnapshotV1Service } from '../v1/score-snapshot-v1.service';
+import { ScoreSnapshotConsumer } from '../consumer/score-snapshot.consumer';
+import { CategoryDocument } from 'src/component/category/schemas/category.schema';
 
 @Injectable()
 export class ScoreSnapshotCronService {
@@ -12,9 +14,11 @@ export class ScoreSnapshotCronService {
     constructor(
         private categoryService: CategoryV1Service,
         private scoreSnapshotService: ScoreSnapshotV1Service,
-        @InjectQueue('score_snapshot')
-        private scoreSnapshotQueue: Queue
-    ) {}
+        // @InjectQueue('score_snapshot')
+        private scoreSnapshotQueue: ScoreSnapshotConsumer
+    ) {
+        this.handleCron();
+    }
 
     @Cron(CronExpression.EVERY_HOUR)
     async handleCron() {
@@ -33,13 +37,11 @@ export class ScoreSnapshotCronService {
             const { data } = await this.categoryService.findByQuery({
                 active: true
             });
-
-            data.forEach((category) => {
-                this.scoreSnapshotQueue.add('saveScoreByCategory', category, {
-                    removeOnComplete: true,
-                    removeOnFail: true
-                });
-            });
+            for (const category of data) {
+                this.scoreSnapshotQueue.handleSaveScoreByCategory({
+                    data: category as CategoryDocument
+                } as any);
+            }
         } catch (error) {
             this.logger.error(error.message);
         }
