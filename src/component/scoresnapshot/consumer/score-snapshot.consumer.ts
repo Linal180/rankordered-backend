@@ -20,70 +20,76 @@ export class ScoreSnapshotConsumer {
 
     @Process('saveScoreByCategory')
     async handleSaveScoreByCategory(job: Job<CategoryDocument>) {
-        const today = DateTime.now().toUTC().startOf('day');
-        let page = 1;
-        this.logger.log(
-            `saving score and ranking of category ${
-                job.data._id
-            } in ${today.toString()}`
-        );
+        try {
+            const today = DateTime.now().toUTC().startOf('day');
+            let page = 1;
+            this.logger.log(
+                `saving score and ranking of category ${
+                    job.data._id
+                } in ${today.toString()}`
+            );
 
-        let haveNextPage: boolean;
-        let total = 0;
+            let haveNextPage: boolean;
+            let total = 0;
 
-        do {
-            const { data, count } =
-                await this.comparisonItemService.findAllWithRanking({
-                    categoryId: job.data._id,
-                    active: true,
-                    pagination: {
-                        page: page,
-                        limit: 10,
-                        currentPage: page - 1
-                    }
+            do {
+                const { data, count } =
+                    await this.comparisonItemService.findAllWithRanking({
+                        categoryId: job.data._id,
+                        active: true,
+                        pagination: {
+                            page: page,
+                            limit: 10,
+                            currentPage: page - 1
+                        }
+                    });
+
+                data.forEach(async (item) => {
+                    await this.scoreSnapshotService.addSnapshot(
+                        CreateSnapshotDto.create({
+                            itemId: item._id,
+                            categoryId: job.data._id,
+                            score: item.score.score ?? 0,
+                            ranking: item.ranking,
+                            date: today.toJSDate()
+                        })
+                    );
                 });
 
-            data.forEach(async (item) => {
-                await this.scoreSnapshotService.addSnapshot(
-                    CreateSnapshotDto.create({
-                        itemId: item._id,
+                total += data.length;
+
+                console.log(`total data: ${total}, count is ${count}`);
+                page += 1;
+                haveNextPage = total < count;
+            } while (haveNextPage);
+
+            const { data } =
+                await this.comparisonItemService.findAllWithRankingfromSnapshot(
+                    {
                         categoryId: job.data._id,
-                        score: item.score.score ?? 0,
-                        ranking: item.ranking,
-                        date: today.toJSDate()
-                    })
+                        pagination: {
+                            limit: await this.comparisonItemService.getComparisonItemTotalCount(),
+                            currentPage: 0,
+                            page: 1
+                        }
+                    }
                 );
+
+            await this.categoryService.updateCategory(job.data._id, {
+                categoryRankingItems: data
+                    .sort((first, second) => first.ranking - second.ranking)
+                    .map((item) => ({
+                        itemId: item._id,
+                        scoreSnapshot: item.scoreSnapshot
+                            .map((snapshot) => (snapshot as any)._id as string)
+                            .filter((v) => !!v)
+                            .reverse()
+                    }))
             });
 
-            total += data.length;
-            console.log(`total data: ${total}, count is ${count}`);
-
-            page += 1;
-            haveNextPage = total < count;
-        } while (haveNextPage);
-
-        const { data, count } =
-            await this.comparisonItemService.findAllWithRankingfromSnapshot({
-                categoryId: job.data._id,
-                pagination: {
-                    limit: await this.comparisonItemService.getComparisonItemTotalCount(),
-                    currentPage: 0,
-                    page: 1
-                }
-            });
-
-        await this.categoryService.updateCategory(job.data._id, {
-            categoryRankingItems: data
-                .sort((first, second) => second.ranking - first.ranking)
-                .map((item) => ({
-                    itemId: item._id,
-                    scoreSnapshot: item.scoreSnapshot
-                        .map((snapshot) => (snapshot as any)._id as string)
-                        .filter((v) => !!v)
-                        .reverse()
-                }))
-        });
-
-        this.logger.log('saving snapshots complete');
+            this.logger.log('saving snapshots complete');
+        } catch (error) {
+            this.logger.error('saving category scores error', error);
+        }
     }
 }

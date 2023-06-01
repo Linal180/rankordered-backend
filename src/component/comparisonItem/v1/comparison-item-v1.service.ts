@@ -386,16 +386,36 @@ export class ComparisonItemV1Service {
 
         const categoryItemsIds = category.data.categoryRankingItems;
 
-        const targetItems = categoryItemsIds.slice(
-            skip,
-            skip + pagination.limit
-        );
+        const items = await this.itemModel
+            .find({
+                ...options,
+                category: { $elemMatch: { $eq: categoryId } }
+            })
+            .exec();
 
-        const targetIds = targetItems.map((item) => item.itemId);
-        const targetSnapshotsIds = targetItems.reduce(
-            (acc, curr) => [...acc, ...curr.scoreSnapshot],
-            []
-        );
+        const sortedItems = items
+            .map((item) => ({
+                ...(item as any)._doc,
+                ranking:
+                    categoryItemsIds
+                        .map((item) => item.itemId)
+                        .indexOf(item.id) + 1
+            }))
+            .sort((first, last) => first.ranking - last.ranking)
+            .slice(skip, skip + pagination.limit) as ComparisonItemDocument[];
+
+        const targetSnapshotsIds = sortedItems.reduce((acc, curr) => {
+            const itemScoreSnapshotIds =
+                category.data.categoryRankingItems.find(
+                    (item) => item.itemId.toString() === curr._id.toString()
+                )?.scoreSnapshot;
+
+            if (Array.isArray(itemScoreSnapshotIds)) {
+                return [...acc, ...itemScoreSnapshotIds];
+            } else {
+                return acc;
+            }
+        }, []);
 
         const scoreSnapshots = await this.scoreSnapshotModel
             .find({
@@ -406,29 +426,12 @@ export class ComparisonItemV1Service {
             })
             .sort({ date: 1 });
 
-        const items = await this.itemModel
-            .find({
-                _id: {
-                    $in: targetIds
-                },
-                ...options
-            })
-            .skip(pagination.currentPage * pagination.limit)
-            .limit(pagination.limit)
-            .exec();
-
-        res.data = items
-            .map((item) => ({
-                ...(item as any)._doc,
-                scoreSnapshot: scoreSnapshots.filter(
-                    (score) => score.itemId.toString() === item.id
-                ),
-                ranking:
-                    categoryItemsIds
-                        .map((item) => item.itemId)
-                        .indexOf(item.id) + 1
-            }))
-            .sort((first, last) => first.ranking - last.ranking);
+        res.data = sortedItems.map((item) => ({
+            ...item,
+            scoreSnapshot: scoreSnapshots.filter(
+                (score) => score.itemId.toString() === item._id.toString()
+            )
+        })) as any;
 
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;
