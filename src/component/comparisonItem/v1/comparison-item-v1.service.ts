@@ -374,10 +374,6 @@ export class ComparisonItemV1Service {
             options.active = active;
         }
 
-        if (search && search.length) {
-            options.name = new RegExp(search, 'i');
-        }
-
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
         const category = await this.categoryService.findById(categoryId, true);
@@ -414,6 +410,7 @@ export class ComparisonItemV1Service {
                         .indexOf(item.id) + 1
             }))
             .sort((first, last) => first.ranking - last.ranking)
+            .filter((item) => new RegExp(search, 'i').test(item.name))
             .slice(skip, skip + pagination.limit) as ComparisonItemDocument[];
 
         const targetSnapshotsIds = sortedItems.reduce((acc, curr) => {
