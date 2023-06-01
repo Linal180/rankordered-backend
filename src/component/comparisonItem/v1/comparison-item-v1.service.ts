@@ -397,17 +397,15 @@ export class ComparisonItemV1Service {
                     (v) => v._id.toString() === item.itemId.toString()
                 );
 
-                return foundItem && foundItem.active;
+                return (
+                    foundItem &&
+                    foundItem.active &&
+                    item.scoreSnapshot.length > 0
+                );
             }
         );
 
         const sortedItems = items
-            .filter(
-                (item) =>
-                    !!categoryItemsIds.find(
-                        (cate) => cate.itemId === item._id.toString()
-                    )
-            )
             .map((item) => ({
                 ...(item as any)._doc,
                 ranking:
