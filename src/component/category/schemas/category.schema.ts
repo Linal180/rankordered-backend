@@ -41,7 +41,7 @@ export class Category {
         autopopulate: false,
         select: false
     })
-    categoryRankingItems: CategoryRankingItem[];
+    categoryRankingItems?: CategoryRankingItem[];
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);
