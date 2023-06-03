@@ -15,9 +15,18 @@ export class CategoryV1Service {
         private categoryModel: Model<CategoryDocument>
     ) {}
 
-    async findById(id: string): Promise<MongoResultQuery<Category>> {
+    async findById(
+        id: string,
+        includeRankingItems?: boolean
+    ): Promise<MongoResultQuery<Category>> {
         const res = new MongoResultQuery<Category>();
-        res.data = await this.categoryModel.findById(id).exec();
+        const modelBuilder = this.categoryModel.findById(id);
+
+        if (includeRankingItems === true) {
+            modelBuilder.select('categoryRankingItems');
+        }
+
+        res.data = await modelBuilder.exec();
 
         if (!res.data) {
             this.throwObjectNotFoundError();

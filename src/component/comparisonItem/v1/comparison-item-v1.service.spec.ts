@@ -9,15 +9,26 @@ import { CreateComparisonItemDto } from '../dto/CreateComparisonItem.dto';
 import { UpdateComparisonItemDto } from '../dto/UpdateComparisonItem.dto';
 import { ComparisonItem } from '../schemas/ComparisonItem.schema';
 import { ComparisonItemV1Service } from './comparison-item-v1.service';
+import { ScoreSnapshot } from 'src/component/scoresnapshot/schemas/score-snapshot.schema';
+import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
+import { Category } from 'src/component/category/schemas/category.schema';
 
 const mockComparisonItem: ComparisonItem = {
     name: 'test item',
     slug: 'test_item',
-    category: [{ name: 'test category', slug: 'test_category', active: true }],
+    category: [
+        {
+            name: 'test category',
+            slug: 'test_category',
+            active: true,
+            categoryRankingItems: []
+        }
+    ],
     defaultCategory: {
         name: 'test category',
         slug: 'test_category',
-        active: true
+        active: true,
+        categoryRankingItems: []
     },
     active: true,
     address: 'address',
@@ -68,8 +79,47 @@ describe('ComparisonItemV1Service', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ComparisonItemV1Service,
+                CategoryV1Service,
                 {
                     provide: getModelToken(ComparisonItem.name),
+                    useValue: {
+                        find: jest.fn(),
+                        findById: jest.fn(),
+                        findByIdAndUpdate: jest
+                            .fn()
+                            .mockResolvedValue(mockComparisonItem),
+                        findByIdAndDelete: jest
+                            .fn()
+                            .mockResolvedValue(mockComparisonItem),
+                        constructor: jest.fn(),
+                        create: jest.fn().mockResolvedValue(mockComparisonItem),
+                        aggregate: jest.fn(),
+                        updateMany: jest.fn(),
+                        exec: jest.fn(),
+                        count: jest.fn()
+                    }
+                },
+                {
+                    provide: getModelToken(ScoreSnapshot.name),
+                    useValue: {
+                        find: jest.fn(),
+                        findById: jest.fn(),
+                        findByIdAndUpdate: jest
+                            .fn()
+                            .mockResolvedValue(mockComparisonItem),
+                        findByIdAndDelete: jest
+                            .fn()
+                            .mockResolvedValue(mockComparisonItem),
+                        constructor: jest.fn(),
+                        create: jest.fn().mockResolvedValue(mockComparisonItem),
+                        aggregate: jest.fn(),
+                        updateMany: jest.fn(),
+                        exec: jest.fn(),
+                        count: jest.fn()
+                    }
+                },
+                {
+                    provide: getModelToken(Category.name),
                     useValue: {
                         find: jest.fn(),
                         findById: jest.fn(),
