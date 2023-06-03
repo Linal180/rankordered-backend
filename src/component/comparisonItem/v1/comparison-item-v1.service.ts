@@ -16,14 +16,22 @@ import {
     ComparisonItemDocument
 } from '../schemas/ComparisonItem.schema';
 import { ComparisonItemWithScore } from '../schemas/ComparisonItemWithScore';
+import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
+import {
+    ScoreSnapshot,
+    ScoreSnapshotDocument
+} from 'src/component/scoresnapshot/schemas/score-snapshot.schema';
 
 @Injectable()
 export class ComparisonItemV1Service {
     constructor(
         @InjectModel(ComparisonItem.name)
         private itemModel: Model<ComparisonItemDocument>,
+        @InjectModel(ScoreSnapshot.name)
+        private scoreSnapshotModel: Model<ScoreSnapshotDocument>,
 
-        private eventEmitter: EventEmitter2
+        private eventEmitter: EventEmitter2,
+        private readonly categoryService: CategoryV1Service
     ) {}
 
     async findById(id: string): Promise<MongoResultQuery<ComparisonItem>> {
@@ -285,8 +293,14 @@ export class ComparisonItemV1Service {
 
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
-        res.data = await this.itemModel.aggregate(aggregateOperation).exec();
-        res.count = await this.itemModel.find(options).count();
+        try {
+            res.data = await this.itemModel
+                .aggregate(aggregateOperation)
+                .exec();
+            res.count = await this.itemModel.find(options).count();
+        } catch (error) {
+            console.log('error', error);
+        }
         res.status = OperationResult.fetch;
 
         return res;
@@ -294,9 +308,7 @@ export class ComparisonItemV1Service {
 
     async findAllWithRankingfromSnapshot({
         categoryId = null,
-        pagination,
-        search,
-        active
+        pagination
     }: {
         categoryId: string;
         pagination: PaginationDto;
@@ -313,30 +325,6 @@ export class ComparisonItemV1Service {
             });
 
             options.category = categoryId;
-        }
-
-        if (active !== undefined) {
-            aggregateOperation.push({
-                $match: {
-                    active:
-                        typeof active === 'string' ? active == 'true' : active
-                }
-            });
-
-            options.active = active;
-        }
-
-        if (search && search.length) {
-            aggregateOperation.push({
-                $match: {
-                    name: {
-                        $regex: search,
-                        $options: 'i'
-                    }
-                }
-            });
-
-            options.name = new RegExp(search, 'i');
         }
 
         aggregateOperation.push(
@@ -362,6 +350,106 @@ export class ComparisonItemV1Service {
         res.status = OperationResult.fetch;
 
         return res;
+    }
+
+    async findAllWithRankingfromSnapshotOptimized({
+        categoryId = null,
+        pagination,
+        search,
+        active
+    }: {
+        categoryId: string;
+        pagination: PaginationDto;
+        search?: string;
+        active?: boolean | string;
+    }): Promise<MongoResultQuery<ComparisonItem[]>> {
+        // eslint-disable-next-line prefer-const
+        const options: any = {};
+
+        if (categoryId) {
+            options.category = categoryId;
+        }
+
+        if (active !== undefined) {
+            options.active = active;
+        }
+
+        const res = new MongoResultQuery<ComparisonItemWithScore[]>();
+
+        const category = await this.categoryService.findById(categoryId, true);
+
+        const skip = pagination.currentPage * pagination.limit;
+
+        const items = await this.itemModel
+            .find({
+                ...options,
+                category: { $elemMatch: { $eq: categoryId } }
+            })
+            .exec();
+
+        const categoryItemsIds = category.data.categoryRankingItems.filter(
+            (item) => {
+                const foundItem = items.find(
+                    (v) => v._id.toString() === item.itemId.toString()
+                );
+
+                return (
+                    foundItem &&
+                    foundItem.active &&
+                    item.scoreSnapshot.length > 0
+                );
+            }
+        );
+
+        const sortedItems = items
+            .map((item) => ({
+                ...(item as any)._doc,
+                ranking:
+                    categoryItemsIds
+                        .map((item) => item.itemId)
+                        .indexOf(item.id) + 1
+            }))
+            .sort((first, last) => first.ranking - last.ranking)
+            .filter((item) => new RegExp(search, 'i').test(item.name))
+            .slice(skip, skip + pagination.limit) as ComparisonItemDocument[];
+
+        const targetSnapshotsIds = sortedItems.reduce((acc, curr) => {
+            const itemScoreSnapshotIds =
+                category.data.categoryRankingItems.find(
+                    (item) => item.itemId.toString() === curr._id.toString()
+                )?.scoreSnapshot;
+
+            if (Array.isArray(itemScoreSnapshotIds)) {
+                return [...acc, ...itemScoreSnapshotIds];
+            } else {
+                return acc;
+            }
+        }, []);
+
+        const scoreSnapshots = await this.scoreSnapshotModel
+            .find({
+                _id: {
+                    $in: targetSnapshotsIds
+                },
+                categoryId: categoryId
+            })
+            .sort({ date: 1 });
+
+        res.data = sortedItems.map((item) => ({
+            ...item,
+            scoreSnapshot: scoreSnapshots.filter(
+                (score) => score.itemId.toString() === item._id.toString()
+            )
+        })) as any;
+
+        res.count = await this.itemModel.find(options).count();
+        res.status = OperationResult.fetch;
+
+        return res;
+    }
+
+    async getComparisonItemTotalCount() {
+        return this.itemModel.find().count();
     }
 
     async getComparisonItem(
@@ -664,6 +752,15 @@ export class ComparisonItemV1Service {
         $setWindowFields: {
             sortBy: { 'score.score': -1 },
             output: { ranking: { $documentNumber: {} } }
+        }
+    };
+
+    scoreSnapshotsLookup = {
+        $lookup: {
+            from: 'scoresnapshots',
+            localField: 'scoreSnapshotIds',
+            foreignField: '_id',
+            as: 'scoreSnapshot'
         }
     };
 
