@@ -16,12 +16,18 @@ import { BullModule } from '@nestjs/bull';
 import { GalleryModule } from '../gallery/gallery.module';
 import * as mongooseStore from 'cache-manager-mongoose';
 import * as mongoose from 'mongoose';
+import { CategoryModule } from '../category/category.module';
+import {
+    ScoreSnapshot,
+    ScoreSnapshotSchema
+} from '../scoresnapshot/schemas/score-snapshot.schema';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: ComparisonItem.name, schema: ComparisonItemSchema },
-            { name: ItemScore.name, schema: ItemScoreSchema }
+            { name: ItemScore.name, schema: ItemScoreSchema },
+            { name: ScoreSnapshot.name, schema: ScoreSnapshotSchema }
         ]),
         BullModule.registerQueue({ name: 'college_migration' }),
         CacheModule.registerAsync({
@@ -34,7 +40,8 @@ import * as mongoose from 'mongoose';
             inject: [getConnectionToken()]
         }),
         GalleryModule,
-        ItemScoreModule
+        ItemScoreModule,
+        CategoryModule
     ],
     providers: [ComparisonItemV1Service, CollegeQueueConsumer],
     controllers: [ComparisonItemV1Controller],

@@ -27,6 +27,7 @@ import { HttpCacheInterceptor } from 'src/shared/request/HttpCache.Interceptor';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 import { UserType } from 'src/component/user/dto/UserType';
+import { ComparisonItem } from '../schemas/ComparisonItem.schema';
 
 @ApiTags('Comparison Items')
 @Controller({ path: 'comparison-item', version: '1' })
@@ -64,8 +65,8 @@ export class ComparisonItemV1Controller {
         @Query('categoryId') categoryId?: string,
         @Query('active') active?: boolean,
         @Query('search') search?: string
-    ): Promise<MongoResultQuery<ComparisonItemWithScore[]>> {
-        return this.itemService.findAllWithRankingfromSnapshot({
+    ): Promise<MongoResultQuery<ComparisonItem[]>> {
+        return this.itemService.findAllWithRankingfromSnapshotOptimized({
             categoryId,
             pagination,
             search,

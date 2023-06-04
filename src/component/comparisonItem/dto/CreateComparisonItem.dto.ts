@@ -37,4 +37,8 @@ export class CreateComparisonItemDto {
 
     @ApiProperty({ required: false })
     images?: string[];
+
+    ranking?: number;
+
+    scoreSnapshotIds?: string[];
 }
