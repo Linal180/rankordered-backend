@@ -95,7 +95,9 @@ export class AuthService {
 
                 case 'twitter':
                     const twitterUser: any = await getTwitterUserInfo(accessToken, accessSecret)
+                    console.log("***************")
                     console.log(twitterUser)
+                    console.log("***************")
                     ssoUser = {
                         email: twitterUser.email,
                         name: twitterUser?.name,
