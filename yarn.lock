@@ -4561,10 +4561,10 @@ data-uri-to-buffer@3:
   resolved "https://registry.yarnpkg.com/data-uri-to-buffer/-/data-uri-to-buffer-3.0.1.tgz#594b8973938c5bc2c33046535785341abc4f3636"
   integrity sha512-WboRycPNsVw3B3TL559F7kuBUM4d8CgMEvk6xEJlOp7OBPjt6G7z8WMWlD2rOFZLk6OYfFIUGsCOWzcQH9K2og==
 
-dataclass@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/dataclass/-/dataclass-2.1.1.tgz#a1e7ff119d709568120d718fbf9c5b14b30a00fd"
-  integrity sha512-UNG2qao2GaHrnVQtarekOjUt1BvU6vt1OUnYSp+3BuFNs+iKjiBmIz2cabXtP2ZjthM8n3ox1lRKrUxp4SKG9A==
+dataclass@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/dataclass/-/dataclass-2.0.0.tgz#932f583c0183a25b58d17d83ba7417e39804d056"
+  integrity sha512-XbxboeVjIS4TFtoNan/Hnjifda6zKYN4u5gJzK1qFBEgmB3Dyf2sGYvv5GbbO62fY7JjPe+PVbGEwgiiAGclWA==
 
 dayjs@^1.10.6:
   version "1.11.7"
