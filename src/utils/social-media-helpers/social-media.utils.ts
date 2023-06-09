@@ -1,5 +1,4 @@
 import { google } from 'googleapis';
-import { Exception } from 'handlebars';
 import * as Twit from 'twit';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
