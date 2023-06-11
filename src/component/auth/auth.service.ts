@@ -95,9 +95,6 @@ export class AuthService {
 
                 case 'twitter':
                     const twitterUser: any = await getTwitterUserInfo(accessToken, accessSecret)
-                    console.log("***************")
-                    console.log(twitterUser)
-                    console.log("***************")
                     ssoUser = {
                         email: twitterUser.email,
                         name: twitterUser?.name,
@@ -125,8 +122,8 @@ export class AuthService {
                 if (!profile) {
                     await this.profileService.create({ email, provider: sso === 'google' ? 'youtube' : sso, profilePicture: picture, userId: user?._id.toString() })
                 }
-                userPayload = user;
 
+                userPayload = user;
             }
 
             const { access_token, refresh_token } = await this.login(userPayload);
