@@ -9,6 +9,8 @@ import { UserModule } from '../user/user.module';
 import { AuthController } from './v1/auth.controller';
 import { AdminStrategy } from './admin.strategy';
 import { ProfileModule } from '../profile/profile.module';
+import { TwitterStrategy } from './twitter.strategy';
+import { GoogleStrategy } from './google.strategy';
 
 @Module({
     imports: [
@@ -25,8 +27,15 @@ import { ProfileModule } from '../profile/profile.module';
             inject: [ConfigService]
         })
     ],
-    providers: [AuthService, LocalStrategy, JwtStrategy, AdminStrategy],
+    providers: [
+        AuthService,
+        LocalStrategy,
+        JwtStrategy,
+        AdminStrategy,
+        TwitterStrategy,
+        GoogleStrategy
+    ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule { }
+export class AuthModule {}

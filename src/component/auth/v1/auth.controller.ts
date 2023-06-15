@@ -6,7 +6,8 @@ import {
     UseGuards,
     Request,
     UnauthorizedException,
-    Req
+    Req,
+    Res
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth.service';
@@ -20,6 +21,10 @@ import { JwtAuthGuard } from '../jwt-auth.guard';
 import { LocalAuthGuard } from '../local-auth.guard';
 import { AdminAuthGuard } from '../admin-auth.guard';
 import { CurrentUserDto } from 'src/component/user/dto/User.dto';
+import { TwitterAuthGuard } from '../twitter-auth.guard';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { GoogleAuthGuard } from '../google-auth.guard';
 
 @ApiTags('Auth')
 @Controller({
@@ -27,7 +32,10 @@ import { CurrentUserDto } from 'src/component/user/dto/User.dto';
     path: 'auth'
 })
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private readonly configService: ConfigService
+    ) {}
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
@@ -46,7 +54,11 @@ export class AuthController {
         @Request() req
     ): Promise<any> {
         const { accessToken, sso, accessSecret } = _loginData;
-        const response = await this.authService.feedSsoUser(sso, accessToken, accessSecret)
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
         return response;
     }
 
@@ -110,5 +122,64 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     async logout() {
         return true;
+    }
+
+    @Get('twitter')
+    @UseGuards(TwitterAuthGuard)
+    twitterAuth() {
+        return true;
+    }
+
+    @Get('twitter/callback')
+    @UseGuards(TwitterAuthGuard)
+    async twitterCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
+        );
+    }
+    @Get('google')
+    @UseGuards(GoogleAuthGuard)
+    googleAuth() {
+        return true;
+    }
+
+    @Get('google/callback')
+    @UseGuards(GoogleAuthGuard)
+    async googleCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
+        );
     }
 }
