@@ -1,5 +1,7 @@
 import { google } from 'googleapis';
 import * as Twit from 'twit';
+import axios from 'axios';
+
 
 export const getGoogleUserInfo = async (accessToken: string) => {
     const oauth2Client = new google.auth.OAuth2();
@@ -10,6 +12,28 @@ export const getGoogleUserInfo = async (accessToken: string) => {
         .userinfo.get();
 
     return data;
+};
+
+export const getTiktokUserInfo = async (accessToken: string) => {
+    try {
+        // Send a request to TikTok's API to verify the access token
+
+        console.log("Tiktok helper >>> accesstoken = ", accessToken)
+        const response = await axios.get(
+            'https://api.tiktok.com/v2/user/',
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            }
+        );
+
+        // If the request is successful, return the TikTok user data
+        return response.data.data;
+    } catch (error) {
+        // Handle any errors here (e.g., invalid access token)
+        throw new Error('Access token verification failed');
+    }
 };
 
 export const getTwitterUserInfo = async (
@@ -23,10 +47,6 @@ export const getTwitterUserInfo = async (
             access_token: userAccessToken,
             access_token_secret: userAccessSecret
         });
-
-        // if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
-        //   throw new Exception('Twitter Env missing!')
-        // }
 
         const { data } = await T.get('account/verify_credentials', {
             skip_status: true,

@@ -52,6 +52,9 @@ jobs:
                   sudo echo GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} >> .env
                   sudo echo GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}} >> .env
                   sudo echo GOOGLE_CALLBACK_URL=${{secrets.GOOGLE_CALLBACK_URL}} >> .env
+                  sudo echo TIKTOK_CLIENT_ID=${{secrets.TIKTOK_CLIENT_ID}} >> .env
+                  sudo echo TIKTOK_CLIENT_SECRET=${{secrets.TIKTOK_CLIENT_SECRET}} >> .env
+                  sudo echo TIKTOK_CALLBACK_URL=${{secrets.TIKTOK_CALLBACK_URL}} >> .env
                   sudo echo CLIENT_SSO_SUCCESS_URL=${{secrets.CLIENT_SSO_SUCCESS_URL}} >> .env
                   sudo echo SESSION_SECRET=${{secrets.SESSION_SECRET}} >> .env
                   cat .env

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
-import { getGoogleUserInfo, getTwitterUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
+import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
 import { UserType } from '../user/dto/UserType';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
@@ -102,6 +102,11 @@ export class AuthService {
                     }
                     break;
 
+                case 'tiktok':
+                    console.log("Feeding Tiktok user")
+                    const tiktokuser = await getTiktokUserInfo(accessToken)
+                    console.log(">>>>> verified tiktok user >>>", tiktokuser)
+                    ssoUser = { ...tiktokuser };
             }
 
             const { email, name, picture } = ssoUser

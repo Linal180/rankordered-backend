@@ -11,6 +11,7 @@ import { AdminStrategy } from './admin.strategy';
 import { ProfileModule } from '../profile/profile.module';
 import { TwitterStrategy } from './twitter.strategy';
 import { GoogleStrategy } from './google.strategy';
+import { TiktokStrategy } from './tiktok.strategy';
 
 @Module({
     imports: [
@@ -33,9 +34,10 @@ import { GoogleStrategy } from './google.strategy';
         JwtStrategy,
         AdminStrategy,
         TwitterStrategy,
-        GoogleStrategy
+        GoogleStrategy,
+        TiktokStrategy
     ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule {}
+export class AuthModule { }

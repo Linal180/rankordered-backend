@@ -25,6 +25,7 @@ import { TwitterAuthGuard } from '../twitter-auth.guard';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { GoogleAuthGuard } from '../google-auth.guard';
+import { TiktokAuthGuard } from '../tiktok-auth.guard';
 
 @ApiTags('Auth')
 @Controller({
@@ -35,7 +36,7 @@ export class AuthController {
     constructor(
         private authService: AuthService,
         private readonly configService: ConfigService
-    ) {}
+    ) { }
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
@@ -148,11 +149,11 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
+
     @Get('google')
     @UseGuards(GoogleAuthGuard)
     googleAuth() {
@@ -177,8 +178,38 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
+        );
+    }
+
+    @Get('tiktok')
+    @UseGuards(TiktokAuthGuard)
+    tiktokAuth() {
+        return true;
+    }
+
+    @Get('tiktok/callback')
+    @UseGuards(TiktokAuthGuard)
+    async tiktokCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        console.log(">>>>>>>> tiktokCallback")
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        console.log(">>> Tiktok user", req?.user)
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
