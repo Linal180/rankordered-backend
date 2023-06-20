@@ -26,6 +26,9 @@ import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { GoogleAuthGuard } from '../google-auth.guard';
 import { TiktokAuthGuard } from '../tiktok-auth.guard';
+import { FacebookAuthGuard } from '../facebook.guard';
+import { PinterestAuthGuard } from '../pinterest-auth.guard';
+import { SnapchatAuthGuard } from '../snapchat.guard';
 
 @ApiTags('Auth')
 @Controller({
@@ -36,7 +39,7 @@ export class AuthController {
     constructor(
         private authService: AuthService,
         private readonly configService: ConfigService
-    ) { }
+    ) {}
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
@@ -149,7 +152,8 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -178,7 +182,8 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -198,9 +203,9 @@ export class AuthController {
         },
         @Res() res: Response
     ) {
-        console.log(">>>>>>>> tiktokCallback")
+        console.log('>>>>>>>> tiktokCallback');
         const { accessSecret, accessToken, sso } = req?.user || {};
-        console.log(">>> Tiktok user", req?.user)
+        console.log('>>> Tiktok user', req?.user);
         const response = await this.authService.feedSsoUser(
             sso,
             accessToken,
@@ -209,7 +214,98 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
+        );
+    }
+
+    @Get('facebook')
+    @UseGuards(FacebookAuthGuard)
+    facebookAuth() {
+        return true;
+    }
+
+    @Get('facebook/callback')
+    @UseGuards(FacebookAuthGuard)
+    async facebookCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
+        );
+    }
+
+    @Get('pinterest')
+    @UseGuards(PinterestAuthGuard)
+    pinterestAuth() {
+        return true;
+    }
+
+    @Get('pinterest/callback')
+    @UseGuards(PinterestAuthGuard)
+    async pinterestCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
+        );
+    }
+
+    @Get('snapschat')
+    @UseGuards(SnapchatAuthGuard)
+    snapchatAuth() {
+        return true;
+    }
+
+    @Get('snapchat/callback')
+    @UseGuards(SnapchatAuthGuard)
+    async snapchatCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
+                response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }

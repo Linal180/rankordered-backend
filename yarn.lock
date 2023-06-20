@@ -2898,6 +2898,14 @@
     "@types/passport" "*"
     "@types/passport-oauth2" "*"
 
+"@types/passport-instagram@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/passport-instagram/-/passport-instagram-1.0.2.tgz#00b653fc3cd7abf5fb213c9d37f37d465e33cd6c"
+  integrity sha512-wlwHxx2pDzL5ILTXvnrTEdoUlTPNMf8YZbasM3jyIcnOZBiodsUJcE7kSGPM5L+urDyL0GajiStU6F+FyP2xjA==
+  dependencies:
+    "@types/express" "*"
+    "@types/passport" "*"
+
 "@types/passport-jwt@^3.0.6":
   version "3.0.8"
   resolved "https://registry.npmjs.org/@types/passport-jwt/-/passport-jwt-3.0.8.tgz"
@@ -8649,6 +8657,13 @@ passport-google-oauth20@^2.0.0:
   dependencies:
     passport-oauth2 "1.x.x"
 
+passport-instagram@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/passport-instagram/-/passport-instagram-1.0.0.tgz#eaa2b42d11473bcfda5190f26234cf485f645656"
+  integrity sha512-irnGcLgCa+vYF5k/7+gU/uiLfzs6VJds8cMOFiuwq2mRAiRrEPyM5rIzXurDGCQl7s5uhEcolpBOGqChUGPtAg==
+  dependencies:
+    passport-oauth2 "1.x.x"
+
 passport-jwt@^4.0.0:
   version "4.0.1"
   resolved "https://registry.npmjs.org/passport-jwt/-/passport-jwt-4.0.1.tgz"
@@ -8690,6 +8705,22 @@ passport-oauth@1.0.x:
   integrity sha512-4IZNVsZbN1dkBzmEbBqUxDG8oFOIK81jqdksE3HEb/vI3ib3FMjbiZZ6MTtooyYZzmKu0BfovjvT1pdGgIq+4Q==
   dependencies:
     passport-oauth1 "1.x.x"
+    passport-oauth2 "1.x.x"
+
+passport-pinterest@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/passport-pinterest/-/passport-pinterest-1.0.0.tgz#42bccacc614348269334887187dfc9330c828dc2"
+  integrity sha512-HM7TzLSokLCYAe5m/sZjMqPMWdW9Pc8dZdf8Qvd/XwnDm82lZJz+h0MOdRo2PcBzNJp5rmtqUbpQYaLaAZZgIQ==
+  dependencies:
+    lodash "^4.13.1"
+    passport-oauth "1.0.x"
+    pkginfo "^0.4"
+
+passport-snapchat@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/passport-snapchat/-/passport-snapchat-1.0.0.tgz#dc7f9b45bc423e76bede6f2f9747e70766550f73"
+  integrity sha512-DCI1ry1tYXkaAPKpPF0O8cZxbdV8oSOsiwsAAOn/i9V4xi9hR0V1nJSuJsQ/Yx4Wq27lDh6NNtiljWlgdFrYjw==
+  dependencies:
     passport-oauth2 "1.x.x"
 
 passport-strategy@1.x.x, passport-strategy@^1.0.0:
