@@ -26,7 +26,7 @@ import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { GoogleAuthGuard } from '../google-auth.guard';
 import { TiktokAuthGuard } from '../tiktok-auth.guard';
-import { FacebookAuthGuard } from '../facebook.guard';
+import { InstagramAuthGuard } from '../instagram.guard';
 import { PinterestAuthGuard } from '../pinterest-auth.guard';
 import { SnapchatAuthGuard } from '../snapchat.guard';
 
@@ -220,14 +220,14 @@ export class AuthController {
         );
     }
 
-    @Get('facebook')
-    @UseGuards(FacebookAuthGuard)
-    facebookAuth() {
+    @Get('instagram')
+    @UseGuards(InstagramAuthGuard)
+    instagramAuth() {
         return true;
     }
 
-    @Get('facebook/callback')
-    @UseGuards(FacebookAuthGuard)
+    @Get('instagram/callback')
+    @UseGuards(InstagramAuthGuard)
     async facebookCallback(
         @Req()
         req: Request & {
@@ -280,7 +280,7 @@ export class AuthController {
         );
     }
 
-    @Get('snapschat')
+    @Get('snapchat')
     @UseGuards(SnapchatAuthGuard)
     snapchatAuth() {
         return true;

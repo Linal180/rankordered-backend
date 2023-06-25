@@ -12,7 +12,7 @@ import { ProfileModule } from '../profile/profile.module';
 import { TwitterStrategy } from './twitter.strategy';
 import { GoogleStrategy } from './google.strategy';
 import { TiktokStrategy } from './tiktok.strategy';
-import { FacebookStrategy } from './facebook.strategy';
+import { InstagramStrategy } from './instagram.strategy';
 import { SnapchatStrategy } from './snapchat.strategy';
 import { PinterestStrategy } from './pinterest.strategy';
 
@@ -38,8 +38,8 @@ import { PinterestStrategy } from './pinterest.strategy';
         AdminStrategy,
         TwitterStrategy,
         GoogleStrategy,
+        InstagramStrategy,
         TiktokStrategy,
-        FacebookStrategy,
         SnapchatStrategy,
         PinterestStrategy
     ],

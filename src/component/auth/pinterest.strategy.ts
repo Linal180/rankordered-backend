@@ -9,7 +9,9 @@ export class PinterestStrategy extends PassportStrategy(Strategy, 'pinterest') {
         super({
             clientID: configService.get('PINTEREST_CLIENT_ID'),
             clientSecret: configService.get('PINTEREST_CLIENT_SECRET'),
-            callbackURL: configService.get('PINTEREST_CALLBACK_URL')
+            callbackURL: configService.get('PINTEREST_CALLBACK_URL'),
+            scope: ['read_public', 'read_relationships'],
+            state: true
         });
     }
 

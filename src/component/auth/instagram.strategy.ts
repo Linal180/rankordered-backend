@@ -4,12 +4,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-instagram';
 
 @Injectable()
-export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
+export class InstagramStrategy extends PassportStrategy(Strategy, 'instagram') {
     constructor(configService: ConfigService) {
         super({
-            clientID: configService.get('FACEBOOK_CLIENT_ID'),
-            clientSecret: configService.get('FACEBOOK_CLIENT_SECRET'),
-            callbackURL: configService.get('FACEBOOK_CALLBACK_URL')
+            clientID: configService.get('INSTAGRAM_CLIENT_ID'),
+            clientSecret: configService.get('INSTAGRAM_CLIENT_SECRET'),
+            callbackURL: configService.get('INSTAGRAM_CALLBACK_URL'),
+            scope: ['basic']
         });
     }
 
