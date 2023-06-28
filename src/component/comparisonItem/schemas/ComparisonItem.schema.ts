@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Gallery } from '../../gallery/schemas/gallery.schema';
 import { Category } from '../../category/schemas/category.schema';
+import { User } from 'src/component/user/schemas/user.schema';
 
 type ComparisonItemDocument = ComparisonItem & mongoose.Document;
 
@@ -69,6 +70,9 @@ class ComparisonItem {
 
     @Prop({ default: true })
     active: boolean;
+
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
+    favoritedBy: User[];
 }
 
 const ComparisonItemSchema = SchemaFactory.createForClass(ComparisonItem);

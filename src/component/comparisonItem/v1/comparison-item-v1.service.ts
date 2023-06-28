@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, ObjectId, Types } from 'mongoose';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
@@ -32,7 +32,7 @@ export class ComparisonItemV1Service {
 
         private eventEmitter: EventEmitter2,
         private readonly categoryService: CategoryV1Service
-    ) {}
+    ) { }
 
     async findById(id: string): Promise<MongoResultQuery<ComparisonItem>> {
         const res = new MongoResultQuery<ComparisonItem>();
@@ -356,12 +356,16 @@ export class ComparisonItemV1Service {
         categoryId = null,
         pagination,
         search,
-        active
+        active,
+        ids,
+        favorite = false
     }: {
         categoryId: string;
         pagination: PaginationDto;
         search?: string;
         active?: boolean | string;
+        ids?: string[];
+        favorite?: boolean;
     }): Promise<MongoResultQuery<ComparisonItem[]>> {
         // eslint-disable-next-line prefer-const
         const options: any = {};
@@ -380,12 +384,19 @@ export class ComparisonItemV1Service {
 
         const skip = pagination.currentPage * pagination.limit;
 
-        const items = await this.itemModel
-            .find({
-                ...options,
-                category: { $elemMatch: { $eq: categoryId } }
-            })
-            .exec();
+        let itemsQuery = {
+            ...options,
+            category: { $elemMatch: { $eq: categoryId } }
+        };
+
+        if (favorite) {
+            itemsQuery = {
+                ...itemsQuery,
+                _id: { $in: ids }
+            };
+        }
+
+        const items = await this.itemModel.find(itemsQuery).exec();
 
         const categoryItemsIds = category.data.categoryRankingItems.filter(
             (item) => {
@@ -442,7 +453,12 @@ export class ComparisonItemV1Service {
             )
         })) as any;
 
-        res.count = await this.itemModel.find(options).count();
+        if (favorite) {
+            res.count = ids.length
+        } else {
+            res.count = await this.itemModel.find(options).count();
+        }
+
         res.status = OperationResult.fetch;
 
         return res;

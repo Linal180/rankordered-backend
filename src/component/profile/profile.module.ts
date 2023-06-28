@@ -8,7 +8,8 @@ import { SocialProfile, SocialProfileSchema } from '../social-provider/schemas/S
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: SocialProfile.name, schema: SocialProfileSchema }]),
-        UserModule],
+        UserModule
+    ],
     controllers: [ProfileV1Controller],
     providers: [SocialProfileV1Service],
     exports: [SocialProfileV1Service]
