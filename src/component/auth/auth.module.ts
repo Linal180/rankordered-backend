@@ -12,6 +12,9 @@ import { ProfileModule } from '../profile/profile.module';
 import { TwitterStrategy } from './twitter.strategy';
 import { GoogleStrategy } from './google.strategy';
 import { TiktokStrategy } from './tiktok.strategy';
+import { InstagramStrategy } from './instagram.strategy';
+import { SnapchatStrategy } from './snapchat.strategy';
+import { PinterestStrategy } from './pinterest.strategy';
 
 @Module({
     imports: [
@@ -35,9 +38,12 @@ import { TiktokStrategy } from './tiktok.strategy';
         AdminStrategy,
         TwitterStrategy,
         GoogleStrategy,
-        TiktokStrategy
+        InstagramStrategy,
+        TiktokStrategy,
+        SnapchatStrategy,
+        PinterestStrategy
     ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule { }
+export class AuthModule {}

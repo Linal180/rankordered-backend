@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-twitter';
+import { Strategy } from 'passport-pinterest';
 
 @Injectable()
-export class TwitterStrategy extends PassportStrategy(Strategy, 'twitter') {
+export class PinterestStrategy extends PassportStrategy(Strategy, 'pinterest') {
     constructor(configService: ConfigService) {
         super({
-            consumerKey: configService.get('TWITTER_CONSUMER_KEY'),
-            consumerSecret: configService.get('TWITTER_CONSUMER_SECRET'),
-            callbackURL: configService.get('TWITTER_CALLBACK_URL')
+            clientID: configService.get('PINTEREST_CLIENT_ID'),
+            clientSecret: configService.get('PINTEREST_CLIENT_SECRET'),
+            callbackURL: configService.get('PINTEREST_CALLBACK_URL'),
+            scope: ['read_public', 'read_relationships'],
+            state: true
         });
     }
 
