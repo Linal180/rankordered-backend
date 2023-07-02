@@ -58,6 +58,9 @@ jobs:
                   sudo echo FACEBOOK_CLIENT_ID=${{secrets.FACEBOOK_CLIENT_ID}} >> .env
                   sudo echo FACEBOOK_CLIENT_SECRET=${{secrets.FACEBOOK_CLIENT_SECRET}} >> .env
                   sudo echo FACEBOOK_CALLBACK_URL=${{secrets.FACEBOOK_CALLBACK_URL}} >> .env
+                  sudo echo INSTAGRAM_CLIENT_ID=${{secrets.FACEBOOK_CLIENT_ID}} >> .env
+                  sudo echo INSTAGRAM_CLIENT_SECRET=${{secrets.FACEBOOK_CLIENT_SECRET}} >> .env
+                  sudo echo INSTAGRAM_CALLBACK_URL=${{secrets.FACEBOOK_CALLBACK_URL}} >> .env
                   sudo echo PINTEREST_CLIENT_ID=${{secrets.PINTEREST_CLIENT_ID}} >> .env
                   sudo echo PINTEREST_CLIENT_SECRET=${{secrets.PINTEREST_CLIENT_SECRET}} >> .env
                   sudo echo PINTEREST_CALLBACK_URL=${{secrets.PINTEREST_CALLBACK_URL}} >> .env
