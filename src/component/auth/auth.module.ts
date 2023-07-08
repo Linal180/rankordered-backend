@@ -38,12 +38,12 @@ import { PinterestStrategy } from './pinterest.strategy';
         AdminStrategy,
         TwitterStrategy,
         GoogleStrategy,
-        InstagramStrategy,
-        TiktokStrategy,
-        SnapchatStrategy,
-        PinterestStrategy
+        // InstagramStrategy,
+        // TiktokStrategy,
+        // SnapchatStrategy,
+        // PinterestStrategy
     ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule {}
+export class AuthModule { }
