@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-tiktok-auth';
 import { AuthService } from './auth.service';
-// import { TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET } from './config';
 
 @Injectable()
 export class TiktokStrategy extends PassportStrategy(Strategy, 'tiktok') {

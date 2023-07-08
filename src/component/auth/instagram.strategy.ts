@@ -7,9 +7,9 @@ import { Strategy } from 'passport-instagram';
 export class InstagramStrategy extends PassportStrategy(Strategy, 'instagram') {
     constructor(configService: ConfigService) {
         super({
-            clientID: configService.get('INSTAGRAM_CLIENT_ID'),
-            clientSecret: configService.get('INSTAGRAM_CLIENT_SECRET'),
-            callbackURL: configService.get('INSTAGRAM_CALLBACK_URL'),
+            clientID: configService.get('INSTAGRAM_CLIENT_ID') || '',
+            clientSecret: configService.get('INSTAGRAM_CLIENT_SECRET') || '',
+            callbackURL: configService.get('INSTAGRAM_CALLBACK_URL') || '',
             scope: ['basic']
         });
     }

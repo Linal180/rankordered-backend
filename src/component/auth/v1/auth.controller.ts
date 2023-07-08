@@ -39,7 +39,7 @@ export class AuthController {
     constructor(
         private authService: AuthService,
         private readonly configService: ConfigService
-    ) {}
+    ) { }
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
@@ -152,8 +152,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -182,8 +181,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -214,8 +212,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -244,8 +241,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -274,8 +270,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -304,8 +299,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
