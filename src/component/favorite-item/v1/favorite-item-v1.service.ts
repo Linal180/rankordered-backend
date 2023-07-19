@@ -66,11 +66,32 @@ export class FavoriteItemV1Service {
       if (ids.length) {
         const comparisonResponse = await this.comparisonService.findAllWithRankingfromSnapshotOptimized({ categoryId, pagination, search, ids, favorite: true })
 
-        console.log(comparisonResponse.data)
         return comparisonResponse;
       } else throw new NotFoundException();
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  async checkFavorite(userId: string, itemId: string): Promise<MongoResultQuery<FavoriteItem>> {
+    if (!userId)
+      throw new BadRequestException();
+
+    const res = new MongoResultQuery<FavoriteItem>();
+
+    try {
+      const favorite = await this.favoriteModel.findOne({ user: userId, comparisonItem: itemId })
+        .sort({ createdAt: -1 })
+        .exec();
+
+      if (favorite) {
+        res.data = favorite;
+        res.status = OperationResult.fetch
+      }
+
+      return res;
+    } catch (error) {
+      throw new NotFoundException()
     }
   }
 }
