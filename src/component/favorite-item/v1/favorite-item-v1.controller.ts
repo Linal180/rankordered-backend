@@ -20,6 +20,7 @@ import { FavoriteDto } from '../dto/index.dto';
 import { FavoriteItemV1Service } from './favorite-item-v1.service';
 import { ComparisonItem } from 'src/component/comparisonItem/schemas/ComparisonItem.schema';
 import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
+import { FavoriteItem } from '../schemas/favoriteItem.schema';
 
 @ApiTags('FavoriteItem')
 @Controller({ version: '1', path: 'favorite-item' })
@@ -63,6 +64,15 @@ export class FavoriteItemV1Controller {
     const { user } = request;
     const { itemId } = favoriteCreateDto
     return await this.itemService.create(user.userId, itemId)
+  }
+
+  @Get(':id/is-favorite')
+  async checkFavorite(
+    @Req() request: any,
+    @Param('id') id: string,
+  ): Promise<MongoResultQuery<FavoriteItem>> {
+    const { user } = request;
+    return await this.itemService.checkFavorite(user.userId, id);
   }
 
   @Delete(':id')
