@@ -50,7 +50,7 @@ export class AuthService {
             type: user.type
         };
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: this.jwtService.sign(payload, { expiresIn: '365d' }),
             refresh_token: this.jwtService.sign(payload, {
                 expiresIn: '1440m'
             })
@@ -103,10 +103,8 @@ export class AuthService {
                     break;
 
                 case 'tiktok':
-                    console.log("Feeding Tiktok user")
-                    const tiktokuser = await getTiktokUserInfo(accessToken)
-                    console.log(">>>>> verified tiktok user >>>", tiktokuser)
-                    ssoUser = { ...tiktokuser };
+                    const tiktokUser = await getTiktokUserInfo(accessToken)
+                    ssoUser = { ...tiktokUser };
             }
 
             const { email, name, picture } = ssoUser
