@@ -9,12 +9,14 @@ import { UserModule } from '../user/user.module';
 import { AuthController } from './v1/auth.controller';
 import { AdminStrategy } from './admin.strategy';
 import { ProfileModule } from '../profile/profile.module';
-import { TwitterStrategy } from './twitter.strategy';
-import { GoogleStrategy } from './google.strategy';
+import { TwitterStrategy } from './twitter/twitter.strategy';
+import { GoogleStrategy } from './google/google.strategy';
 import { TiktokStrategy } from './tiktok.strategy';
 import { InstagramStrategy } from './instagram.strategy';
 import { SnapchatStrategy } from './snapchat.strategy';
 import { PinterestStrategy } from './pinterest.strategy';
+import { GoogleLoginStrategy } from './google/google-login.strategy';
+import { TwitterLoginStrategy } from './twitter/twitter-login.strategy';
 
 @Module({
     imports: [
@@ -37,7 +39,9 @@ import { PinterestStrategy } from './pinterest.strategy';
         JwtStrategy,
         AdminStrategy,
         TwitterStrategy,
+        TwitterLoginStrategy,
         GoogleStrategy,
+        GoogleLoginStrategy,
         // InstagramStrategy,
         // TiktokStrategy,
         // SnapchatStrategy,

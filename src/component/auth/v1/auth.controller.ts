@@ -15,20 +15,22 @@ import {
     LoginRequestDto,
     LoginResponseDto,
     RefreshRequestDto,
+    SignupRequestDto,
     SsoLoginRequestDto
 } from '../dto/login.dto';
 import { JwtAuthGuard } from '../jwt-auth.guard';
 import { LocalAuthGuard } from '../local-auth.guard';
 import { AdminAuthGuard } from '../admin-auth.guard';
 import { CurrentUserDto } from 'src/component/user/dto/User.dto';
-import { TwitterAuthGuard } from '../twitter-auth.guard';
+import { TwitterAuthGuard } from '../twitter/twitter-auth.guard';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { GoogleAuthGuard } from '../google-auth.guard';
+import { GoogleAuthGuard } from '../google/google-auth.guard';
 import { TiktokAuthGuard } from '../tiktok-auth.guard';
 import { InstagramAuthGuard } from '../instagram.guard';
 import { PinterestAuthGuard } from '../pinterest-auth.guard';
 import { SnapchatAuthGuard } from '../snapchat.guard';
+import { GoogleLoginAuthGuard } from '../google/google-login-auth.guard';
 
 @ApiTags('Auth')
 @Controller({
@@ -74,11 +76,22 @@ export class AuthController {
         @Request() req
     ): Promise<LoginResponseDto> {
         const tokens = await this.authService.login(req.user);
+
         return {
             access_token: tokens.access_token,
             refresh_token: tokens.refresh_token,
             login_user: req.user
         };
+    }
+
+    @Post('signup')
+    @ApiOperation({ summary: 'Sign up User' })
+    async signup(
+        @Body() payload: SignupRequestDto,
+    ): Promise<LoginResponseDto> {
+        const { access_token, refresh_token, user } = await this.authService.signup(payload)
+
+        return { access_token, refresh_token, login_user: user };
     }
 
     @Post('admin/login')
@@ -157,6 +170,54 @@ export class AuthController {
         );
     }
 
+    @Get('twitter/callback')
+    @UseGuards(TwitterAuthGuard)
+    async twitterLoginCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        const response = await this.authService.feedSsoUser(
+            sso,
+            accessToken,
+            accessSecret
+        );
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
+        );
+    }
+
+    @Get('google-login')
+    @UseGuards(GoogleLoginAuthGuard)
+    googleLoginAuth() {
+        return true;
+    }
+
+    @Get('google-login/callback')
+    @UseGuards(GoogleLoginAuthGuard)
+    async googleLoginCallback(
+        @Req()
+        req: Request & {
+            user: { accessToken: string; accessSecret: string; sso: string };
+        },
+        @Res() res: Response
+    ) {
+        const { accessSecret, accessToken, sso } = req?.user || {};
+        const tokens = await this.authService.ssoLogin(sso, accessToken, accessSecret);
+
+        // Redirect the user
+        res.redirect(
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${tokens.access_token
+            }&refreshToken=${tokens.refresh_token}&sso=${sso}&isLogin=true`
+        );
+    }
+
     @Get('google')
     @UseGuards(GoogleAuthGuard)
     googleAuth() {
@@ -201,9 +262,7 @@ export class AuthController {
         },
         @Res() res: Response
     ) {
-        console.log('>>>>>>>> tiktokCallback');
         const { accessSecret, accessToken, sso } = req?.user || {};
-        console.log('>>> Tiktok user', req?.user);
         const response = await this.authService.feedSsoUser(
             sso,
             accessToken,
