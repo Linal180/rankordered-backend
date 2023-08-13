@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from '../user/schemas/user.schema';
@@ -9,6 +9,7 @@ import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
 import { CurrentUserDto } from '../user/dto/User.dto';
 import { SocialProfile } from '../social-provider/schemas/SocialProfile.schema';
+import { SignupRequestDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
         username: string,
         password: string
     ): Promise<User | null> {
-        const user = await this.userService.getByUsername(username);
+        const user = await this.userService.getByUsernameOrEmail(username);
         if (user && (await compare(password, user.password))) {
             user.password = undefined;
             return user;
@@ -43,18 +44,87 @@ export class AuthService {
         }
     }
 
+    async signup(payload: SignupRequestDto) {
+        const { name, password, username: email } = payload;
+        const username = this.generateUsername(name);
+        const user: any = await this.userService.getByEmail(email);
+
+        if (!user) {
+            const { data, status } = await this.userService.createUser({
+                email, name, password, username, type: 'user' as UserType,
+            });
+
+            if (status === OperationResult.create) {
+                const { access_token, refresh_token } = await this.login(data);
+
+                return {
+                    access_token, refresh_token, user: data
+                }
+            }
+        } else {
+            throw new ConflictException();
+        }
+    }
+
     async login(user: any) {
         const payload = {
             username: user.username,
             sub: user._id,
             type: user.type
         };
-        return {
-            access_token: this.jwtService.sign(payload, { expiresIn: '365d' }),
-            refresh_token: this.jwtService.sign(payload, {
-                expiresIn: '1440m'
-            })
-        };
+
+        return this.generateAuthTokens(payload);
+    }
+
+
+    async ssoLogin(sso: string, accessToken: string, accessSecret = '') {
+        try {
+            let email = "";
+
+            switch (sso) {
+                case 'youtube':
+                case 'google':
+                    const googleUser = await getGoogleUserInfo(accessToken);
+                    email = googleUser.email;
+                    break;
+
+                case 'twitter':
+                    const twitterUser: any = await getTwitterUserInfo(accessToken, accessSecret)
+                    email = twitterUser.email;
+                    break;
+
+                case 'tiktok':
+                    const tiktokUser = await getTiktokUserInfo(accessToken)
+                    email = tiktokUser.email;
+            }
+
+            if (!email) {
+                return {
+                    access_token: null,
+                    refresh_token: null
+                }
+            }
+
+            const user: any = await this.userService.getByEmail(email)
+
+            if (user) {
+                const payload = {
+                    username: user.username,
+                    sub: user._id || '',
+                    type: user.type
+                };
+
+                return this.generateAuthTokens(payload);
+            } else {
+                return {
+                    access_token: null,
+                    refresh_token: null
+                }
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     async verifyRefreshToken(refreshToken: string): Promise<boolean> {
@@ -113,7 +183,7 @@ export class AuthService {
 
             if (!user) {
                 const { data, status } = await this.userService.createUser({
-                    email, name, password: 'user@123', username: name, type: 'user' as UserType, provider: sso, profilePicture: picture
+                    email, name, username: name, type: 'user' as UserType, provider: sso, profilePicture: picture
                 });
 
                 if (status === OperationResult.create) {
@@ -149,6 +219,19 @@ export class AuthService {
                 primaryProfile: {
                     email: primaryEmail, profilePicture, provider
                 }
+            })
+        }
+    }
+
+    private generateUsername(name: string) {
+        return (name || "").toLowerCase().split(' ').join('-');
+    }
+
+    private generateAuthTokens(payload: { username: string; sub: string, type: string }) {
+        return {
+            access_token: this.jwtService.sign(payload, { expiresIn: '365d' }),
+            refresh_token: this.jwtService.sign(payload, {
+                expiresIn: '1440m'
             })
         }
     }

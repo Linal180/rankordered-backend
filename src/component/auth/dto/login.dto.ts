@@ -32,6 +32,14 @@ export class LoginRequestDto {
 }
 
 @Exclude()
+export class SignupRequestDto extends LoginRequestDto {
+    @Expose()
+    @ApiProperty()
+    @IsNotEmpty()
+    name: string;
+}
+
+@Exclude()
 export class SsoLoginRequestDto {
     @Expose()
     @ApiProperty()
