@@ -36,7 +36,7 @@ export class SignupRequestDto extends LoginRequestDto {
     @Expose()
     @ApiProperty()
     @IsNotEmpty()
-    email: string;
+    name: string;
 }
 
 @Exclude()

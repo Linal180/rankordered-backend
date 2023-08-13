@@ -52,7 +52,10 @@ export class Userv1Service {
             res.status = OperationResult.create;
             dbUser = existingUser;
         } else {
-            user.password = await hash(user.password, 10);
+            if (user.password) {
+                user.password = await hash(user.password, 10);
+            }
+            user.username = user.username.toLowerCase().split(' ').join('-');
             const newUser = await this.userModel.create(user);
 
             if (!newUser) {
@@ -125,6 +128,22 @@ export class Userv1Service {
     async getByUsername(username: string): Promise<User> {
         return this.userModel
             .findOne({ username: username }, [
+                'username',
+                'email',
+                'password',
+                'type'
+            ])
+            .exec();
+    }
+
+    async getByUsernameOrEmail(identifier: string): Promise<User> {
+        return this.userModel
+            .findOne({
+                $or: [
+                    { username: identifier },
+                    { email: identifier }
+                ]
+            }, [
                 'username',
                 'email',
                 'password',

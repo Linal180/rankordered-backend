@@ -210,11 +210,11 @@ export class AuthController {
     ) {
         const { accessSecret, accessToken, sso } = req?.user || {};
         const tokens = await this.authService.ssoLogin(sso, accessToken, accessSecret);
-
+        console.log(">>>>>>>>>>>>", tokens)
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${tokens.access_token
-            }&refreshToken=${tokens.refresh_token}&sso=${sso}&isLogin=true`
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${tokens ? tokens?.access_token : undefined
+            }&refreshToken=${tokens ? tokens.refresh_token : undefined}&sso=${sso}&isLogin=true`
         );
     }
 

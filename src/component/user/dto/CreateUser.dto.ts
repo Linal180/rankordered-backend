@@ -28,7 +28,7 @@ export class CreateUserDto extends CreateSocialProfileDto {
 
     @ApiProperty({ example: 'password@123' })
     @IsNotEmpty()
-    password: string;
+    password?: string;
 
     @ApiProperty({ example: 'admin' })
     @IsNotEmpty()
