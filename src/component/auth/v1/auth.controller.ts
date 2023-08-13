@@ -31,6 +31,7 @@ import { InstagramAuthGuard } from '../instagram.guard';
 import { PinterestAuthGuard } from '../pinterest-auth.guard';
 import { SnapchatAuthGuard } from '../snapchat.guard';
 import { GoogleLoginAuthGuard } from '../google/google-login-auth.guard';
+import { TwitterLoginAuthGuard } from '../twitter/twitter-login-auth.guard';
 
 @ApiTags('Auth')
 @Controller({
@@ -170,8 +171,14 @@ export class AuthController {
         );
     }
 
-    @Get('twitter/callback')
-    @UseGuards(TwitterAuthGuard)
+    @Get('twitter-login')
+    @UseGuards(TwitterLoginAuthGuard)
+    twitterLoginAuth() {
+        return true;
+    }
+
+    @Get('twitter-login/callback')
+    @UseGuards(TwitterLoginAuthGuard)
     async twitterLoginCallback(
         @Req()
         req: Request & {
@@ -210,7 +217,7 @@ export class AuthController {
     ) {
         const { accessSecret, accessToken, sso } = req?.user || {};
         const tokens = await this.authService.ssoLogin(sso, accessToken, accessSecret);
-        console.log(">>>>>>>>>>>>", tokens)
+
         // Redirect the user
         res.redirect(
             `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${tokens ? tokens?.access_token : undefined
