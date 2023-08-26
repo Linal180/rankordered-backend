@@ -123,7 +123,11 @@ jobs:
             # - name: start pm2
             #   working-directory: '/home/rankordered/stg-rankordered-backend-nest'
             #   run: sudo pm2 start pm2.dev.config.js
-            - name: reload application
-              run: sudo pm2 reload rankordered-backend-staging
+            - name: stop process
+              working-directory: '/home/rankordered/stg-rankordered-backend-nest'
+              run: sudo pm2 delete rankordered-backend-staging || true
+            - name: start process
+              working-directory: '/home/rankordered/stg-rankordered-backend-nest'
+              run: sudo pm2 start pm2.dev.config.js
             - name: save pm2 config
               run: sudo pm2 save

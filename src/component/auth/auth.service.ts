@@ -209,7 +209,7 @@ export class AuthService {
         }
     }
 
-    setCurrentUserPayload(user: User, profile: SocialProfile | null): CurrentUserDto {
+    setCurrentUserPayload(user: User, profile: SocialProfile): CurrentUserDto {
         const { email, name, username } = user;
         const { email: primaryEmail, profilePicture, provider } = profile || {};
 

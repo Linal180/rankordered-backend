@@ -118,6 +118,20 @@ export class SocialProfileV1Service {
 		return res;
 	}
 
+	async delete(id: string): Promise<MongoResultQuery<SocialProfile>> {
+		const res = new MongoResultQuery<SocialProfile>();
+
+		if (!id) {
+			this.throwObjectNotFoundError();
+		}
+
+		await this.socialModel.findByIdAndDelete(id).exec();
+
+		res.status = OperationResult.delete;
+
+		return res;
+	}
+
 	private throwObjectNotFoundError(): void {
 		throw new ObjectNotFoundException(SocialProfile.name);
 	}
