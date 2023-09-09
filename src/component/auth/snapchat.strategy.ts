@@ -10,7 +10,7 @@ export class SnapchatStrategy extends PassportStrategy(Strategy, 'snapchat') {
             clientID: configService.get('SNAPCHAT_CLIENT_ID'),
             clientSecret: configService.get('SNAPCHAT_CLIENT_SECRET'),
             callbackURL: configService.get('SNAPCHAT_CALLBACK_URL'),
-            profileFields: ['id', 'displayName']
+            profileFields: ['displayName']
         });
     }
 

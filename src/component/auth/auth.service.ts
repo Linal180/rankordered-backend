@@ -175,6 +175,12 @@ export class AuthService {
                 case 'tiktok':
                     const tiktokUser = await getTiktokUserInfo(accessToken)
                     ssoUser = { ...tiktokUser };
+                    break;
+
+                case 'facebook':
+                case 'instagram':
+                    console.log(":::::::::::::::::::::")
+                    break;
             }
 
             const { email, name, picture } = ssoUser
