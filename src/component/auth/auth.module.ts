@@ -11,7 +11,7 @@ import { AdminStrategy } from './admin.strategy';
 import { ProfileModule } from '../profile/profile.module';
 import { TwitterStrategy } from './twitter/twitter.strategy';
 import { GoogleStrategy } from './google/google.strategy';
-import { TiktokStrategy } from './tiktok.strategy';
+import { TiktokStrategy } from './tiktok/tiktok.strategy';
 import { InstagramStrategy } from './instagram.strategy';
 import { SnapchatStrategy } from './snapchat.strategy';
 import { PinterestStrategy } from './pinterest.strategy';
@@ -43,8 +43,8 @@ import { TwitterLoginStrategy } from './twitter/twitter-login.strategy';
         GoogleStrategy,
         GoogleLoginStrategy,
         // InstagramStrategy,
-        // TiktokStrategy,
-        // SnapchatStrategy,
+        TiktokStrategy,
+        SnapchatStrategy,
         // PinterestStrategy
     ],
     controllers: [AuthController],

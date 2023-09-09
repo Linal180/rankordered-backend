@@ -17,8 +17,6 @@ export const getGoogleUserInfo = async (accessToken: string) => {
 export const getTiktokUserInfo = async (accessToken: string) => {
     try {
         // Send a request to TikTok's API to verify the access token
-
-        console.log("Tiktok helper >>> accesstoken = ", accessToken)
         const response = await axios.get(
             'https://api.tiktok.com/v2/user/',
             {

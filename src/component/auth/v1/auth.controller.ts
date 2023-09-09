@@ -26,7 +26,7 @@ import { TwitterAuthGuard } from '../twitter/twitter-auth.guard';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { GoogleAuthGuard } from '../google/google-auth.guard';
-import { TiktokAuthGuard } from '../tiktok-auth.guard';
+import { TiktokAuthGuard } from '../tiktok/tiktok-auth.guard';
 import { InstagramAuthGuard } from '../instagram.guard';
 import { PinterestAuthGuard } from '../pinterest-auth.guard';
 import { SnapchatAuthGuard } from '../snapchat.guard';
@@ -257,6 +257,7 @@ export class AuthController {
     @Get('tiktok')
     @UseGuards(TiktokAuthGuard)
     tiktokAuth() {
+        console.log("******************")
         return true;
     }
 
