@@ -55,6 +55,7 @@ jobs:
                   sudo echo TIKTOK_CLIENT_ID=${{secrets.TIKTOK_CLIENT_ID}} >> .env
                   sudo echo TIKTOK_CLIENT_SECRET=${{secrets.TIKTOK_CLIENT_SECRET}} >> .env
                   sudo echo TIKTOK_CALLBACK_URL=${{secrets.TIKTOK_CALLBACK_URL}} >> .env
+                  sudo echo TIKTOK_LOGIN_CALLBACK_URL=${{secrets.TIKTOK_LOGIN_CALLBACK_URL}} >> .env
                   sudo echo FACEBOOK_CLIENT_ID=${{secrets.FACEBOOK_CLIENT_ID}} >> .env
                   sudo echo FACEBOOK_CLIENT_SECRET=${{secrets.FACEBOOK_CLIENT_SECRET}} >> .env
                   sudo echo FACEBOOK_CALLBACK_URL=${{secrets.FACEBOOK_CALLBACK_URL}} >> .env
