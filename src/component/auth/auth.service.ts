@@ -1,6 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
 import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
@@ -10,13 +11,17 @@ import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.
 import { CurrentUserDto } from '../user/dto/User.dto';
 import { SocialProfile } from '../social-provider/schemas/SocialProfile.schema';
 import { SignupRequestDto } from './dto/login.dto';
+import { ResetPasswordPayload, ResetPasswordResponse } from './dto/ResetPassword.dto';
+import { MailerService } from 'src/component/mailer/mailer.service';
+import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService: Userv1Service,
         private jwtService: JwtService,
-        private profileService: SocialProfileV1Service
+        private profileService: SocialProfileV1Service,
+        private mailerService: MailerService
     ) { }
 
     async validateUser(
@@ -75,7 +80,6 @@ export class AuthService {
 
         return this.generateAuthTokens(payload);
     }
-
 
     async ssoLogin(sso: string, accessToken: string, accessSecret = '') {
         try {
@@ -215,6 +219,54 @@ export class AuthService {
         }
     }
 
+    async forgotPassword(email: string): Promise<ResetPasswordResponse> {
+        const user: any = await this.userService.getByEmail(email);
+
+        if (!user) {
+            throw new RecordNotFoundException();
+        }
+
+        const token = this.createToken();
+        user.token = token;
+        const { status } = await this.userService.updateUser(user?._id, { token })
+
+        if (status) {
+            const { statusCode } = await this.mailerService.sendResetPasswordLink({ email, fullName: user.name, token })
+
+            if (statusCode === 202) {
+                return {
+                    message: "Reset password link sent!",
+                    status: 200
+                }
+            }
+        }
+
+        throw new BadRequestException();
+    }
+
+    async resetPassword({ token, password }: ResetPasswordPayload): Promise<ResetPasswordResponse> {
+        if (token) {
+            console.log(token);
+            const user: any = await this.userService.getByResetToken(token);
+
+            if (user) {
+                const { status } = await this.userService.updateUser(user?._id, {
+                    token: null,
+                    password: await hash(password, 10)
+                });
+
+                if (status) {
+                    return {
+                        status: 200,
+                        message: "Password changed"
+                    }
+                }
+            }
+        }
+
+        throw new InvalidTokenException();
+    }
+
     setCurrentUserPayload(user: User, profile: SocialProfile): CurrentUserDto {
         const { email, name, username } = user;
         const { email: primaryEmail, profilePicture, provider } = profile || {};
@@ -240,5 +292,9 @@ export class AuthService {
                 expiresIn: '1440m'
             })
         }
+    }
+
+    private createToken(): string {
+        return uuidv4();
     }
 }

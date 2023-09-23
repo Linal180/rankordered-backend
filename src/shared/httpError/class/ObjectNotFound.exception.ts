@@ -5,3 +5,21 @@ export class ObjectNotFoundException extends HttpException {
         super(`${className} not found`, HttpStatus.NOT_FOUND);
     }
 }
+
+export class InvalidTokenException extends HttpException {
+    constructor() {
+        super(`Token is invalid or expired`, HttpStatus.NOT_FOUND);
+    }
+}
+
+export class BadRequestException extends HttpException {
+    constructor() {
+        super(`Something went wrong!`, HttpStatus.BAD_REQUEST);
+    }
+}
+
+export class RecordNotFoundException extends HttpException {
+    constructor() {
+        super(`Not found`, HttpStatus.NOT_FOUND);
+    }
+}
