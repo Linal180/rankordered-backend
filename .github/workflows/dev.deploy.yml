@@ -70,6 +70,11 @@ jobs:
                   sudo echo SNAPCHAT_CALLBACK_URL=${{secrets.SNAPCHAT_CALLBACK_URL}} >> .env
                   sudo echo CLIENT_SSO_SUCCESS_URL=${{secrets.CLIENT_SSO_SUCCESS_URL}} >> .env
                   sudo echo SESSION_SECRET=${{secrets.SESSION_SECRET}} >> .env
+
+                  sudo echo FROM_EMAIL=${{secrets.FROM_EMAIL}} >> .env
+                  sudo echo NEXT_APP_BASE_URL=${{secrets.NEXT_APP_BASE_URL}} >> .env
+                  sudo echo SEND_GRID_API_KEY=${{secrets.SEND_GRID_API_KEY}} >> .env
+                  sudo echo SEND_GRID_RESET_EMAIL_TEMPLATE_ID=${{secrets.SEND_GRID_RESET_EMAIL_TEMPLATE_ID}} >> .env
                   cat .env
 
     copy:
