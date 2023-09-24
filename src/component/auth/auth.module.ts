@@ -17,12 +17,14 @@ import { SnapchatStrategy } from './snapchat.strategy';
 import { PinterestStrategy } from './pinterest.strategy';
 import { GoogleLoginStrategy } from './google/google-login.strategy';
 import { TwitterLoginStrategy } from './twitter/twitter-login.strategy';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
     imports: [
         ConfigModule,
         UserModule,
         ProfileModule,
+        MailerModule,
         PassportModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],

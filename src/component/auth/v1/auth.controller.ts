@@ -32,6 +32,7 @@ import { PinterestAuthGuard } from '../pinterest-auth.guard';
 import { SnapchatAuthGuard } from '../snapchat.guard';
 import { GoogleLoginAuthGuard } from '../google/google-login-auth.guard';
 import { TwitterLoginAuthGuard } from '../twitter/twitter-login-auth.guard';
+import { ForgotPasswordPayload, ResetPasswordPayload, ResetPasswordResponse } from '../dto/ResetPassword.dto';
 
 @ApiTags('Auth')
 @Controller({
@@ -83,6 +84,22 @@ export class AuthController {
             refresh_token: tokens.refresh_token,
             login_user: req.user
         };
+    }
+
+    @Post('forgot-password')
+    @ApiOperation({ summary: 'Forgot Password' })
+    async forgotPassword(
+        @Body() { email }: ForgotPasswordPayload,
+    ): Promise<ResetPasswordResponse> {
+        return await this.authService.forgotPassword(email);
+    }
+
+    @Post('reset-password')
+    @ApiOperation({ summary: 'Reset Password' })
+    async resetPassword(
+        @Body() payload: ResetPasswordPayload,
+    ): Promise<ResetPasswordResponse> {
+        return await this.authService.resetPassword(payload);
     }
 
     @Post('signup')

@@ -17,6 +17,9 @@ export class UserDto {
 
     @ApiProperty({ example: 'admin' })
     type: UserType;
+
+    @ApiProperty({ example: '' })
+    token?: string;
 }
 
 export class GoogleUserDto {

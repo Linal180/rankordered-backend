@@ -154,7 +154,22 @@ export class Userv1Service {
 
     async getByEmail(email: string): Promise<User> {
         return this.userModel
-            .findOne({ email }, { _id: 1 }, [
+            .findOne({ email }, [
+                '_id',
+                'name',
+                'username',
+                'email',
+                'password',
+                'type',
+            ])
+            .exec();
+    }
+
+    async getByResetToken(token: string): Promise<User> {
+        return this.userModel
+            .findOne({ token }, [
+                'name',
+                'token',
                 'username',
                 'email',
                 'password',
