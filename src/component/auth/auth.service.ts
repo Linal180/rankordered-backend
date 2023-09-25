@@ -246,13 +246,11 @@ export class AuthService {
 
     async resetPassword({ token, password }: ResetPasswordPayload): Promise<ResetPasswordResponse> {
         if (token) {
-            console.log(token);
             const user: any = await this.userService.getByResetToken(token);
 
             if (user) {
                 const { status } = await this.userService.updateUser(user?._id, {
-                    token: null,
-                    password: await hash(password, 10)
+                    token: null, password
                 });
 
                 if (status) {
