@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare, hash } from 'bcrypt';
+import { compare } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
@@ -246,13 +246,11 @@ export class AuthService {
 
     async resetPassword({ token, password }: ResetPasswordPayload): Promise<ResetPasswordResponse> {
         if (token) {
-            console.log(token);
             const user: any = await this.userService.getByResetToken(token);
 
             if (user) {
                 const { status } = await this.userService.updateUser(user?._id, {
-                    token: null,
-                    password: await hash(password, 10)
+                    token: null, password
                 });
 
                 if (status) {
