@@ -23,4 +23,7 @@ export class CreateSocialProfileDTO {
 	@ApiProperty({ example: 'URL' })
 	@IsNotEmpty()
 	profilePicture: string;
+
+	@ApiProperty()
+	username: string;
 }

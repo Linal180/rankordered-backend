@@ -55,6 +55,7 @@ export class Userv1Service {
             if (user.password) {
                 user.password = await hash(user.password, 10);
             }
+
             user.username = user.username.toLowerCase().split(' ').join('-');
             const newUser = await this.userModel.create(user);
 
@@ -65,7 +66,7 @@ export class Userv1Service {
             dbUser = newUser;
         }
 
-        const { email, profilePicture, provider } = user;
+        const { email, profilePicture, provider, username } = user;
 
         if (provider) {
             const profiles = await this.socialService.getUserSocialProfiles(
@@ -77,7 +78,8 @@ export class Userv1Service {
                 profilePicture,
                 provider: provider === 'google' ? 'youtube' : provider,
                 userId: dbUser.id,
-                primary: profiles.length === 0
+                primary: profiles.length === 0,
+                username
             })
         }
 

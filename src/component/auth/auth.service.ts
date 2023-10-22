@@ -14,6 +14,7 @@ import { SignupRequestDto } from './dto/login.dto';
 import { ResetPasswordPayload, ResetPasswordResponse } from './dto/ResetPassword.dto';
 import { MailerService } from 'src/component/mailer/mailer.service';
 import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
+import { SsoUser, TwitterUser } from 'src/interfaces';
 
 @Injectable()
 export class AuthService {
@@ -89,11 +90,13 @@ export class AuthService {
                 case 'youtube':
                 case 'google':
                     const googleUser = await getGoogleUserInfo(accessToken);
+                    console.log(googleUser, "**************")
                     email = googleUser.email;
                     break;
 
                 case 'twitter':
                     const twitterUser: any = await getTwitterUserInfo(accessToken, accessSecret)
+                    console.log(twitterUser, "**************")
                     email = twitterUser.email;
                     break;
 
@@ -154,25 +157,27 @@ export class AuthService {
 
     async feedSsoUser(sso: string, accessToken: string, accessSecret = '') {
         try {
-            let ssoUser;
+            let ssoUser: SsoUser;
 
             switch (sso) {
                 case 'youtube':
                 case 'google':
-                    const googleUser = await getGoogleUserInfo(accessToken);
+                    const { email: googleEmail, given_name, name: googleName, picture } = await getGoogleUserInfo(accessToken);
+
                     ssoUser = {
-                        email: googleUser.email,
-                        name: googleUser.name,
-                        picture: googleUser.picture
+                        email: googleEmail,
+                        name: googleName,
+                        picture: picture,
+                        username: given_name,
                     }
                     break;
 
                 case 'twitter':
-                    const twitterUser: any = await getTwitterUserInfo(accessToken, accessSecret)
+                    const {
+                        email, profile_image_url_https, screen_name, name
+                    }: TwitterUser = await getTwitterUserInfo(accessToken, accessSecret)
                     ssoUser = {
-                        email: twitterUser.email,
-                        name: twitterUser?.name,
-                        picture: twitterUser.profile_image_url
+                        email, name, username: screen_name, picture: profile_image_url_https
                     }
                     break;
 
@@ -183,17 +188,16 @@ export class AuthService {
 
                 case 'facebook':
                 case 'instagram':
-                    console.log(":::::::::::::::::::::")
                     break;
             }
 
-            const { email, name, picture } = ssoUser
+            const { email, name, picture, username } = ssoUser
             const user: any = await this.userService.getByEmail(email);
             let userPayload;
 
             if (!user) {
                 const { data, status } = await this.userService.createUser({
-                    email, name, username: name, type: 'user' as UserType, provider: sso, profilePicture: picture
+                    email, name, username, type: 'user' as UserType, provider: sso, profilePicture: picture
                 });
 
                 if (status === OperationResult.create) {
@@ -201,9 +205,14 @@ export class AuthService {
                 }
             } else {
                 const profile = await this.profileService.findSocialProfileByIdAndProvider(user?._id, sso)
-
+                console.log("************123", username)
                 if (!profile) {
-                    await this.profileService.create({ email, provider: sso === 'google' ? 'youtube' : sso, profilePicture: picture, userId: user?._id.toString() })
+                    await this.profileService.create({
+                        email, provider: sso === 'google' ? 'youtube' : sso,
+                        profilePicture: picture,
+                        userId: user?._id.toString(),
+                        username: username
+                    })
                 }
 
                 userPayload = user;
