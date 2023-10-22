@@ -20,6 +20,9 @@ export class SocialProfile {
 	@Prop({ required: true })
 	userId: string;
 
+	@Prop()
+	username: string;
+
 	@Prop({ type: String, required: true })
 	profilePicture: string;
 }

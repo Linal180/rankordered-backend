@@ -74,7 +74,7 @@ export class SocialProfileV1Service {
 	}
 
 	async create(data: CreateSocialProfileDTO): Promise<SocialProfile> {
-		const { provider, email, userId, profilePicture } = data
+		const { provider, email, userId, profilePicture, username } = data
 		const userProfiles = await this.getUserSocialProfiles(userId);
 		const existed = userProfiles.filter(profile => profile.email === email && profile.provider === provider)
 
@@ -82,7 +82,10 @@ export class SocialProfileV1Service {
 			return existed[0];
 
 		try {
-			const newProfile = await this.socialModel.create({ provider, email, profilePicture, userId, primary: !userProfiles.length, isFavorite: false });
+			const newProfile = await this.socialModel.create({
+				provider, email, profilePicture, userId, primary: !userProfiles.length, isFavorite: false,
+				username
+			});
 
 			if (!newProfile) {
 				this.throwObjectNotFoundError();

@@ -1,7 +1,7 @@
-import { google } from 'googleapis';
-import * as Twit from 'twit';
 import axios from 'axios';
-
+import * as Twit from 'twit';
+import { google } from 'googleapis';
+import { TwitterUser } from 'src/interfaces';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
     const oauth2Client = new google.auth.OAuth2();
@@ -37,7 +37,7 @@ export const getTiktokUserInfo = async (accessToken: string) => {
 export const getTwitterUserInfo = async (
     userAccessToken: string,
     userAccessSecret: string
-) => {
+): Promise<TwitterUser> => {
     try {
         const T = new Twit({
             consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -51,7 +51,7 @@ export const getTwitterUserInfo = async (
             include_email: true
         });
 
-        return data;
+        return data as TwitterUser;
     } catch (error) {
         console.error('Error retrieving user information from Twitter:', error);
     }
