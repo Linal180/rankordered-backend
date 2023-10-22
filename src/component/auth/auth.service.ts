@@ -90,13 +90,11 @@ export class AuthService {
                 case 'youtube':
                 case 'google':
                     const googleUser = await getGoogleUserInfo(accessToken);
-                    console.log(googleUser, "**************")
                     email = googleUser.email;
                     break;
 
                 case 'twitter':
                     const twitterUser: any = await getTwitterUserInfo(accessToken, accessSecret)
-                    console.log(twitterUser, "**************")
                     email = twitterUser.email;
                     break;
 
@@ -205,7 +203,7 @@ export class AuthService {
                 }
             } else {
                 const profile = await this.profileService.findSocialProfileByIdAndProvider(user?._id, sso)
-                console.log("************123", username)
+
                 if (!profile) {
                     await this.profileService.create({
                         email, provider: sso === 'google' ? 'youtube' : sso,
