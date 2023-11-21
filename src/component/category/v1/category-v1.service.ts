@@ -13,7 +13,7 @@ export class CategoryV1Service {
     constructor(
         @InjectModel(Category.name)
         private categoryModel: Model<CategoryDocument>
-    ) {}
+    ) { }
 
     async findById(
         id: string,
@@ -25,7 +25,6 @@ export class CategoryV1Service {
         if (includeRankingItems === true) {
             modelBuilder.select('categoryRankingItems');
         }
-
         res.data = await modelBuilder.exec();
 
         if (!res.data) {
