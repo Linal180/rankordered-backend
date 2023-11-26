@@ -25,6 +25,7 @@ export class CategoryV1Service {
         if (includeRankingItems === true) {
             modelBuilder.select('categoryRankingItems');
         }
+
         res.data = await modelBuilder.exec();
 
         if (!res.data) {
