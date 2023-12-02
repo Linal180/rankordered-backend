@@ -45,7 +45,6 @@ jobs:
                   sudo echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
                   sudo echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
                   sudo echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
-                  sudo echo CLIENT_URL=${{secrets.CLIENT_URL}} >> .env
                   sudo echo TWITTER_CONSUMER_KEY=${{secrets.TWITTER_CONSUMER_KEY}} >> .env
                   sudo echo TWITTER_CONSUMER_SECRET=${{secrets.TWITTER_CONSUMER_SECRET}} >> .env
                   sudo echo TWITTER_CALLBACK_URL=${{secrets.TWITTER_CALLBACK_URL}} >> .env
