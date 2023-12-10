@@ -243,9 +243,8 @@ export class AuthController {
     }
 
     @Get('google')
-    // @UseGuards(GoogleAuthGuard)
+    @UseGuards(GoogleAuthGuard)
     googleAuth() {
-        console.log("google sso", this.configService.get('GOOGLE_LOGIN_CALLBACK_URL'))
         return true;
     }
 
