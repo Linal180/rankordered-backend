@@ -210,7 +210,6 @@ export class AuthController {
             accessSecret
         );
 
-        // Redirect the user
         res.redirect(
             `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
