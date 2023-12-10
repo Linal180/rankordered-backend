@@ -49,9 +49,8 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     async me(@Req() request: any): Promise<CurrentUserDto> {
         const { user } = request;
-        console.log(">>>>", user)
         const currentUser = await this.authService.getCurrentUser(user.userId);
-        console.log("currentUser >>>", currentUser)
+
         return currentUser;
     }
 
