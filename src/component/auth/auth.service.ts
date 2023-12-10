@@ -90,7 +90,6 @@ export class AuthService {
                 case 'youtube':
                 case 'google':
                     const googleUser = await getGoogleUserInfo(accessToken);
-                    console.log(">>>>>>>>>>>>>", googleUser)
                     email = googleUser.email;
                     break;
 
@@ -162,7 +161,6 @@ export class AuthService {
                 case 'youtube':
                 case 'google':
                     const { email: googleEmail, given_name, name: googleName, picture } = await getGoogleUserInfo(accessToken);
-                    console.log("google sign up >>>", googleEmail)
                     ssoUser = {
                         email: googleEmail,
                         name: googleName,
