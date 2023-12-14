@@ -8,25 +8,19 @@ export class InstagramStrategy extends PassportStrategy(Strategy, 'instagram') {
     constructor(configService: ConfigService) {
         super({
             clientID: configService.get('INSTAGRAM_CLIENT_ID'),
-            clientSecret: configService.get('INSTAGRAM_CLIENT_SECRET'),
             callbackURL: configService.get('INSTAGRAM_CALLBACK_URL'),
-            display: 'page',
-            responseType: 'token',
-            // scope: ['basic']
+            scope: 'user_profile,user_media'
         });
     }
 
     async validate(
-        accessToken: string,
-        refreshToken: string,
+        code: string,
         profile: any,
         done: any
     ) {
         try {
             done(null, {
-                accessToken,
-                accessSecret: refreshToken,
-                sso: profile.provider
+                code,
             });
         } catch (err) {
             done(err, false);

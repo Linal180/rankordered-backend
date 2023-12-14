@@ -310,26 +310,26 @@ export class AuthController {
     }
 
     @Get('instagram/callback')
-    @UseGuards(InstagramAuthGuard)
     async facebookCallback(
         @Req()
-        req: Request & {
-            user: { accessToken: string; accessSecret: string; sso: string };
-        },
+        req: Request,
         @Res() res: Response
     ) {
-        const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
-            accessToken,
-            accessSecret
-        );
+        const code = req.url.split('?code=')[1] || '';
 
-        // Redirect the user
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        if (code) {
+            const response = await this.authService.feedInstagramUser(code)
+
+            if (response) {
+                // Redirect the user
+                return res.redirect(
+                    `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+                    }&refreshToken=${response.refresh_token}&sso=instagram`
+                );
+            }
+        }
+
+        res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
     }
 
     @Get('pinterest')
@@ -356,8 +356,8 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')} ? accessToken = ${response.access_token
+            } & refreshToken=${response.refresh_token} & sso=${sso}`
         );
     }
 
@@ -385,8 +385,8 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')} ? accessToken = ${response.access_token
+            } & refreshToken=${response.refresh_token} & sso=${sso}`
         );
     }
 }
