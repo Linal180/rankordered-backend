@@ -356,8 +356,8 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')} ? accessToken = ${response.access_token
-            } & refreshToken=${response.refresh_token} & sso=${sso}`
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
 
@@ -385,8 +385,8 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')} ? accessToken = ${response.access_token
-            } & refreshToken=${response.refresh_token} & sso=${sso}`
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+            }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
 }
