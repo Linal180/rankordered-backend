@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as Twit from 'twit';
 import { google } from 'googleapis';
-import { TwitterUser } from 'src/interfaces';
+import { InstagramUser, TwitterUser } from 'src/interfaces';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
     const oauth2Client = new google.auth.OAuth2();
@@ -33,6 +33,52 @@ export const getTiktokUserInfo = async (accessToken: string) => {
         throw new Error('Access token verification failed');
     }
 };
+
+
+const instagramUserAPI = async (accessToken: string, userId: string): Promise<InstagramUser | null> => {
+    const fields = 'id,username,name,profile_picture_url,account_type,media_count,followers_count,follows_count,biography';
+    const apiUrl = `https://graph.instagram.com/v12.0/${userId}?fields=${fields}&access_token=${accessToken}`;
+
+    try {
+        const response = await axios.get(apiUrl);
+
+        console.log("Instagram User *** ", response.data);
+        return { ...response.data, email: `${response.data.username}@instagram,con` };
+    } catch (error) {
+        console.error('Error in InstagramUserAPI:', error);
+        return null
+    }
+}
+
+export const getInstagramAccessToken = async (code: string): Promise<InstagramUser | null> => {
+    const form = new URLSearchParams();
+    form.append('client_id', process.env.INSTAGRAM_CLIENT_ID);
+    form.append('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
+    form.append('grant_type', 'authorization_code');
+    form.append('redirect_uri', process.env.INSTAGRAM_CALLBACK_URL);
+    form.append('code', code);
+
+    return await axios({
+        method: 'POST',
+        url: 'https://api.instagram.com/oauth/access_token',
+        data: form,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    }).then(async (response) => {
+        const { data: { access_token, user_id } } = response
+
+        if (access_token && user_id) {
+            const instagramUser = await instagramUserAPI(access_token, user_id)
+            return instagramUser;
+        }
+
+        return null;
+    }).catch((err) => {
+        console.log(err.response);
+        return null;
+    });
+}
 
 export const getTwitterUserInfo = async (
     userAccessToken: string,

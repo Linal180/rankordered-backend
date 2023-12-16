@@ -15,6 +15,7 @@ export class GoogleLoginStrategy extends PassportStrategy(Strategy, 'google-logi
       scope: ['email', 'profile']
     });
   }
+
   async validate(
     accessToken: string,
     refreshToken: string,
