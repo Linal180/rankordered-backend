@@ -46,10 +46,10 @@ import { MailerModule } from '../mailer/mailer.module';
         GoogleLoginStrategy,
         InstagramStrategy,
         TiktokStrategy,
-        SnapchatStrategy,
+        SnapchatStrategy
         // PinterestStrategy
     ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule { }
+export class AuthModule {}

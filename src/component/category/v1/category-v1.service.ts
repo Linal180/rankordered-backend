@@ -13,7 +13,7 @@ export class CategoryV1Service {
     constructor(
         @InjectModel(Category.name)
         private categoryModel: Model<CategoryDocument>
-    ) {}
+    ) { }
 
     async findById(
         id: string,

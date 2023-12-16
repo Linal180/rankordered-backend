@@ -32,7 +32,11 @@ import { PinterestAuthGuard } from '../pinterest-auth.guard';
 import { SnapchatAuthGuard } from '../snapchat.guard';
 import { GoogleLoginAuthGuard } from '../google/google-login-auth.guard';
 import { TwitterLoginAuthGuard } from '../twitter/twitter-login-auth.guard';
-import { ForgotPasswordPayload, ResetPasswordPayload, ResetPasswordResponse } from '../dto/ResetPassword.dto';
+import {
+    ForgotPasswordPayload,
+    ResetPasswordPayload,
+    ResetPasswordResponse
+} from '../dto/ResetPassword.dto';
 
 @ApiTags('Auth')
 @Controller({
@@ -89,7 +93,7 @@ export class AuthController {
     @Post('forgot-password')
     @ApiOperation({ summary: 'Forgot Password' })
     async forgotPassword(
-        @Body() { email }: ForgotPasswordPayload,
+        @Body() { email }: ForgotPasswordPayload
     ): Promise<ResetPasswordResponse> {
         return await this.authService.forgotPassword(email);
     }
@@ -97,17 +101,16 @@ export class AuthController {
     @Post('reset-password')
     @ApiOperation({ summary: 'Reset Password' })
     async resetPassword(
-        @Body() payload: ResetPasswordPayload,
+        @Body() payload: ResetPasswordPayload
     ): Promise<ResetPasswordResponse> {
         return await this.authService.resetPassword(payload);
     }
 
     @Post('signup')
     @ApiOperation({ summary: 'Sign up User' })
-    async signup(
-        @Body() payload: SignupRequestDto,
-    ): Promise<LoginResponseDto> {
-        const { access_token, refresh_token, user } = await this.authService.signup(payload)
+    async signup(@Body() payload: SignupRequestDto): Promise<LoginResponseDto> {
+        const { access_token, refresh_token, user } =
+            await this.authService.signup(payload);
 
         return { access_token, refresh_token, login_user: user };
     }
@@ -234,12 +237,17 @@ export class AuthController {
         @Res() res: Response
     ) {
         const { accessSecret, accessToken, sso } = req?.user || {};
-        const tokens = await this.authService.ssoLogin(sso, accessToken, accessSecret);
+        const tokens = await this.authService.ssoLogin(
+            sso,
+            accessToken,
+            accessSecret
+        );
 
         // Redirect the user
         res.redirect(
             `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${tokens ? tokens?.access_token : undefined
-            }&refreshToken=${tokens ? tokens.refresh_token : undefined}&sso=${sso}&isLogin=true`
+            }&refreshToken=${tokens ? tokens.refresh_token : undefined
+            }&sso=${sso}&isLogin=true`
         );
     }
 
@@ -276,10 +284,9 @@ export class AuthController {
     @Get('tiktok')
     @UseGuards(TiktokAuthGuard)
     tiktokAuth() {
-        console.log("******************")
+        console.log('Login with Tiktok');
         return true;
     }
-
     @Get('tiktok/callback')
     @UseGuards(TiktokAuthGuard)
     async tiktokCallback(
@@ -306,6 +313,7 @@ export class AuthController {
     @Get('instagram')
     @UseGuards(InstagramAuthGuard)
     instagramAuth() {
+        console.log('Login with Instagram');
         return true;
     }
 
