@@ -47,7 +47,7 @@ export class AuthController {
     constructor(
         private authService: AuthService,
         private readonly configService: ConfigService
-    ) {}
+    ) { }
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
@@ -186,8 +186,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -216,8 +215,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -225,6 +223,7 @@ export class AuthController {
     @Get('google-login')
     @UseGuards(GoogleLoginAuthGuard)
     googleLoginAuth() {
+        console.log("google login sso", this.configService.get('GOOGLE_LOGIN_CALLBACK_URL'))
         return true;
     }
 
@@ -246,10 +245,8 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                tokens ? tokens?.access_token : undefined
-            }&refreshToken=${
-                tokens ? tokens.refresh_token : undefined
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${tokens ? tokens?.access_token : undefined
+            }&refreshToken=${tokens ? tokens.refresh_token : undefined
             }&sso=${sso}&isLogin=true`
         );
     }
@@ -257,6 +254,7 @@ export class AuthController {
     @Get('google')
     @UseGuards(GoogleAuthGuard)
     googleAuth() {
+        console.log("google sso", this.configService.get('GOOGLE_LOGIN_CALLBACK_URL'))
         return true;
     }
 
@@ -278,8 +276,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -308,8 +305,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -322,27 +318,26 @@ export class AuthController {
     }
 
     @Get('instagram/callback')
-    @UseGuards(InstagramAuthGuard)
     async facebookCallback(
         @Req()
-        req: Request & {
-            user: { accessToken: string; accessSecret: string; sso: string };
-        },
+        req: Request,
         @Res() res: Response
     ) {
-        const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
-            accessToken,
-            accessSecret
-        );
+        const code = req.url.split('?code=')[1] || '';
 
-        // Redirect the user
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        if (code) {
+            const response = await this.authService.feedInstagramUser(code)
+
+            if (response) {
+                // Redirect the user
+                return res.redirect(
+                    `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+                    }&refreshToken=${response.refresh_token}&sso=instagram`
+                );
+            }
+        }
+
+        res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
     }
 
     @Get('pinterest')
@@ -369,8 +364,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
@@ -399,8 +393,7 @@ export class AuthController {
 
         // Redirect the user
         res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${
-                response.access_token
+            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
         );
     }
