@@ -7,13 +7,17 @@ import { ObjectNotFoundException } from 'src/shared/httpError/class/ObjectNotFou
 import { Userv1Service } from 'src/component/user/v1/userv1.service';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
+import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
 
 @Injectable()
 export class SocialProfileV1Service {
 	constructor(
-		@InjectModel(SocialProfile.name) private socialModel: Model<SocialProfileDocument>,
+		@InjectModel(SocialProfile.name)
+		private socialModel: Model<SocialProfileDocument>,
+		@Inject(forwardRef(() => CategoryV1Service))
+		private categoryService: CategoryV1Service,
 		@Inject(forwardRef(() => Userv1Service))
-		private userService: Userv1Service
+		private userService: Userv1Service,
 	) { }
 
 	async getUserSocialProfiles(userId: string, favoriteOnly = false): Promise<SocialProfile[]> {
@@ -30,6 +34,7 @@ export class SocialProfileV1Service {
 						...(favoriteOnly && { isFavorite: true })
 					})
 					.sort({ createdAt: -1 })
+					.populate('category')
 					.exec();
 			} else
 				throw new NotFoundException();
@@ -96,6 +101,27 @@ export class SocialProfileV1Service {
 		} catch (error) {
 			console.log(error)
 		}
+	}
+
+	async setSocialProfileCategory(id: string, name: string): Promise<MongoResultQuery<SocialProfile>> {
+		const res = new MongoResultQuery<SocialProfile>();
+
+		if (!id) {
+			this.throwObjectNotFoundError();
+		}
+
+		const profile = await this.socialModel.findById(id).exec();
+		const category = await this.categoryService.findOrCreateCategory(name)
+
+		if (profile && category) {
+
+			profile.category = category;
+			res.data = await profile.save();
+
+			res.status = OperationResult.update;
+
+			return res;
+		} else this.throwObjectNotFoundError();
 	}
 
 	async updateAsFavorite(id: string): Promise<MongoResultQuery<SocialProfile>> {

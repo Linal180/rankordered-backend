@@ -102,3 +102,9 @@ export const getTwitterUserInfo = async (
         console.error('Error retrieving user information from Twitter:', error);
     }
 };
+
+export const generateSlug = (input: string) => {
+    const sanitizedInput = input.toLowerCase().replace(/[^a-zA-Z0-9\s]/g, '');
+    const slug = sanitizedInput.split(' ').join('-');
+    return slug;
+}
