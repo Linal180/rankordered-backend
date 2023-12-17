@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { User, UserDocument } from '../schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -14,6 +14,7 @@ import { SocialProfileV1Service } from 'src/component/social-provider/v1/social-
 export class Userv1Service {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @Inject(forwardRef(() => SocialProfileV1Service))
         private socialService: SocialProfileV1Service
     ) { }
 

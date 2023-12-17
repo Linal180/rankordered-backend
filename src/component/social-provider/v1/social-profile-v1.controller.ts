@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Delete, Get, Param, Put, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SocialProfileV1Service } from './social-profile-v1.service';
 import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
@@ -44,6 +44,22 @@ export class SocialProfileV1Controller {
 
 		if (id && user && user.userId) {
 			return this.socialService.updateAsFavorite(id);
+		} else {
+			throw new BadRequestException();
+		}
+	}
+
+	@Put(':id/set-category')
+	@UseGuards(JwtAuthGuard)
+	setSocialProfileCategory(
+		@Req() request: any,
+		@Param('id') id: string,
+		@Body() { category }: { category: string }
+	): Promise<MongoResultQuery<SocialProfile>> {
+		const { user } = request || {};
+
+		if (id && user && user.userId) {
+			return this.socialService.setSocialProfileCategory(id, category);
 		} else {
 			throw new BadRequestException();
 		}
