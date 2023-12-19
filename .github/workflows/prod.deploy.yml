@@ -45,6 +45,12 @@ jobs:
                   sudo echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
                   sudo echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
                   sudo echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
+
+                  sudo echo GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} >> .env
+                  sudo echo GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}} >> .env
+                  sudo echo GOOGLE_CALLBACK_URL=${{secrets.PROD_GOOGLE_CALLBACK_URL}} >> .env
+                  sudo echo GOOGLE_LOGIN_CALLBACK_URL=${{secrets.PROD_GOOGLE_LOGIN_CALLBACK_URL}} >> .env
+
                   cat .env
 
     copy:
