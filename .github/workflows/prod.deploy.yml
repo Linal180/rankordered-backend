@@ -45,6 +45,12 @@ jobs:
                   sudo echo MONGO_PASSWORD=${{secrets.MONGO_PASSWORD}} >> .env
                   sudo echo MONGO_AUTHSOURCE=${{secrets.MONGO_AUTHSOURCE}} >> .env
                   sudo echo JWT_SECRET=${{secrets.JWT_SECRET}} >> .env
+
+                  sudo echo GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}} >> .env
+                  sudo echo GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}} >> .env
+                  sudo echo GOOGLE_CALLBACK_URL=${{secrets.PROD_GOOGLE_CALLBACK_URL}} >> .env
+                  sudo echo GOOGLE_LOGIN_CALLBACK_URL=${{secrets.PROD_GOOGLE_LOGIN_CALLBACK_URL}} >> .env
+
                   cat .env
 
     copy:
@@ -99,7 +105,11 @@ jobs:
             # - name: start pm2
             #   working-directory: '/home/rankordered/prod-rankordered-backend-nest'
             #   run: sudo pm2 start pm2.dev.config.js
-            - name: reload application
-              run: sudo pm2 reload rankordered-backend-production
+            - name: stop process
+              working-directory: '/home/rankordered/prod-rankordered-backend-nest'
+              run: sudo pm2 delete rankordered-backend-production || true
+            - name: start process
+              working-directory: '/home/rankordered/prod-rankordered-backend-nest'
+              run: sudo pm2 start pm2.prod.config.js
             - name: save pm2 config
               run: sudo pm2 save

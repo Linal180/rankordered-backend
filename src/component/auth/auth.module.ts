@@ -8,11 +8,23 @@ import { LocalStrategy } from './local.strategy';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './v1/auth.controller';
 import { AdminStrategy } from './admin.strategy';
+import { ProfileModule } from '../profile/profile.module';
+import { TwitterStrategy } from './twitter/twitter.strategy';
+import { GoogleStrategy } from './google/google.strategy';
+import { TiktokStrategy } from './tiktok/tiktok.strategy';
+import { InstagramStrategy } from './instagram.strategy';
+import { SnapchatStrategy } from './snapchat.strategy';
+import { PinterestStrategy } from './pinterest.strategy';
+import { GoogleLoginStrategy } from './google/google-login.strategy';
+import { TwitterLoginStrategy } from './twitter/twitter-login.strategy';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
     imports: [
         ConfigModule,
         UserModule,
+        ProfileModule,
+        MailerModule,
         PassportModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
@@ -23,8 +35,21 @@ import { AdminStrategy } from './admin.strategy';
             inject: [ConfigService]
         })
     ],
-    providers: [AuthService, LocalStrategy, JwtStrategy, AdminStrategy],
+    providers: [
+        AuthService,
+        LocalStrategy,
+        JwtStrategy,
+        AdminStrategy,
+        TwitterStrategy,
+        TwitterLoginStrategy,
+        GoogleStrategy,
+        GoogleLoginStrategy,
+        // InstagramStrategy,
+        TiktokStrategy,
+        SnapchatStrategy,
+        // PinterestStrategy
+    ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule {}
+export class AuthModule { }

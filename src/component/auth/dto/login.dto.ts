@@ -32,6 +32,31 @@ export class LoginRequestDto {
 }
 
 @Exclude()
+export class SignupRequestDto extends LoginRequestDto {
+    @Expose()
+    @ApiProperty()
+    @IsNotEmpty()
+    name: string;
+}
+
+@Exclude()
+export class SsoLoginRequestDto {
+    @Expose()
+    @ApiProperty()
+    @IsNotEmpty()
+    accessToken: string;
+
+    @Expose()
+    @ApiProperty()
+    @IsNotEmpty()
+    sso: 'youtube' | 'google' | 'instagram' | 'tiktok' | 'twitter' | 'snapchat' | 'pinterest';
+
+    @Expose()
+    @ApiProperty()
+    accessSecret: string;
+}
+
+@Exclude()
 export class RefreshRequestDto {
     @Expose()
     @ApiProperty()
