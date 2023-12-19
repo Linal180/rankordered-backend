@@ -28,7 +28,7 @@ describe('MailService', () => {
     });
 
     describe('sendMessageToAdmin', () => {
-        it('should send email to admin', async (done) => {
+        it('should send email to admin', async () => {
             await service.sendMessageToAdmin({
                 name: '',
                 email: '',
@@ -36,8 +36,6 @@ describe('MailService', () => {
             });
 
             expect(jest.spyOn(mailerService, 'sendMail')).toBeCalledTimes(1);
-
-            done();
         });
     });
 });

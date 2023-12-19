@@ -43,7 +43,7 @@ describe('ItemScoreV1Service', () => {
     });
 
     describe('findAll', () => {
-        it('should return all score by filter', async (done) => {
+        it('should return all score by filter', async () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([mockItemScore])
             } as any);
@@ -52,13 +52,11 @@ describe('ItemScoreV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(scores.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('findById', () => {
-        it('should return score by id', async (done) => {
+        it('should return score by id', async () => {
             const spy = jest.spyOn(model, 'findById').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(mockItemScore)
             } as any);
@@ -67,11 +65,9 @@ describe('ItemScoreV1Service', () => {
 
             expect(score.status).toBe(OperationResult.fetch);
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
 
-        it('should throw error when score not found', async (done) => {
+        it('should throw error when score not found', async () => {
             const spy = jest.spyOn(model, 'findById').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(null)
             } as any);
@@ -83,13 +79,11 @@ describe('ItemScoreV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('findByItemIdAndCategoryId', () => {
-        it('should return latest score by item id and category id', async (done) => {
+        it('should return latest score by item id and category id', async () => {
             const spy = jest.spyOn(model, 'findOne').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(mockItemScore)
             } as any);
@@ -101,24 +95,20 @@ describe('ItemScoreV1Service', () => {
 
             expect(score.categoryId).toBe('cat123');
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('updateScore', () => {
-        it('should create latest score by category and item id', async (done) => {
+        it('should create latest score by category and item id', async () => {
             const score = await service.updateScore('cont123', 'cat123', 1000);
 
             expect(jest.spyOn(model, 'create')).toBeCalledTimes(1);
             expect(score.categoryId).toBe('cat123');
-
-            done();
         });
     });
 
     describe('findAndCreateScore', () => {
-        it('find score by item id and category and return score', async (done) => {
+        it('find score by item id and category and return score', async () => {
             const spy = jest.spyOn(model, 'findOne').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(mockItemScore)
             } as any);
@@ -127,11 +117,9 @@ describe('ItemScoreV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(score.categoryId).toBe('cat123');
-
-            done();
         });
 
-        it('find score by item id and category and create score', async (done) => {
+        it('find score by item id and category and create score', async () => {
             const spy = jest.spyOn(model, 'findOne').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(null)
             } as any);
@@ -145,13 +133,11 @@ describe('ItemScoreV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(createSpy).toBeCalledTimes(1);
             expect(score.categoryId).toBe('cat123');
-
-            done();
         });
     });
 
     describe('deleteScoreByItemId', () => {
-        it('should delete score by item id', async (done) => {
+        it('should delete score by item id', async () => {
             const spy = jest.spyOn(model, 'deleteMany').mockReturnValue({
                 exec: jest.fn()
             } as any);
@@ -159,8 +145,6 @@ describe('ItemScoreV1Service', () => {
             await service.deleteScoreByItemId('123');
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 });

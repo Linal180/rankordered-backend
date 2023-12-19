@@ -122,7 +122,7 @@ describe('ComparisonItemV1Controller', () => {
     });
 
     describe('getComparisonItems', () => {
-        it('should return comparison items', async (done) => {
+        it('should return comparison items', async () => {
             const items = await controller.getComparisonItems({
                 page: 1,
                 limit: 10,
@@ -133,12 +133,11 @@ describe('ComparisonItemV1Controller', () => {
             expect(
                 jest.spyOn(service, 'findAllWithRankingfromSnapshotOptimized')
             ).toBeCalledTimes(1);
-            done();
         });
     });
 
     describe('getComparisonItem', () => {
-        it('should return comparison item', async (done) => {
+        it('should return comparison item', async () => {
             const item = await controller.getComparisonItem('123456');
 
             expect(item.status).toBe(OperationResult.fetch);
@@ -146,12 +145,11 @@ describe('ComparisonItemV1Controller', () => {
                 1
             );
 
-            done();
         });
     });
 
     describe('getComparisonItemBySlug', () => {
-        it('should return comparison item', async (done) => {
+        it('should return comparison item', async () => {
             const item = await controller.getComparisonItemBySlug(
                 'darmouth_college'
             );
@@ -161,23 +159,21 @@ describe('ComparisonItemV1Controller', () => {
                 jest.spyOn(service, 'findBySlugWithRanking')
             ).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('getComparisonByCategory', () => {
-        it('should return comparison item with category', async (done) => {
+        it('should return comparison item with category', async () => {
             const items = await controller.getComparisonByCategory('123456');
 
             expect(items.status).toBe(OperationResult.fetch);
             expect(jest.spyOn(service, 'getComparisonItem')).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('createComparisonItem', () => {
-        it('should return created document', async (done) => {
+        it('should return created document', async () => {
             responseOne.status = OperationResult.create;
 
             const spy = jest
@@ -191,17 +187,16 @@ describe('ComparisonItemV1Controller', () => {
             expect(item.status).toBe(OperationResult.create);
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('updateComparisonItem', () => {
-        it('should return created document', async (done) => {
+        it('should return created document', async () => {
             responseOne.status = OperationResult.update;
 
             const spy = jest
                 .spyOn(service, 'updateItem')
-                .mockResolvedValueOnce(responseOne);
+                .mockResolvedValueOnce(responseOne as any);
 
             const item = await controller.updateComparisonItem(
                 '123456',
@@ -211,24 +206,22 @@ describe('ComparisonItemV1Controller', () => {
             expect(item.status).toBe(OperationResult.update);
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('deleteComparisonItem', () => {
-        it('should return deleted document', async (done) => {
+        it('should return deleted document', async () => {
             responseOne.status = OperationResult.delete;
 
             const spy = jest
                 .spyOn(service, 'deleteItem')
-                .mockResolvedValueOnce(responseOne);
+                .mockResolvedValueOnce(responseOne as any);
 
             const item = await controller.deleteComparisonItem('123456');
 
             expect(item.status).toBe(OperationResult.delete);
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 });
