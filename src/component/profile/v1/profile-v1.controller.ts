@@ -21,7 +21,7 @@ import { TransformInterceptor } from 'src/shared/response/interceptors/Transform
 @ApiBearerAuth()
 @UseInterceptors(TransformInterceptor)
 export class ProfileV1Controller {
-    constructor(private userService: Userv1Service) {}
+    constructor(private userService: Userv1Service) { }
 
     @Get()
     async getProfile(@Req() request: any): Promise<MongoResultQuery<UserDto>> {

@@ -30,13 +30,15 @@ describe('LocalStrategy', () => {
     });
 
     describe('validate', () => {
-        it('should validate user', async (done) => {
+        it('should validate user', async () => {
             const spy = jest.spyOn(service, 'validateUser').mockResolvedValue({
                 username: 'asagasg',
                 name: 'afsafsa',
                 email: 'safsa@afasf.com',
                 password: 'asfsafsa',
-                type: UserType.ADMIN
+                type: UserType.ADMIN,
+                token: '',
+                favoriteItems: []
             });
 
             const response = await strategy.validate('asfsaf', 'afasfsa');
@@ -44,10 +46,9 @@ describe('LocalStrategy', () => {
             expect(spy).toBeCalledTimes(1);
             expect(response).toBeTruthy();
 
-            done();
         });
 
-        it('should validate user but user not exist', async (done) => {
+        it('should validate user but user not exist', async () => {
             const spy = jest
                 .spyOn(service, 'validateUser')
                 .mockResolvedValue(null);
@@ -59,7 +60,6 @@ describe('LocalStrategy', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-            done();
         });
     });
 });

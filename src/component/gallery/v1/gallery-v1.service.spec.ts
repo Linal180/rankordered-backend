@@ -55,7 +55,7 @@ describe('GalleryV1Service', () => {
     });
 
     describe('findById', () => {
-        it('should find by id', async (done) => {
+        it('should find by id', async () => {
             const spy = jest.spyOn(model, 'findById');
 
             const res = await service.findById('123456');
@@ -64,10 +64,9 @@ describe('GalleryV1Service', () => {
             expect(res.status).toBe(OperationResult.fetch);
             expect(res.data).toBe(mockGallery);
 
-            done();
         });
 
-        it('should throw error when galery not found', async (done) => {
+        it('should throw error when galery not found', async () => {
             jest.spyOn(model, 'findById').mockResolvedValueOnce(null);
 
             try {
@@ -76,12 +75,11 @@ describe('GalleryV1Service', () => {
                 expect(error).toBeInstanceOf(ObjectNotFoundException);
             }
 
-            done();
         });
     });
 
     describe('findAll', () => {
-        it('should find all galleries', async (done) => {
+        it('should find all galleries', async () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([mockGallery]),
                 count: jest.fn().mockResolvedValueOnce(1),
@@ -104,12 +102,11 @@ describe('GalleryV1Service', () => {
             expect(res.status).toBe(OperationResult.fetch);
             expect(res.count).toBe(1);
 
-            done();
         });
     });
 
     describe('create', () => {
-        it('should create gallery data', async (done) => {
+        it('should create gallery data', async () => {
             const spy = jest.spyOn(model, 'create');
 
             const res = await service.create({
@@ -128,10 +125,9 @@ describe('GalleryV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(res.status).toBe(OperationResult.upload);
 
-            done();
         });
 
-        it('should throw error when create gallery data not found', async (done) => {
+        it('should throw error when create gallery data not found', async () => {
             const spy = jest
                 .spyOn(model, 'create')
                 .mockResolvedValueOnce(null as never);
@@ -155,12 +151,11 @@ describe('GalleryV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('delete', () => {
-        it.skip('should delete gallery item', async (done) => {
+        it.skip('should delete gallery item', async () => {
             const spy = jest.spyOn(model, 'findByIdAndDelete');
 
             const res = await service.delete('123456');
@@ -168,7 +163,6 @@ describe('GalleryV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(res.status).toBe(OperationResult.delete);
 
-            done();
         });
     });
 });

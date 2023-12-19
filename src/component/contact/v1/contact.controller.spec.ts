@@ -29,18 +29,17 @@ describe('ContactController', () => {
     });
 
     describe('postMessage', () => {
-        it('send message by mail service', async (done) => {
-            const mail = await controller.postMessage({
+        it('send message by mail service', (done) => {
+            controller.postMessage({
                 name: 'admin',
                 email: 'admin@email.com',
                 message: 'test'
-            });
-
-            expect(jest.spyOn(service, 'postMessage')).toBeCalledTimes(1);
-            expect(mail.status).toBe(OperationResult.complete);
-            expect(mail.data).toBeTruthy();
-
-            done();
+            }).then(mail => {
+                expect(jest.spyOn(service, 'postMessage')).toBeCalledTimes(1);
+                expect(mail.status).toBe(OperationResult.complete);
+                expect(mail.data).toBeTruthy();
+                done();
+            }).catch(done);
         });
     });
 });

@@ -29,7 +29,7 @@ describe('ContactService', () => {
     });
 
     describe('ContactService', () => {
-        it('should send email using mail service', async (done) => {
+        it('should send email using mail service', async () => {
             service.postMessage({
                 name: '',
                 email: '',
@@ -39,11 +39,9 @@ describe('ContactService', () => {
             expect(
                 jest.spyOn(mailService, 'sendMessageToAdmin')
             ).toBeCalledTimes(1);
-
-            done();
         });
 
-        it('should throw http error if mail service fail', async (done) => {
+        it('should throw http error if mail service fail', async () => {
             const spy = jest
                 .spyOn(mailService, 'sendMessageToAdmin')
                 .mockRejectedValue(null);
@@ -59,8 +57,6 @@ describe('ContactService', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 });

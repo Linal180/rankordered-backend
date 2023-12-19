@@ -8,6 +8,7 @@ import { ItemScoreModule } from './item-score/item-score.module';
 import { VotingModule } from './voting/Voting.module';
 import { ScoreSnapshotModule } from './scoresnapshot/score-snapshot.module';
 import { ProfileModule } from './profile/profile.module';
+import { SocialProfileModule } from './social-provider/SocialProfile.module';
 
 @Module({
     imports: [
@@ -19,7 +20,8 @@ import { ProfileModule } from './profile/profile.module';
         ItemScoreModule,
         VotingModule,
         ScoreSnapshotModule,
-        ProfileModule
+        ProfileModule,
+        SocialProfileModule
     ]
 })
-export class ComponentModule {}
+export class ComponentModule { }

@@ -44,7 +44,7 @@ describe('VotingV1Controller', () => {
     });
 
     describe('getVotingByCategoryId', () => {
-        it('should return voting by category and item', async (done) => {
+        it('should return voting by category and item', async () => {
             const votings = await controller.getVotingByCategoryId(
                 'cat123',
                 'cont123'
@@ -52,11 +52,10 @@ describe('VotingV1Controller', () => {
 
             expect(votings[0].categoryId).toBe('cat123');
             expect(jest.spyOn(service, 'findByItemId')).toBeCalledTimes(1);
-            expect(jest.spyOn(service, 'findByCategoryId')).toBeCalledTimes(0);
-            done();
+            expect(jest.spyOn(service, 'findByCategoryId')).toBeCalledTimes(0)
         });
 
-        it('should return voting by category', async (done) => {
+        it('should return voting by category', async () => {
             const votings = await controller.getVotingByCategoryId(
                 'cat123',
                 null
@@ -65,12 +64,11 @@ describe('VotingV1Controller', () => {
             expect(votings[0].categoryId).toBe('cat123');
             expect(jest.spyOn(service, 'findByItemId')).toBeCalledTimes(0);
             expect(jest.spyOn(service, 'findByCategoryId')).toBeCalledTimes(1);
-            done();
         });
     });
 
     describe('createVotingItem', () => {
-        it('should return voting after update vote', async (done) => {
+        it('should return voting after update vote', async () => {
             const voting = await controller.createVotingItem({
                 categoryId: 'cat123',
                 contestantId: 'cont123',
@@ -80,7 +78,6 @@ describe('VotingV1Controller', () => {
 
             expect(voting.categoryId).toBe('cat123');
             expect(jest.spyOn(service, 'updateVoting')).toBeCalledTimes(1);
-            done();
         });
     });
 });

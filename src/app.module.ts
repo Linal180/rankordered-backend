@@ -45,7 +45,7 @@ import { FavoriteItemModule } from './component/favorite-item/FavoriteItem.modul
         ComponentModule,
         UtilModule,
         GalleryModule,
-        FavoriteItemModule
+        FavoriteItemModule,
     ],
     controllers: [AppController],
     providers: [
