@@ -42,33 +42,27 @@ describe('ItemScoreV1Controller', () => {
     });
 
     describe('getScoreById', () => {
-        it('should return score by item id', async (done) => {
+        it('should return score by item id', async () => {
             const scores = await controller.getScoreById('cont123', 'cat123');
 
             expect(jest.spyOn(service, 'findAll')).toBeCalledTimes(1);
             expect(scores.status).toBe(OperationResult.fetch);
-
-            done();
         });
 
-        it('should return score by item id and category is null', async (done) => {
+        it('should return score by item id and category is null', async () => {
             const scores = await controller.getScoreById('cont123', null);
 
             expect(jest.spyOn(service, 'findAll')).toBeCalledTimes(1);
             expect(scores.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('getScoreByCategory', () => {
-        it('should get scores by category', async (done) => {
+        it('should get scores by category', async () => {
             const scores = await controller.getScoreByCategory('cont123');
 
             expect(jest.spyOn(service, 'findAll')).toBeCalledTimes(1);
             expect(scores.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 });

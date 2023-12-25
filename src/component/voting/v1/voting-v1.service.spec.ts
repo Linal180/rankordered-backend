@@ -74,7 +74,7 @@ describe('VotingV1Service', () => {
     });
 
     describe('findByItemId', () => {
-        it('should return voting by id', async (done) => {
+        it('should return voting by id', async () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 sort: jest.fn().mockReturnValue({
                     exec: jest.fn().mockResolvedValue([mockVoting])
@@ -85,12 +85,11 @@ describe('VotingV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(items.length).toBe(1);
-            done();
         });
     });
 
     describe('findByCategoryId', () => {
-        it('should return voting by category', async (done) => {
+        it('should return voting by category', async () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 sort: jest.fn().mockReturnValue({
                     exec: jest.fn().mockResolvedValue([mockVoting])
@@ -102,12 +101,11 @@ describe('VotingV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(items.length).toBe(1);
 
-            done();
         });
     });
 
     describe('updateVoting', () => {
-        it('should return updated voting', async (done) => {
+        it('should return updated voting', async () => {
             const scoreSpy = jest
                 .spyOn(scoreService, 'findByItemIdAndCategoryId')
                 .mockResolvedValueOnce({
@@ -150,10 +148,9 @@ describe('VotingV1Service', () => {
             expect(jest.spyOn(eventEmitter, 'emit')).toBeCalledTimes(1);
             expect(vote.contestantId).toBe('cont123');
 
-            done();
         });
 
-        it('should return 0 even when current score negative', async (done) => {
+        it('should return 0 even when current score negative', async () => {
             const scoreSpy = jest
                 .spyOn(scoreService, 'findByItemIdAndCategoryId')
                 .mockResolvedValueOnce(null)
@@ -187,10 +184,9 @@ describe('VotingV1Service', () => {
             expect(jest.spyOn(eventEmitter, 'emit')).toBeCalledTimes(1);
             expect(vote.contestantCurrentSCore).toBe(0);
 
-            done();
         });
 
-        it('should throw error if failed creating voting', async (done) => {
+        it('should throw error if failed creating voting', async () => {
             const scoreSpy = jest
                 .spyOn(scoreService, 'findByItemIdAndCategoryId')
                 .mockResolvedValueOnce({
@@ -236,7 +232,6 @@ describe('VotingV1Service', () => {
             expect(ratingSpy).toBeCalledTimes(2);
             expect(jest.spyOn(eventEmitter, 'emit')).toBeCalledTimes(0);
 
-            done();
         });
     });
 });

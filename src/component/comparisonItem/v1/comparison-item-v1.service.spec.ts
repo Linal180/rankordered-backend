@@ -158,7 +158,7 @@ describe('ComparisonItemV1Service', () => {
     });
 
     describe('findById', () => {
-        it('should return comparison item', async (done) => {
+        it('should return comparison item', async () => {
             const spy = jest.spyOn(model, 'findById').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(mockComparisonItem)
             } as any);
@@ -167,10 +167,9 @@ describe('ComparisonItemV1Service', () => {
 
             expect(item.status).toBe(OperationResult.fetch);
             expect(spy).toBeCalledTimes(1);
-            done();
         });
 
-        it('should throw error when item not found', async (done) => {
+        it('should throw error when item not found', async () => {
             const spy = jest.spyOn(model, 'findById').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(null)
             } as any);
@@ -182,13 +181,11 @@ describe('ComparisonItemV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('findByQuery', () => {
-        it('should return comparison items', async (done) => {
+        it('should return comparison items', async () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 skip: jest.fn().mockReturnValue({
                     limit: jest.fn().mockReturnValue({
@@ -210,13 +207,11 @@ describe('ComparisonItemV1Service', () => {
             expect(items.status).toBe(OperationResult.fetch);
             expect(items.count).toBe(1);
             expect(spy).toBeCalledTimes(2);
-
-            done();
         });
     });
 
     describe('createItem', () => {
-        it('should return created item', async (done) => {
+        it('should return created item', async () => {
             const spy = jest
                 .spyOn(model, 'create')
                 .mockResolvedValueOnce(mockComparisonItem as never);
@@ -226,10 +221,9 @@ describe('ComparisonItemV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(item.status).toBe(OperationResult.create);
             expect(jest.spyOn(eventEmitter, 'emit')).toBeCalledTimes(1);
-            done();
         });
 
-        it('should throw error when created not found', async (done) => {
+        it('should throw error when created not found', async () => {
             const spy = jest
                 .spyOn(model, 'create')
                 .mockResolvedValueOnce(null as never);
@@ -242,12 +236,11 @@ describe('ComparisonItemV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(jest.spyOn(eventEmitter, 'emit')).toBeCalledTimes(0);
-            done();
         });
     });
 
     describe('updateItem', () => {
-        it('should return updated document', async (done) => {
+        it('should return updated document', async () => {
             const item = await service.updateItem(
                 '123456',
                 updateComparisonItemDto
@@ -256,11 +249,9 @@ describe('ComparisonItemV1Service', () => {
             expect(jest.spyOn(model, 'findByIdAndUpdate')).toBeCalledTimes(1);
             expect(jest.spyOn(eventEmitter, 'emit')).toBeCalledTimes(1);
             expect(item.status).toBe(OperationResult.update);
-
-            done();
         });
 
-        it('should throw error when updated document not found', async (done) => {
+        it('should throw error when updated document not found', async () => {
             const spy = jest
                 .spyOn(model, 'findByIdAndUpdate')
                 .mockResolvedValueOnce(null);
@@ -273,22 +264,18 @@ describe('ComparisonItemV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(jest.spyOn(eventEmitter, 'emit')).toBeCalledTimes(0);
-
-            done();
         });
     });
 
     describe('deleteItem', () => {
-        it('should return deleted document', async (done) => {
+        it('should return deleted document', async () => {
             const item = await service.deleteItem('123456');
 
             expect(jest.spyOn(model, 'findByIdAndDelete')).toBeCalledTimes(1);
             expect(item.status).toBe(OperationResult.delete);
-
-            done();
         });
 
-        it('should throw error when deleted item not found', async (done) => {
+        it('should throw error when deleted item not found', async () => {
             const spy = jest
                 .spyOn(model, 'findByIdAndDelete')
                 .mockResolvedValueOnce(null);
@@ -300,13 +287,11 @@ describe('ComparisonItemV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('findByIdWithRanking', () => {
-        it('should return tem document with ranking', async (done) => {
+        it('should return tem document with ranking', async () => {
             const spy = jest.spyOn(model, 'aggregate').mockReturnValue({
                 exec: jest
                     .fn()
@@ -319,10 +304,9 @@ describe('ComparisonItemV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(item.status).toBe(OperationResult.fetch);
-            done();
         });
 
-        it('should throw error when no object found', async (done) => {
+        it('should throw error when no object found', async () => {
             const spy = jest.spyOn(model, 'aggregate').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([])
             } as any);
@@ -334,13 +318,11 @@ describe('ComparisonItemV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('findBySlugWithRanking', () => {
-        it('should return tem document with ranking', async (done) => {
+        it('should return tem document with ranking', async () => {
             const spy = jest.spyOn(model, 'aggregate').mockReturnValue({
                 exec: jest
                     .fn()
@@ -353,10 +335,9 @@ describe('ComparisonItemV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(item.status).toBe(OperationResult.fetch);
-            done();
         });
 
-        it('should throw error when no object found', async (done) => {
+        it('should throw error when no object found', async () => {
             const spy = jest.spyOn(model, 'aggregate').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([])
             } as any);
@@ -369,12 +350,11 @@ describe('ComparisonItemV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('findAllWithRanking', () => {
-        it('should return all document by filter', async (done) => {
+        it('should return all document by filter', async () => {
             const aggregateSpy = jest
                 .spyOn(model, 'aggregate')
                 .mockReturnValue({
@@ -400,10 +380,9 @@ describe('ComparisonItemV1Service', () => {
             expect(findSpy).toBeCalledTimes(1);
             expect(items.status).toBe(OperationResult.fetch);
 
-            done();
         });
 
-        it('should return all document by without category filter', async (done) => {
+        it('should return all document by without category filter', async () => {
             const aggregateSpy = jest
                 .spyOn(model, 'aggregate')
                 .mockReturnValue({
@@ -429,12 +408,11 @@ describe('ComparisonItemV1Service', () => {
             expect(findSpy).toBeCalledTimes(1);
             expect(items.status).toBe(OperationResult.fetch);
 
-            done();
         });
     });
 
     describe('getComparisonItem', () => {
-        it('should get comparison item', async (done) => {
+        it('should get comparison item', async () => {
             const spy = jest.spyOn(model, 'aggregate').mockReturnValue({
                 exec: jest
                     .fn()
@@ -447,12 +425,11 @@ describe('ComparisonItemV1Service', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(items.status).toBe(OperationResult.fetch);
-            done();
         });
     });
 
     describe('toggleActiveAllItem', () => {
-        it('should toggle all item active', async (done) => {
+        it('should toggle all item active', async () => {
             const spy = jest.spyOn(model, 'updateMany').mockResolvedValue({
                 acknowledged: true,
                 matchedCount: 0,
@@ -464,7 +441,6 @@ describe('ComparisonItemV1Service', () => {
             const items = await service.toggleActiveAllItem(true);
             expect(spy).toBeCalledTimes(1);
             expect(items.status).toBe(OperationResult.update);
-            done();
         });
     });
 

@@ -161,7 +161,6 @@ export class AuthService {
                 case 'youtube':
                 case 'google':
                     const { email: googleEmail, given_name, name: googleName, picture } = await getGoogleUserInfo(accessToken);
-
                     ssoUser = {
                         email: googleEmail,
                         name: googleName,

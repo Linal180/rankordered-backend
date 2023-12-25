@@ -213,7 +213,6 @@ export class AuthController {
             accessSecret
         );
 
-        // Redirect the user
         res.redirect(
             `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
             }&refreshToken=${response.refresh_token}&sso=${sso}`
@@ -223,7 +222,6 @@ export class AuthController {
     @Get('google-login')
     @UseGuards(GoogleLoginAuthGuard)
     googleLoginAuth() {
-        console.log("google login sso", this.configService.get('GOOGLE_LOGIN_CALLBACK_URL'))
         return true;
     }
 
@@ -254,7 +252,6 @@ export class AuthController {
     @Get('google')
     @UseGuards(GoogleAuthGuard)
     googleAuth() {
-        console.log("google sso", this.configService.get('GOOGLE_LOGIN_CALLBACK_URL'))
         return true;
     }
 

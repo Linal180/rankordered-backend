@@ -57,7 +57,7 @@ describe('CategoryV1Service', () => {
     });
 
     describe('findById', () => {
-        it('should return user when find by id', async (done) => {
+        it('should return user when find by id', async () => {
             const spy = jest.spyOn(model, 'findById').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(mockCategory)
             } as any);
@@ -67,11 +67,9 @@ describe('CategoryV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(category.data.name).toBe(mockCategory.name);
             expect(category.status).toBe(OperationResult.fetch);
-
-            done();
         });
 
-        it('should throw error when user not found', async (done) => {
+        it('should throw error when user not found', async () => {
             const spy = jest.spyOn(model, 'findById').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(null)
             } as any);
@@ -83,13 +81,11 @@ describe('CategoryV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('findBySlug', () => {
-        it('should return user when find by id', async (done) => {
+        it('should return user when find by id', async () => {
             const spy = jest.spyOn(model, 'findOne').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(mockCategory)
             } as any);
@@ -99,11 +95,9 @@ describe('CategoryV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(category.data.name).toBe(mockCategory.name);
             expect(category.status).toBe(OperationResult.fetch);
-
-            done();
         });
 
-        it('should throw error when user not found', async (done) => {
+        it('should throw error when user not found', async () => {
             const spy = jest.spyOn(model, 'findOne').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce(null)
             } as any);
@@ -115,13 +109,11 @@ describe('CategoryV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('findByQuery', () => {
-        it('should return categories when category found', async (done) => {
+        it('should return categories when category found', async () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([mockCategory])
             } as any);
@@ -131,11 +123,9 @@ describe('CategoryV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(category.count).toBe(1);
             expect(category.status).toBe(OperationResult.fetch);
-
-            done();
         });
 
-        it('should return empty array when categories not found', async (done) => {
+        it('should return empty array when categories not found', async () => {
             const spy = jest.spyOn(model, 'find').mockReturnValue({
                 exec: jest.fn().mockResolvedValueOnce([])
             } as any);
@@ -145,22 +135,19 @@ describe('CategoryV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(category.data.length).toBe(0);
             expect(category.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('createCategory', () => {
-        it('should return created category', async (done) => {
+        it('should return created category', async () => {
             const category = await service.createCategory(createCategoryDto);
 
             expect(jest.spyOn(model, 'create')).toBeCalledTimes(1);
             expect(category.data.name).toBe(createCategoryDto.name);
             expect(category.status).toBe(OperationResult.create);
-            done();
         });
 
-        it('should throw error created category undefined', async (done) => {
+        it('should throw error created category undefined', async () => {
             const spy = jest
                 .spyOn(model, 'create')
                 .mockResolvedValueOnce(null as never);
@@ -172,12 +159,11 @@ describe('CategoryV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-            done();
         });
     });
 
     describe('updateCategory', () => {
-        it('should return updated category', async (done) => {
+        it('should return updated category', async () => {
             mockCategory.name = updateCategoryDto.name;
             const spy = jest
                 .spyOn(model, 'findByIdAndUpdate')
@@ -191,11 +177,9 @@ describe('CategoryV1Service', () => {
             expect(spy).toBeCalledTimes(1);
             expect(category.data.name).toBe(updateCategoryDto.name);
             expect(category.status).toBe(OperationResult.update);
-
-            done();
         });
 
-        it('should throw error when not found updated category', async (done) => {
+        it('should throw error when not found updated category', async () => {
             const spy = jest
                 .spyOn(model, 'findByIdAndUpdate')
                 .mockResolvedValueOnce(null);
@@ -207,22 +191,18 @@ describe('CategoryV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('deleteCategory', () => {
-        it('should return deleted category', async (done) => {
+        it('should return deleted category', async () => {
             const category = await service.deleteCategory('123456');
 
             expect(jest.spyOn(model, 'findByIdAndDelete')).toBeCalledTimes(1);
             expect(category.status).toBe(OperationResult.delete);
-
-            done();
         });
 
-        it('should throw error when not found deleted category', async (done) => {
+        it('should throw error when not found deleted category', async () => {
             const spy = jest
                 .spyOn(model, 'findByIdAndDelete')
                 .mockResolvedValueOnce(null);
@@ -234,8 +214,6 @@ describe('CategoryV1Service', () => {
             }
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 });

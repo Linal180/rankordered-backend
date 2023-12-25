@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ProfileV1Controller } from './v1/profile-v1.controller';
 import { UserModule } from '../user/user.module';
 import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';

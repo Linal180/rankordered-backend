@@ -46,12 +46,10 @@ describe('HealthController', () => {
     });
 
     describe('check', () => {
-        it.skip('should return health info', async (done) => {
+        it.skip('should return health info', async () => {
             const spy = jest.spyOn(healthCheckService, 'check');
 
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 });
