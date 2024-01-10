@@ -8,6 +8,8 @@ import { Userv1Service } from 'src/component/user/v1/userv1.service';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
+import { ComparisonItemV1Service } from '../../comparisonItem/v1/comparison-item-v1.service';
+import { CreateComparisonItemDto } from 'src/component/comparisonItem/dto/CreateComparisonItem.dto';
 
 @Injectable()
 export class SocialProfileV1Service {
@@ -18,6 +20,8 @@ export class SocialProfileV1Service {
 		private categoryService: CategoryV1Service,
 		@Inject(forwardRef(() => Userv1Service))
 		private userService: Userv1Service,
+		@Inject(forwardRef(() => ComparisonItemV1Service))
+		private itemService: ComparisonItemV1Service,
 	) { }
 
 	async getUserSocialProfiles(userId: string, favoriteOnly = false): Promise<SocialProfile[]> {
@@ -103,6 +107,21 @@ export class SocialProfileV1Service {
 		}
 	}
 
+	async createProfileComparisonItem(profile: SocialProfile) {
+		const category: any = profile.category
+		const itemPayload: CreateComparisonItemDto = {
+			name: profile.username,
+			defaultCategory: category._id.toString(),
+			slug: profile.userId,
+			profile,
+			category: [category._id.toString()]
+		}
+
+		const { status } = await this.itemService.createItem(itemPayload)
+
+		return status;
+	}
+
 	async setSocialProfileCategory(id: string, name: string): Promise<MongoResultQuery<SocialProfile>> {
 		const res = new MongoResultQuery<SocialProfile>();
 
@@ -117,6 +136,8 @@ export class SocialProfileV1Service {
 
 			profile.category = category;
 			res.data = await profile.save();
+
+			await this.createProfileComparisonItem(profile);
 
 			res.status = OperationResult.update;
 

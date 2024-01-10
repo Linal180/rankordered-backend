@@ -16,7 +16,7 @@ export class ScoreSnapshotCronService {
         private scoreSnapshotService: ScoreSnapshotV1Service,
         // @InjectQueue('score_snapshot')
         private scoreSnapshotQueue: ScoreSnapshotConsumer
-    ) {}
+    ) { }
 
     @Cron(CronExpression.EVERY_HOUR)
     async handleCron() {

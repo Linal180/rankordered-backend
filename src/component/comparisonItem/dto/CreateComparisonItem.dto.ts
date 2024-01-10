@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ComparisonItemSourceDto } from './ComparisonItem.dto';
+import { SocialProfile } from 'src/component/social-provider/schemas/SocialProfile.schema';
 
 export class CreateComparisonItemDto {
     @ApiProperty()
@@ -9,7 +10,7 @@ export class CreateComparisonItemDto {
     slug: string;
 
     @ApiProperty({ required: false })
-    category: string[];
+    category?: string[];
 
     @ApiProperty()
     defaultCategory: string;
@@ -41,4 +42,5 @@ export class CreateComparisonItemDto {
     ranking?: number;
 
     scoreSnapshotIds?: string[];
+    profile?: SocialProfile;
 }
