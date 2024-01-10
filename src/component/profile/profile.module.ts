@@ -5,12 +5,14 @@ import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.
 import { MongooseModule } from '@nestjs/mongoose';
 import { SocialProfile, SocialProfileSchema } from '../social-provider/schemas/SocialProfile.schema';
 import { CategoryModule } from '../category/category.module';
+import { ComparisonItemModule } from '../comparisonItem/comparison-item.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: SocialProfile.name, schema: SocialProfileSchema }]),
         UserModule,
-        CategoryModule
+        CategoryModule,
+        ComparisonItemModule,
     ],
     controllers: [ProfileV1Controller],
     providers: [SocialProfileV1Service],

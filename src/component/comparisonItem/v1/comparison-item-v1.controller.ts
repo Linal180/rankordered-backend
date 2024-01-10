@@ -33,7 +33,7 @@ import { ComparisonItem } from '../schemas/ComparisonItem.schema';
 @Controller({ path: 'comparison-item', version: '1' })
 @UseInterceptors(TransformInterceptor)
 export class ComparisonItemV1Controller {
-    constructor(private itemService: ComparisonItemV1Service) {}
+    constructor(private itemService: ComparisonItemV1Service) { }
 
     @Get()
     @UseInterceptors(HttpCacheInterceptor)
@@ -66,7 +66,7 @@ export class ComparisonItemV1Controller {
         @Query('active') active?: boolean,
         @Query('search') search?: string
     ): Promise<MongoResultQuery<ComparisonItem[]>> {
-        return this.itemService.findAllWithRankingfromSnapshotOptimized({
+        return this.itemService.findAllWithRankingFromSnapshotOptimized({
             categoryId,
             pagination,
             search,

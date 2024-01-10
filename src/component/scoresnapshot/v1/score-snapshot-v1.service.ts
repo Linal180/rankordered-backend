@@ -17,7 +17,7 @@ export class ScoreSnapshotV1Service {
     constructor(
         @InjectModel(ScoreSnapshot.name)
         private scoreSnapshotModel: Model<ScoreSnapshotDocument>
-    ) {}
+    ) { }
 
     async getSnapshot(
         itemId: string,
