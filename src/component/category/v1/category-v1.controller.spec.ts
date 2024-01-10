@@ -83,7 +83,7 @@ describe('CategoryV1Controller', () => {
             responseOne.status = OperationResult.create;
             const spy = jest
                 .spyOn(service, 'createCategory')
-                .mockResolvedValue(responseOne);
+                .mockResolvedValue(responseOne as any);
 
             const category = await controller.createCategory({
                 name: 'test',
@@ -101,7 +101,7 @@ describe('CategoryV1Controller', () => {
 
             const spy = jest
                 .spyOn(service, 'updateCategory')
-                .mockResolvedValue(responseOne);
+                .mockResolvedValue(responseOne as any);
 
             const category = await controller.updateCategory('123456', {
                 name: 'test2'
@@ -117,7 +117,7 @@ describe('CategoryV1Controller', () => {
             responseOne.status = OperationResult.delete;
             const spy = jest
                 .spyOn(service, 'deleteCategory')
-                .mockResolvedValue(responseOne);
+                .mockResolvedValue(responseOne as any);
 
             const category = await controller.deleteCategory('123456');
 

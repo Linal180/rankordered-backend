@@ -26,8 +26,8 @@ export class Category {
     @Prop()
     slug: string;
 
-    @Prop({ default: false })
-    isSocial: boolean;
+    @Prop({ default: false, required: false })
+    isSocial?: boolean;
 
     @Prop({ default: true })
     active: boolean;
