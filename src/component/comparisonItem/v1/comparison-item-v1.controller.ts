@@ -36,7 +36,7 @@ export class ComparisonItemV1Controller {
     constructor(private itemService: ComparisonItemV1Service) { }
 
     @Get()
-    // @UseInterceptors(HttpCacheInterceptor)
+    @UseInterceptors(HttpCacheInterceptor)
     @ApiQuery({
         name: 'categoryId',
         required: false,
