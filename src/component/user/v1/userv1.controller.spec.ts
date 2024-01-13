@@ -12,7 +12,9 @@ const mockUser = {
     username: 'test_user',
     email: 'test_user@email.com',
     password: 'pass123',
-    type: UserType.ADMIN
+    type: UserType.ADMIN,
+    favoriteItems: [],
+    token: '',
 };
 
 const responseOne = {
@@ -68,29 +70,25 @@ describe('Userv1Controller', () => {
     });
 
     describe('getUsers', () => {
-        it('should return users', async (done) => {
+        it('should return users', async () => {
             const user = await controller.getUsers();
 
             expect(jest.spyOn(service, 'findByQuery')).toBeCalledTimes(1);
             expect(user.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('getUserById', () => {
-        it('should return user', async (done) => {
+        it('should return user', async () => {
             const user = await controller.getUserById('12345');
 
             expect(jest.spyOn(service, 'findById')).toBeCalledTimes(1);
             expect(user.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('createUser', () => {
-        it('should create user', async (done) => {
+        it('should create user', async () => {
             responseOne.status = OperationResult.create;
             const spy = jest
                 .spyOn(service, 'createUser')
@@ -100,13 +98,11 @@ describe('Userv1Controller', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(user.status).toBe(OperationResult.create);
-
-            done();
         });
     });
 
     describe('updateUser', () => {
-        it('should update user', async (done) => {
+        it('should update user', async () => {
             responseOne.status = OperationResult.update;
             const spy = jest
                 .spyOn(service, 'updateUser')
@@ -116,13 +112,11 @@ describe('Userv1Controller', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(user.status).toBe(OperationResult.update);
-
-            done();
         });
     });
 
     describe('deleteUser', () => {
-        it('should delete user', async (done) => {
+        it('should delete user', async () => {
             responseOne.status = OperationResult.delete;
             const spy = jest
                 .spyOn(service, 'deleteUser')
@@ -131,8 +125,6 @@ describe('Userv1Controller', () => {
 
             expect(spy).toBeCalledTimes(1);
             expect(user.status).toBe(OperationResult.delete);
-
-            done();
         });
     });
 });

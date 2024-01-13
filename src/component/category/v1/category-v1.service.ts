@@ -7,13 +7,14 @@ import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { CreateCategoryDto } from '../dto/CreateCategory.dto';
 import { UpdateCategoryDto } from '../dto/UpdateCategory.dto';
 import { CategoryDocument, Category } from '../schemas/category.schema';
+import { generateSlug } from 'src/utils/social-media-helpers/social-media.utils';
 
 @Injectable()
 export class CategoryV1Service {
     constructor(
         @InjectModel(Category.name)
         private categoryModel: Model<CategoryDocument>
-    ) {}
+    ) { }
 
     async findById(
         id: string,
@@ -72,6 +73,23 @@ export class CategoryV1Service {
         res.status = OperationResult.create;
 
         return res;
+    }
+
+    async findOrCreateCategory(
+        name: string
+    ): Promise<Category | null> {
+        const categories = await this.categoryModel.find({ name }).exec();
+
+        if (categories.length) {
+            return categories[0];
+        }
+
+        const newCategory = await this.categoryModel.create({
+            name, slug: generateSlug(name),
+            isSocial: true
+        })
+
+        return newCategory;
     }
 
     async toggleActiveCategory(

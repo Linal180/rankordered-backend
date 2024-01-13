@@ -18,6 +18,8 @@ import { HttpExceptionFilter } from './shared/httpError/filter/http-exception.fi
 import { APP_FILTER } from '@nestjs/core';
 import { BullModule } from '@nestjs/bull';
 import { GalleryModule } from './component/gallery/gallery.module';
+import { FavoriteItemModule } from './component/favorite-item/FavoriteItem.module';
+
 @Module({
     imports: [
         ConfigModule.forRoot({ load: [configuration] }),
@@ -42,7 +44,8 @@ import { GalleryModule } from './component/gallery/gallery.module';
         HealthModule,
         ComponentModule,
         UtilModule,
-        GalleryModule
+        GalleryModule,
+        FavoriteItemModule,
     ],
     controllers: [AppController],
     providers: [
@@ -53,4 +56,4 @@ import { GalleryModule } from './component/gallery/gallery.module';
         }
     ]
 })
-export class AppModule {}
+export class AppModule { }

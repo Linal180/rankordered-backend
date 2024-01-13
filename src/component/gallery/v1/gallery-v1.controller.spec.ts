@@ -54,7 +54,7 @@ describe('GalleryV1Controller', () => {
     });
 
     describe('getGalleryItem', () => {
-        it('should get all gallery item', async (done) => {
+        it('should get all gallery item', async () => {
             const spy = jest.spyOn(service, 'findAll');
 
             const res = await controller.getGalleryItem({
@@ -66,12 +66,11 @@ describe('GalleryV1Controller', () => {
             expect(res.status).toBe(OperationResult.fetch);
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('getGalleryItemById', () => {
-        it('should get gallery by id', async (done) => {
+        it('should get gallery by id', async () => {
             const spy = jest.spyOn(service, 'findById');
 
             const res = await controller.getGalleryItemById('123456');
@@ -79,12 +78,11 @@ describe('GalleryV1Controller', () => {
             expect(res.status).toBe(OperationResult.fetch);
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('uploadGalleryItem', () => {
-        it('should saved uploaded file info to gallery', async (done) => {
+        it('should saved uploaded file info to gallery', async () => {
             responseOne.status = OperationResult.upload;
 
             const spy = jest
@@ -107,12 +105,11 @@ describe('GalleryV1Controller', () => {
             expect(res.status).toBe(OperationResult.upload);
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 
     describe('deleteGalleryItemById', () => {
-        it('should delete gallery item by id', async (done) => {
+        it('should delete gallery item by id', async () => {
             responseOne.status = OperationResult.delete;
             const spy = jest
                 .spyOn(service, 'delete')
@@ -123,7 +120,6 @@ describe('GalleryV1Controller', () => {
             expect(res.status).toBe(OperationResult.delete);
             expect(spy).toBeCalledTimes(1);
 
-            done();
         });
     });
 });

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserType } from './UserType';
+import { PrimaryProfileDto } from 'src/component/social-provider/dto/PrimaryProfile.dto';
 
 export class UserDto {
     @ApiProperty()
@@ -16,4 +17,50 @@ export class UserDto {
 
     @ApiProperty({ example: 'admin' })
     type: UserType;
+
+    @ApiProperty({ example: '' })
+    token?: string;
+}
+
+export class GoogleUserDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    email: string;
+
+    @ApiProperty()
+    verified_email: boolean;
+
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    given_name: string;
+
+    @ApiProperty()
+    family_name: string;
+
+    @ApiProperty()
+    picture: string;
+
+    @ApiProperty()
+    locale: string;
+}
+
+export class CurrentUserDto {
+    // @ApiProperty()
+    // id: string;
+
+    @ApiProperty()
+    email: string;
+
+    @ApiProperty()
+    name: string;
+
+    @ApiProperty()
+    username: string;
+
+    @ApiProperty()
+    primaryProfile: PrimaryProfileDto;
 }

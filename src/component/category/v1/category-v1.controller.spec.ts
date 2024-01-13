@@ -52,44 +52,38 @@ describe('CategoryV1Controller', () => {
     });
 
     describe('getCategories', () => {
-        it('should return categories', async (done) => {
+        it('should return categories', async () => {
             const categories = await controller.getCategories();
 
             expect(jest.spyOn(service, 'findByQuery')).toBeCalledTimes(1);
             expect(categories.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('getCategory', () => {
-        it('should return category', async (done) => {
+        it('should return category', async () => {
             const category = await controller.getCategory('123456');
 
             expect(jest.spyOn(service, 'findById')).toBeCalledTimes(1);
             expect(category.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('getCategoryBySlug', () => {
-        it('should return category', async (done) => {
+        it('should return category', async () => {
             const category = await controller.getCategoryBySlug('college');
 
             expect(jest.spyOn(service, 'findBySlug')).toBeCalledTimes(1);
             expect(category.status).toBe(OperationResult.fetch);
-
-            done();
         });
     });
 
     describe('createCategory', () => {
-        it('should return created category', async (done) => {
+        it('should return created category', async () => {
             responseOne.status = OperationResult.create;
             const spy = jest
                 .spyOn(service, 'createCategory')
-                .mockResolvedValue(responseOne);
+                .mockResolvedValue(responseOne as any);
 
             const category = await controller.createCategory({
                 name: 'test',
@@ -98,18 +92,16 @@ describe('CategoryV1Controller', () => {
 
             expect(category.status).toBe(OperationResult.create);
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('updateCategory', () => {
-        it('should return updated category', async (done) => {
+        it('should return updated category', async () => {
             responseOne.status = OperationResult.update;
 
             const spy = jest
                 .spyOn(service, 'updateCategory')
-                .mockResolvedValue(responseOne);
+                .mockResolvedValue(responseOne as any);
 
             const category = await controller.updateCategory('123456', {
                 name: 'test2'
@@ -117,24 +109,20 @@ describe('CategoryV1Controller', () => {
 
             expect(category.status).toBe(OperationResult.update);
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 
     describe('deleteCategory', () => {
-        it('should return delete category', async (done) => {
+        it('should return delete category', async () => {
             responseOne.status = OperationResult.delete;
             const spy = jest
                 .spyOn(service, 'deleteCategory')
-                .mockResolvedValue(responseOne);
+                .mockResolvedValue(responseOne as any);
 
             const category = await controller.deleteCategory('123456');
 
             expect(category.status).toBe(OperationResult.delete);
             expect(spy).toBeCalledTimes(1);
-
-            done();
         });
     });
 });

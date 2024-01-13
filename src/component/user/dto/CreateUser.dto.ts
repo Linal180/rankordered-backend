@@ -2,7 +2,18 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { UserType } from './UserType';
 
-export class CreateUserDto {
+class CreateSocialProfileDto {
+
+    @ApiProperty({ example: 'youtube' })
+    @IsNotEmpty()
+    provider?: string;
+
+    @ApiProperty({ example: 'URL' })
+    @IsNotEmpty()
+    profilePicture?: string;
+}
+
+export class CreateUserDto extends CreateSocialProfileDto {
     @ApiProperty({ example: 'john smith' })
     name?: string;
 
@@ -17,7 +28,7 @@ export class CreateUserDto {
 
     @ApiProperty({ example: 'password@123' })
     @IsNotEmpty()
-    password: string;
+    password?: string;
 
     @ApiProperty({ example: 'admin' })
     @IsNotEmpty()

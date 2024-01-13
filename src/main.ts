@@ -7,6 +7,8 @@ import { ConfigService } from '@nestjs/config';
 // import { ErrorsInterceptor } from './Shared/Response/Interceptors/Errors.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { HttpExceptionFilter } from './shared/httpError/filter/http-exception.filter';
+import * as session from 'express-session';
+import * as cors from 'cors';
 
 async function bootstrap() {
     // const httpsOptions = {
@@ -47,6 +49,16 @@ async function bootstrap() {
             }
         })
     );
+
+    app.use(
+        session({
+            secret: process.env.SESSION_SECRET,
+            resave: false,
+            saveUninitialized: false
+        })
+    );
+
+    app.use(cors());
 
     const config = new DocumentBuilder()
         .setTitle('Rankordered Api List')

@@ -26,15 +26,13 @@ describe('JwtStrategy', () => {
     });
 
     describe('validate', () => {
-        it('should validate user', async (done) => {
+        it('should validate user', async () => {
             const response = strategy.validate({
                 sub: 'asd',
                 username: 'uio'
             });
 
             expect(response).toBeTruthy();
-
-            done();
         });
     });
 });

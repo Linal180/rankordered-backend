@@ -34,7 +34,7 @@ describe('ItemScoreListener', () => {
     });
 
     describe('handleComparisonItemCreatedEvent', () => {
-        it('should handle comparison item created', async (done) => {
+        it('should handle comparison item created', async () => {
             const createdItem = ComparisonItemCreatedEvent.create({
                 id: 'cont123',
                 category: ['cat123']
@@ -47,11 +47,9 @@ describe('ItemScoreListener', () => {
                     jest.spyOn(service, 'findAndCreateScore')
                 ).toBeCalledWith(createdItem.id, category);
             });
-
-            done();
         });
 
-        it('should not create score if not category', async (done) => {
+        it('should not create score if not category', async () => {
             const createdItem = ComparisonItemCreatedEvent.create({
                 id: 'cont123',
                 category: []
@@ -60,13 +58,11 @@ describe('ItemScoreListener', () => {
             listener.handleComparisonItemCreatedEvent(createdItem);
 
             expect(jest.spyOn(service, 'findAndCreateScore')).not.toBeCalled();
-
-            done();
         });
     });
 
     describe('handleComparisonItemUpdatedEvent', () => {
-        it('should handle update item', async (done) => {
+        it('should handle update item', async () => {
             const updatedItem = ComparisonItemUpdatedEvent.create({
                 id: 'cont123',
                 category: ['cat123', 'cat456']
@@ -79,11 +75,9 @@ describe('ItemScoreListener', () => {
                     jest.spyOn(service, 'findAndCreateScore')
                 ).toBeCalledWith(updatedItem.id, category);
             });
-
-            done();
         });
 
-        it('should not create score if updated not have category', async (done) => {
+        it('should not create score if updated not have category', async () => {
             const updatedItem = ComparisonItemUpdatedEvent.create({
                 id: 'cont123',
                 category: []
@@ -92,13 +86,11 @@ describe('ItemScoreListener', () => {
             listener.handleComparisonItemUpdatedEvent(updatedItem);
 
             expect(jest.spyOn(service, 'findAndCreateScore')).not.toBeCalled();
-
-            done();
         });
     });
 
     describe('handleVotingItemCreatedEvent', () => {
-        it('should handle voting item created', async (done) => {
+        it('should handle voting item created', async () => {
             const createdVoting = VotingCreatedEvent.create({
                 contestantId: 'cont123',
                 contestantCurrentSCore: 100,
@@ -120,13 +112,11 @@ describe('ItemScoreListener', () => {
                 createdVoting.categoryId,
                 createdVoting.contestantCurrentSCore
             );
-
-            done();
         });
     });
 
     describe('handleComparisonItemDeleted', () => {
-        it('should handle comparison item deleted', async (done) => {
+        it('should handle comparison item deleted', async () => {
             const deletedEvent = ComparisonItemDeletedEvent.create({
                 id: '123'
             });
@@ -136,8 +126,6 @@ describe('ItemScoreListener', () => {
             expect(jest.spyOn(service, 'deleteScoreByItemId')).toBeCalledTimes(
                 1
             );
-
-            done();
         });
     });
 });
