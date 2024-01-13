@@ -32,14 +32,22 @@ export class SocialProfileV1Service {
 			const user = this.userService.findById(userId)
 
 			if (user) {
-				return await this.socialModel
+				const socialProfiles = await this.socialModel
 					.find({
 						userId: userId,
 						...(favoriteOnly && { isFavorite: true })
 					})
 					.sort({ createdAt: -1 })
-					.populate('category')
+					.populate({
+						path: 'category',
+						model: 'Category',
+						select: 'name _id' // Include only 'name' and '_id' fields
+					})
 					.exec();
+
+				const populatedSocialProfiles = await this.populateComparisonItem(socialProfiles);
+
+				return populatedSocialProfiles;
 			} else
 				throw new NotFoundException();
 		} catch (error) {
@@ -122,7 +130,7 @@ export class SocialProfileV1Service {
 		return status;
 	}
 
-	async setSocialProfileCategory(id: string, name: string): Promise<MongoResultQuery<SocialProfile>> {
+	async setSocialProfileCategory(id: string, categoryId: string): Promise<MongoResultQuery<SocialProfile>> {
 		const res = new MongoResultQuery<SocialProfile>();
 
 		if (!id) {
@@ -130,7 +138,7 @@ export class SocialProfileV1Service {
 		}
 
 		const profile = await this.socialModel.findById(id).exec();
-		const category = await this.categoryService.findOrCreateCategory(name)
+		const { data: category } = await this.categoryService.findById(categoryId)
 
 		if (profile && category) {
 
@@ -184,5 +192,26 @@ export class SocialProfileV1Service {
 
 	private throwObjectNotFoundError(): void {
 		throw new ObjectNotFoundException(SocialProfile.name);
+	}
+
+	private async populateComparisonItem(socialProfiles: SocialProfile[]): Promise<SocialProfile[]> {
+		const populatedSocialProfiles = [];
+
+		for (const socialProfile of socialProfiles) {
+			if (socialProfile) {
+				const item = await this.itemService.findByProfile((socialProfile as any)._id.toString());
+
+				if (item) {
+					const profileWithRanking: SocialProfile & { ranking: number } = {
+						...(socialProfile as any).toJSON(),  // Convert Mongoose document to plain JavaScript object
+						ranking: item?.ranking,
+					};
+
+					populatedSocialProfiles.push(profileWithRanking);
+				}
+			}
+		}
+
+		return populatedSocialProfiles;
 	}
 }
