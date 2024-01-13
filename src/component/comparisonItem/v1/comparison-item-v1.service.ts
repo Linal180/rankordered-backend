@@ -50,8 +50,10 @@ export class ComparisonItemV1Service {
     async findByProfile(id: string): Promise<ComparisonItemWithScore> {
         const item = await this.itemModel.findOne({ profile: id }).exec();
         if (item) {
-
-            const { data } = await this.findByIdWithRanking(item._id, ((item.defaultCategory as any)._id || '').toString())
+            const { data } = await this.findByIdWithRanking(
+                item._id,
+                ((item.defaultCategory as any)._id || '').toString()
+            )
 
             return data;
         }
