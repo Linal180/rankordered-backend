@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
@@ -45,6 +45,20 @@ export class ComparisonItemV1Service {
 
         res.status = OperationResult.fetch;
         return res;
+    }
+
+    async findByProfile(id: string): Promise<ComparisonItemWithScore> {
+        const item = await this.itemModel.findOne({ profile: id }).exec();
+        if (item) {
+            const { data } = await this.findByIdWithRanking(
+                item._id,
+                ((item.defaultCategory as any)._id || '').toString()
+            )
+
+            return data;
+        }
+
+        return null
     }
 
     async findByQuery({
@@ -345,11 +359,6 @@ export class ComparisonItemV1Service {
         const res = new MongoResultQuery<ComparisonItemWithScore[]>();
 
         res.data = await this.itemModel.aggregate(aggregateOperation).exec();
-        console.log("=======================================================")
-        console.log("=======================================================")
-        console.log("=======================================================")
-        console.log("res.data ", res.data)
-        console.log("=======================================================")
         res.count = await this.itemModel.find(options).count();
         res.status = OperationResult.fetch;
 
@@ -400,7 +409,9 @@ export class ComparisonItemV1Service {
             };
         }
 
-        const items = await this.itemModel.find(itemsQuery).exec();
+        const items = await this.itemModel.find(itemsQuery)
+            .populate('profile')
+            .exec();
 
         const categoryItemsIds = category.data.categoryRankingItems.filter(
             (item) => {
@@ -408,7 +419,6 @@ export class ComparisonItemV1Service {
                     (v) => v._id.toString() === item.itemId.toString()
                 );
 
-                console.log("*****************11111", foundItem)
                 return (
                     foundItem &&
                     foundItem.active &&
@@ -416,7 +426,6 @@ export class ComparisonItemV1Service {
                 );
             }
         );
-
 
         const sortedItems = items
             .map((item) => ({

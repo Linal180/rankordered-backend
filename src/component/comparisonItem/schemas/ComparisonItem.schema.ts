@@ -74,6 +74,7 @@ class ComparisonItem {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SocialProfile',
+    autopopulate: true,
     required: false
   })
   profile?: SocialProfile;
