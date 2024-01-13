@@ -85,7 +85,8 @@ export class CategoryV1Service {
         }
 
         const newCategory = await this.categoryModel.create({
-            name, slug: generateSlug(name)
+            name, slug: generateSlug(name),
+            isSocial: true
         })
 
         return newCategory;

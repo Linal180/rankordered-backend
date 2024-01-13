@@ -8,7 +8,7 @@ import { ItemScoreV1Service } from '../v1/item-score-v1.service';
 
 @Injectable()
 export class ItemScoreListener {
-    constructor(private itemScoreService: ItemScoreV1Service) {}
+    constructor(private itemScoreService: ItemScoreV1Service) { }
 
     @OnEvent('ComparisonItem.created')
     handleComparisonItemCreatedEvent(event: ComparisonItemCreatedEvent) {

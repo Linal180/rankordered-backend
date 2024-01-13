@@ -5,12 +5,14 @@ import { SocialProfileV1Service } from './v1/social-profile-v1.service';
 import { SocialProfile, SocialProfileSchema } from './schemas/SocialProfile.schema';
 import { UserModule } from '../user/user.module';
 import { CategoryModule } from '../category/category.module';
+import { ComparisonItemModule } from '../comparisonItem/comparison-item.module';
 
 @Module({
 	imports: [
 		MongooseModule.forFeature([{ name: SocialProfile.name, schema: SocialProfileSchema }]),
 		forwardRef(() => UserModule),
 		forwardRef(() => CategoryModule),
+		forwardRef(() => ComparisonItemModule),
 	],
 
 	providers: [SocialProfileV1Service],

@@ -8,6 +8,8 @@ import { Userv1Service } from 'src/component/user/v1/userv1.service';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
+import { ComparisonItemV1Service } from '../../comparisonItem/v1/comparison-item-v1.service';
+import { CreateComparisonItemDto } from 'src/component/comparisonItem/dto/CreateComparisonItem.dto';
 
 @Injectable()
 export class SocialProfileV1Service {
@@ -18,6 +20,8 @@ export class SocialProfileV1Service {
 		private categoryService: CategoryV1Service,
 		@Inject(forwardRef(() => Userv1Service))
 		private userService: Userv1Service,
+		@Inject(forwardRef(() => ComparisonItemV1Service))
+		private itemService: ComparisonItemV1Service,
 	) { }
 
 	async getUserSocialProfiles(userId: string, favoriteOnly = false): Promise<SocialProfile[]> {
@@ -28,14 +32,22 @@ export class SocialProfileV1Service {
 			const user = this.userService.findById(userId)
 
 			if (user) {
-				return await this.socialModel
+				const socialProfiles = await this.socialModel
 					.find({
 						userId: userId,
 						...(favoriteOnly && { isFavorite: true })
 					})
 					.sort({ createdAt: -1 })
-					.populate('category')
+					.populate({
+						path: 'category',
+						model: 'Category',
+						select: 'name _id' // Include only 'name' and '_id' fields
+					})
 					.exec();
+
+				const populatedSocialProfiles = await this.populateComparisonItem(socialProfiles);
+
+				return populatedSocialProfiles;
 			} else
 				throw new NotFoundException();
 		} catch (error) {
@@ -103,7 +115,22 @@ export class SocialProfileV1Service {
 		}
 	}
 
-	async setSocialProfileCategory(id: string, name: string): Promise<MongoResultQuery<SocialProfile>> {
+	async createProfileComparisonItem(profile: SocialProfile) {
+		const category: any = profile.category
+		const itemPayload: CreateComparisonItemDto = {
+			name: profile.username,
+			defaultCategory: category._id.toString(),
+			slug: profile.userId,
+			profile,
+			category: [category._id.toString()]
+		}
+
+		const { status } = await this.itemService.createItem(itemPayload)
+
+		return status;
+	}
+
+	async setSocialProfileCategory(id: string, categoryId: string): Promise<MongoResultQuery<SocialProfile>> {
 		const res = new MongoResultQuery<SocialProfile>();
 
 		if (!id) {
@@ -111,12 +138,14 @@ export class SocialProfileV1Service {
 		}
 
 		const profile = await this.socialModel.findById(id).exec();
-		const category = await this.categoryService.findOrCreateCategory(name)
+		const { data: category } = await this.categoryService.findById(categoryId)
 
 		if (profile && category) {
 
 			profile.category = category;
 			res.data = await profile.save();
+
+			await this.createProfileComparisonItem(profile);
 
 			res.status = OperationResult.update;
 
@@ -163,5 +192,26 @@ export class SocialProfileV1Service {
 
 	private throwObjectNotFoundError(): void {
 		throw new ObjectNotFoundException(SocialProfile.name);
+	}
+
+	private async populateComparisonItem(socialProfiles: SocialProfile[]): Promise<SocialProfile[]> {
+		const populatedSocialProfiles = [];
+
+		for (const socialProfile of socialProfiles) {
+			if (socialProfile) {
+				const item = await this.itemService.findByProfile((socialProfile as any)._id.toString());
+
+				if (item) {
+					const profileWithRanking: SocialProfile & { ranking: number } = {
+						...(socialProfile as any).toJSON(),  // Convert Mongoose document to plain JavaScript object
+						ranking: item?.ranking,
+					};
+
+					populatedSocialProfiles.push(profileWithRanking);
+				}
+			}
+		}
+
+		return populatedSocialProfiles;
 	}
 }

@@ -17,7 +17,7 @@ export class ScoreSnapshotConsumer {
         private comparisonItemService: ComparisonItemV1Service,
         private scoreSnapshotService: ScoreSnapshotV1Service,
         private categoryService: CategoryV1Service
-    ) {}
+    ) { }
 
     // @Process('saveScoreByCategory')
     async handleSaveScoreByCategory(job: Job<CategoryDocument>) {
@@ -25,8 +25,7 @@ export class ScoreSnapshotConsumer {
             const today = DateTime.now().toUTC().startOf('day');
             let page = 1;
             this.logger.log(
-                `saving score and ranking of category ${
-                    job.data._id
+                `saving score and ranking of category ${job.data._id
                 } in ${today.toString()}`
             );
 
@@ -65,7 +64,7 @@ export class ScoreSnapshotConsumer {
             } while (haveNextPage);
 
             const { data } =
-                await this.comparisonItemService.findAllWithRankingfromSnapshot(
+                await this.comparisonItemService.findAllWithRankingFromSnapshot(
                     {
                         categoryId: job.data._id,
                         pagination: {

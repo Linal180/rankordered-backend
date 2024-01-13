@@ -64,7 +64,7 @@ export class FavoriteItemV1Service {
       const ids: string[] = favorites.map(favorite => favorite.comparisonItem.toString());
 
       if (ids.length) {
-        const comparisonResponse = await this.comparisonService.findAllWithRankingfromSnapshotOptimized({ categoryId, pagination, search, ids, favorite: true })
+        const comparisonResponse = await this.comparisonService.findAllWithRankingFromSnapshotOptimized({ categoryId, pagination, search, ids, favorite: true })
 
         return comparisonResponse;
       } else throw new NotFoundException();

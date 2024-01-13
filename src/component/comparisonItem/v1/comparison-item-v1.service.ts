@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
@@ -47,6 +47,20 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async findByProfile(id: string): Promise<ComparisonItemWithScore> {
+        const item = await this.itemModel.findOne({ profile: id }).exec();
+        if (item) {
+            const { data } = await this.findByIdWithRanking(
+                item._id,
+                ((item.defaultCategory as any)._id || '').toString()
+            )
+
+            return data;
+        }
+
+        return null
+    }
+
     async findByQuery({
         filter,
         page = 0,
@@ -71,7 +85,6 @@ export class ComparisonItemV1Service {
         createItemData: CreateComparisonItemDto
     ): Promise<MongoResultQuery<ComparisonItemDocument>> {
         const res = new MongoResultQuery<ComparisonItemDocument>();
-
         const item = await this.itemModel.create(createItemData);
 
         if (!item) {
@@ -169,7 +182,7 @@ export class ComparisonItemV1Service {
                     this.scoreCategoryLookup,
                     this.scoreCategoryRefine,
                     this.categoryLookup,
-                    this.defaultCategotyLookup,
+                    this.defaultCategoryLookup,
                     this.defaultCategoryRefine,
                     this.imagesLookup,
                     this.defaultImageLookup,
@@ -283,7 +296,7 @@ export class ComparisonItemV1Service {
             this.skip(pagination.currentPage * pagination.limit),
             this.limit(pagination.limit),
             this.categoryLookup,
-            this.defaultCategotyLookup,
+            this.defaultCategoryLookup,
             this.defaultCategoryRefine,
             this.imagesLookup,
             this.defaultImageLookup,
@@ -306,7 +319,7 @@ export class ComparisonItemV1Service {
         return res;
     }
 
-    async findAllWithRankingfromSnapshot({
+    async findAllWithRankingFromSnapshot({
         categoryId = null,
         pagination
     }: {
@@ -335,7 +348,7 @@ export class ComparisonItemV1Service {
             this.skip(pagination.currentPage * pagination.limit),
             this.limit(pagination.limit),
             this.categoryLookup,
-            this.defaultCategotyLookup,
+            this.defaultCategoryLookup,
             this.defaultCategoryRefine,
             this.imagesLookup,
             this.defaultImageLookup,
@@ -352,7 +365,7 @@ export class ComparisonItemV1Service {
         return res;
     }
 
-    async findAllWithRankingfromSnapshotOptimized({
+    async findAllWithRankingFromSnapshotOptimized({
         categoryId = null,
         pagination,
         search,
@@ -396,7 +409,9 @@ export class ComparisonItemV1Service {
             };
         }
 
-        const items = await this.itemModel.find(itemsQuery).exec();
+        const items = await this.itemModel.find(itemsQuery)
+            .populate('profile')
+            .exec();
 
         const categoryItemsIds = category.data.categoryRankingItems.filter(
             (item) => {
@@ -723,7 +738,7 @@ export class ComparisonItemV1Service {
         }
     };
 
-    defaultCategotyLookup = {
+    defaultCategoryLookup = {
         $lookup: {
             from: 'categories',
             localField: 'defaultCategory',

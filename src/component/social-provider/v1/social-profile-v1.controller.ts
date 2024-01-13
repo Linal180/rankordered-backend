@@ -54,12 +54,12 @@ export class SocialProfileV1Controller {
 	setSocialProfileCategory(
 		@Req() request: any,
 		@Param('id') id: string,
-		@Body() { category }: { category: string }
+		@Body() { categoryId }: { categoryId: string }
 	): Promise<MongoResultQuery<SocialProfile>> {
 		const { user } = request || {};
 
 		if (id && user && user.userId) {
-			return this.socialService.setSocialProfileCategory(id, category);
+			return this.socialService.setSocialProfileCategory(id, categoryId);
 		} else {
 			throw new BadRequestException();
 		}
