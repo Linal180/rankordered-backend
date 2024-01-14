@@ -25,10 +25,11 @@ export class RatingSystemService {
     calculateNextRating(
         rating: number,
         expectedProbability: number,
-        score: number
+        score: number,
+        kFactor = 32
     ): number {
         return parseFloat(
-            (rating + this.kFactor * (score - expectedProbability)).toFixed(3)
+            (rating + kFactor * (score - expectedProbability)).toFixed(3)
         );
     }
 
