@@ -2,23 +2,21 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class RatingSystemService {
-    scaleFactor = 400;
-    exponentBase = 10;
-    kFactor = 40;
+    private readonly scaleFactor = 400;
+    private readonly exponentBase = 10;
+    private readonly kFactor = 40;
 
     calculateProbabilityOfWinning(
         selfRating: number,
-        opponentRating: number,
-        exponentBase: number = this.exponentBase,
-        scaleFactor: number = this.scaleFactor
+        opponentRating: number
     ): number {
         return parseFloat(
             (
                 1 /
                 (1 +
                     Math.pow(
-                        exponentBase,
-                        (opponentRating - selfRating) / scaleFactor
+                        this.exponentBase,
+                        (opponentRating - selfRating) / this.scaleFactor
                     ))
             ).toFixed(3)
         );
@@ -27,15 +25,21 @@ export class RatingSystemService {
     calculateNextRating(
         rating: number,
         expectedProbability: number,
-        score: number,
-        kFactor = 32
+        score: number
     ): number {
         return parseFloat(
-            (rating + kFactor * (score - expectedProbability)).toFixed(3)
+            (rating + this.kFactor * (score - expectedProbability)).toFixed(3)
         );
     }
 
     calculateKFactor(totalComparison: number, rating: number) {
-        return totalComparison < 30 ? 40 : rating < 2400 ? 20 : 10;
+        const THRESHOLD_1 = 30;
+        const THRESHOLD_2 = 2400;
+
+        return totalComparison < THRESHOLD_1
+            ? this.kFactor
+            : rating < THRESHOLD_2
+                ? 20
+                : 10;
     }
 }
