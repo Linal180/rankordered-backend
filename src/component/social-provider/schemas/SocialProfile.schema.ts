@@ -18,6 +18,9 @@ export class SocialProfile {
 	@Prop()
 	isFavorite: boolean;
 
+	@Prop()
+	flagged: boolean;
+
 	@Prop({ required: true })
 	userId: string;
 

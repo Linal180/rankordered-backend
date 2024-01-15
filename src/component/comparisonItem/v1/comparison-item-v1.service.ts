@@ -29,7 +29,6 @@ export class ComparisonItemV1Service {
         private itemModel: Model<ComparisonItemDocument>,
         @InjectModel(ScoreSnapshot.name)
         private scoreSnapshotModel: Model<ScoreSnapshotDocument>,
-
         private eventEmitter: EventEmitter2,
         private readonly categoryService: CategoryV1Service
     ) { }

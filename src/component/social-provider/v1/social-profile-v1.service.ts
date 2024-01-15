@@ -194,6 +194,21 @@ export class SocialProfileV1Service {
 		throw new ObjectNotFoundException(SocialProfile.name);
 	}
 
+	async flaggedProfile(id: string, flagged = true): Promise<SocialProfile> {
+		if (id) {
+			const profile = await this.socialModel.findById(id).exec();
+
+			if (profile) {
+				profile.flagged = flagged;
+				await profile.save();
+
+				return profile;
+			}
+		}
+
+		this.throwObjectNotFoundError();
+	}
+
 	private async populateComparisonItem(socialProfiles: SocialProfile[]): Promise<SocialProfile[]> {
 		const populatedSocialProfiles = [];
 
