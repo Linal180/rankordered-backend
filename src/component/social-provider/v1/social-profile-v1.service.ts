@@ -49,7 +49,7 @@ export class SocialProfileV1Service {
 						select: 'name _id' // Include only 'name' and '_id' fields
 					})
 					.exec();
-				console.log("LL:LLLLLL:::::", socialProfiles)
+
 				const populatedSocialProfiles = await this.populateComparisonItem(socialProfiles);
 
 				return populatedSocialProfiles;
@@ -149,7 +149,6 @@ export class SocialProfileV1Service {
 				username
 			});
 
-			console.log(">>>>>>>>>>>>>>>", newProfile)
 			if (!newProfile) {
 				this.throwObjectNotFoundError();
 			}
