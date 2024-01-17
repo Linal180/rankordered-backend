@@ -17,7 +17,7 @@ export class SocialProfileV1Controller {
   @UseGuards(JwtAuthGuard)
   async getUserSocialProfiles(@Req() request: any) {
     const { user } = request || {};
-    console.log("::::::::::::::::::::::::::::::::::::::::::::", user)
+
     if (user && user.userId) {
       return this.socialService.getUserSocialProfiles(user.userId);
     } else {
@@ -65,6 +65,21 @@ export class SocialProfileV1Controller {
 
     if (id && user && user.userId) {
       return this.socialService.updateAsFavorite(id);
+    } else {
+      throw new BadRequestException();
+    }
+  }
+
+  @Put('/resubmit/:id')
+  @UseGuards(JwtAuthGuard)
+  resubmitSocialProfile(
+    @Req() request: any,
+    @Param('id') id: string,
+  ): Promise<MongoResultQuery<SocialProfile>> {
+    const { user } = request || {};
+
+    if (id && user && user.userId) {
+      return this.socialService.resubmit(id);
     } else {
       throw new BadRequestException();
     }

@@ -21,7 +21,7 @@ export class SocialProfile {
 	@Prop({
 		required: true,
 		default: 'no',
-		enum: ['no', 'pending', 'approved', 'rejected']
+		enum: ['no', 'pending', 'approved', 'rejected', 'submitted']
 	})
 	flag: string;
 

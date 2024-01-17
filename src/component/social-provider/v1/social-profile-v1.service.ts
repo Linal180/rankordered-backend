@@ -34,7 +34,7 @@ export class SocialProfileV1Service {
 			if (!userId)
 				throw new BadRequestException();
 
-			const user = await this.userService.findById(userId)
+			const { data: user } = await this.userService.findById(userId)
 
 			if (user) {
 				const socialProfiles = await this.socialModel
@@ -162,10 +162,11 @@ export class SocialProfileV1Service {
 
 	async createProfileComparisonItem(profile: SocialProfile) {
 		const category: any = profile.category
+
 		const itemPayload: CreateComparisonItemDto = {
 			name: profile.username,
 			defaultCategory: category._id.toString(),
-			slug: profile.userId,
+			slug: (profile as any)._id,
 			profile,
 			category: [category._id.toString()]
 		}
@@ -221,6 +222,23 @@ export class SocialProfileV1Service {
 		return res;
 	}
 
+	async resubmit(id: string): Promise<MongoResultQuery<SocialProfile>> {
+		const res = new MongoResultQuery<SocialProfile>();
+
+		if (!id) {
+			this.throwObjectNotFoundError();
+		}
+
+		res.data = await this.socialModel.findByIdAndUpdate(id, { flag: 'submitted' }, { $new: true }).exec();
+
+		if (!res.data) {
+			this.throwObjectNotFoundError();
+		}
+
+		res.status = OperationResult.update;
+		return res;
+	}
+
 	async delete(id: string): Promise<MongoResultQuery<SocialProfile>> {
 		const res = new MongoResultQuery<SocialProfile>();
 
@@ -228,7 +246,11 @@ export class SocialProfileV1Service {
 			this.throwObjectNotFoundError();
 		}
 
-		await this.socialModel.findByIdAndDelete(id).exec();
+		const profile = await this.socialModel.findByIdAndDelete(id).exec();
+
+		if (profile) {
+			await this.itemService.deleteItemByProfile(profile._id)
+		}
 
 		res.status = OperationResult.delete;
 

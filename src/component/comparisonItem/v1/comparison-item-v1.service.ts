@@ -159,6 +159,22 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async deleteItemByProfile(id: string): Promise<ComparisonItem> {
+
+        const item = await this.itemModel.findByIdAndDelete(id);
+
+        if (item) {
+            this.eventEmitter.emit(
+                'ComparisonItem.deleted',
+                ComparisonItemDeletedEvent.create({ id: item.id })
+            );
+
+            return item;
+        }
+
+        return null;
+    }
+
     async findByIdWithRanking(
         id: string,
         categoryId: string = null
@@ -413,9 +429,17 @@ export class ComparisonItemV1Service {
             };
         }
 
-        const items = await this.itemModel.find(itemsQuery)
+        const data = await this.itemModel.find(itemsQuery)
             .populate('profile')
             .exec();
+
+        const items = data.filter(item => {
+            if (!item.profile) {
+                return true;
+            }
+
+            return !['approved', 'submitted'].includes(item.profile?.flag);
+        });
 
         const categoryItemsIds = category.data.categoryRankingItems.filter(
             (item) => {
