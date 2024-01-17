@@ -9,6 +9,7 @@ import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 import { UserType } from 'src/component/user/dto/UserType';
+import { config } from 'rxjs';
 
 @ApiTags('Flag Requests')
 @Controller({ path: 'flag-request', version: '1' })
@@ -48,29 +49,15 @@ export class FlagRequestV1Controller {
     return this.flagRequestService.create({ user, profileId })
   }
 
-  @Post()
+  @Post('/update-flag')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles(UserType.ADMIN)
-  updateFlagRequest(
+  acceptFlagRequest(
     @Body() { profileId }: { profileId: string },
     @Body() { status }: { status: 'approved' | 'rejected' }
   ): Promise<MongoResultQuery<any>> {
-    return this.flagRequestService.update({ profileId, status })
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  deleteFlagRequest(
-    @Req() request: any,
-    @Param('id') id: string,
-  ): Promise<MongoResultQuery<FlagRequest>> {
-    const { user } = request || {};
-
-    if (id && user && user.userId) {
-      return this.flagRequestService.delete(id);
-    } else {
-      throw new BadRequestException();
-    }
+    console.log("?>>>>>>>>", status, profileId)
+    return this.flagRequestService.updateRequest(profileId, status)
   }
 }

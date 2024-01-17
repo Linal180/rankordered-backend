@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FlagRequest, FlagRequestSchema } from './schema/index.schema';
 import { FlagRequestV1Service } from './v1/flag-request-v1.service';
@@ -10,11 +10,11 @@ import { SocialProfileModule } from '../social-provider/SocialProfile.module';
     MongooseModule.forFeature([
       { name: FlagRequest.name, schema: FlagRequestSchema }
     ]),
-    SocialProfileModule
+    forwardRef(() => SocialProfileModule)
   ],
   providers: [FlagRequestV1Service],
   controllers: [FlagRequestV1Controller],
   exports: [FlagRequestV1Service]
 })
 
-export class FlageRequestModule { }
+export class FlagRequestModule { }

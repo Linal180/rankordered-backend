@@ -18,8 +18,12 @@ export class SocialProfile {
 	@Prop()
 	isFavorite: boolean;
 
-	@Prop()
-	flagged: boolean;
+	@Prop({
+		required: true,
+		default: 'no',
+		enum: ['no', 'pending', 'approved', 'rejected']
+	})
+	flag: string;
 
 	@Prop({ required: true })
 	userId: string;

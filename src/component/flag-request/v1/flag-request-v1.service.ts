@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { FlagRequest, FlagRequestDocument } from "../schema/index.schema";
@@ -6,7 +6,7 @@ import { GetFlagRequestsDTO } from "../dto/index.dto";
 import { MongoResultQuery } from "src/shared/mongoResult/MongoResult.query";
 import { OperationResult } from "src/shared/mongoResult/OperationResult";
 import { RolesGuard } from "src/component/auth/roles.guard";
-import { ObjectNotFoundException } from "src/shared/httpError/class/ObjectNotFound.exception";
+import { AlreadyExistException, ObjectNotFoundException } from "src/shared/httpError/class/ObjectNotFound.exception";
 import { SocialProfileV1Service } from "src/component/social-provider/v1/social-profile-v1.service";
 
 @Injectable()
@@ -14,6 +14,7 @@ export class FlagRequestV1Service {
   constructor(
     @InjectModel(FlagRequest.name)
     private flagRequestModel: Model<FlagRequestDocument>,
+    @Inject(forwardRef(() => SocialProfileV1Service))
     private socialService: SocialProfileV1Service
   ) { }
 
@@ -45,11 +46,24 @@ export class FlagRequestV1Service {
     const res = new MongoResultQuery<FlagRequest>();
 
     try {
-      const flagRequests = await this.flagRequestModel.create({ user: user._id, profile: profileId })
+      const existing = await this.flagRequestModel.findOne({
+        user: user.userId,
+        profile: profileId
+      }).exec()
 
-      if (flagRequests) {
+      const p = await this.socialService.flagProfile(profileId, 'pending')
+      if (existing) {
         res.status = OperationResult.create
-        res.data = flagRequests
+        res.data = existing;
+      }
+
+      const flagRequest = await this.flagRequestModel.create({
+        user: user.userId, profile: profileId, status: 'pending'
+      })
+
+      if (flagRequest) {
+        res.status = OperationResult.create
+        res.data = flagRequest
       }
 
       return res
@@ -58,53 +72,43 @@ export class FlagRequestV1Service {
     }
   }
 
-  async update({ profileId, status }: { status: 'approved' | 'rejected', profileId: string }) {
-    const res = new MongoResultQuery();
-
-    try {
-      if (profileId) {
-        const profile = await this.socialService.flaggedProfile(profileId, status === 'approved')
-
-        if (profile) {
-          const flagRequests = await this.flagRequestModel.find({
-            profile: profileId
-          }).exec()
-
-          for (const request of flagRequests) {
-            if (request) {
-              request.status = status
-              await request.save()
-            }
-          }
-
-          res.status = OperationResult.update
-          return res
-        }
-      }
-
-      this.throwObjectNotFoundError()
-    } catch (error) {
-      console.log(error)
-      this.throwObjectNotFoundError()
-    }
-  }
-
-  async delete(id: string): Promise<MongoResultQuery<FlagRequest>> {
+  async updateRequest(profileId: string, status: 'approved' | 'rejected'): Promise<MongoResultQuery<FlagRequest>> {
     const res = new MongoResultQuery<FlagRequest>();
 
-    if (!id) {
+    if (!profileId) {
       this.throwObjectNotFoundError();
     }
 
     try {
-      await this.flagRequestModel.findByIdAndDelete(id).exec();
+      await this.socialService.flagProfile(profileId, status)
+      await this.flagRequestModel.updateMany({ profileId }, { $set: { status } }).exec();
 
-      res.status = OperationResult.delete;
+      res.status = OperationResult.update;
 
       return res;
     } catch (error) {
       console.log(error)
       this.throwObjectNotFoundError();
+    }
+  }
+
+  async findCurrentUserRequests(userId: string) {
+    try {
+      return await this.flagRequestModel.find({ user: userId })
+    } catch (error) {
+      console.log(error)
+      return []
+    }
+  }
+
+  async findRequestsByProfile(profileId: string) {
+    try {
+      return await this.flagRequestModel.find({ profile: profileId, status: 'pending' })
+        .select('-profile')
+        .exec()
+    } catch (error) {
+      console.log(error)
+      return []
     }
   }
 
