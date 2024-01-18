@@ -10,6 +10,9 @@ import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
 import { ComparisonItemV1Service } from '../../comparisonItem/v1/comparison-item-v1.service';
 import { CreateComparisonItemDto } from 'src/component/comparisonItem/dto/CreateComparisonItem.dto';
+import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
+import { FlagRequestV1Service } from '../../flag-request/v1/flag-request-v1.service';
+import { FlagRequest } from '../../flag-request/schema/index.schema';
 
 @Injectable()
 export class SocialProfileV1Service {
@@ -22,6 +25,8 @@ export class SocialProfileV1Service {
 		private userService: Userv1Service,
 		@Inject(forwardRef(() => ComparisonItemV1Service))
 		private itemService: ComparisonItemV1Service,
+		@Inject(forwardRef(() => FlagRequestV1Service))
+		private flagService: FlagRequestV1Service,
 	) { }
 
 	async getUserSocialProfiles(userId: string, favoriteOnly = false): Promise<SocialProfile[]> {
@@ -29,7 +34,7 @@ export class SocialProfileV1Service {
 			if (!userId)
 				throw new BadRequestException();
 
-			const user = this.userService.findById(userId)
+			const { data: user } = await this.userService.findById(userId)
 
 			if (user) {
 				const socialProfiles = await this.socialModel
@@ -52,6 +57,46 @@ export class SocialProfileV1Service {
 				throw new NotFoundException();
 		} catch (error) {
 			throw error;
+		}
+	}
+
+	async getUserSocialProfilesForAdmin({ pagination, search, flag }: {
+		pagination: PaginationDto;
+		search?: string;
+		flag: 'pending' | 'approved' | 'rejected';
+	}): Promise<MongoResultQuery<SocialProfile[]>> {
+		const res = new MongoResultQuery<SocialProfile[]>();
+
+		try {
+			const skip = (pagination.page - 1) * pagination.limit;
+
+			let query: any = { flag };
+
+			if (search) {
+				query = {
+					...query,
+					username: { $regex: new RegExp(search, 'i') }
+				};
+			}
+
+			const socialProfiles = await this.socialModel
+				.find(query)
+				.sort({ createdAt: -1 })
+				.skip(skip)
+				.limit(pagination.limit)
+				.exec();
+
+			res.count = await this.socialModel
+				.find(query)
+				.count();
+
+			const profilesWithFlags = await this.populateFlagRequests(socialProfiles)
+			res.data = profilesWithFlags;
+			res.status = OperationResult.fetch
+
+			return res;
+		} catch (error) {
+			console.log(error)
 		}
 	}
 
@@ -117,10 +162,11 @@ export class SocialProfileV1Service {
 
 	async createProfileComparisonItem(profile: SocialProfile) {
 		const category: any = profile.category
+
 		const itemPayload: CreateComparisonItemDto = {
 			name: profile.username,
 			defaultCategory: category._id.toString(),
-			slug: profile.userId,
+			slug: (profile as any)._id,
 			profile,
 			category: [category._id.toString()]
 		}
@@ -163,9 +209,9 @@ export class SocialProfileV1Service {
 		const profile = await this.socialModel.findById(id).exec();
 		const mark = profile.isFavorite;
 
-		profile.isFavorite = !mark; // Toggle the value of isFavorite
+		profile.isFavorite = !mark;
 
-		res.data = await profile.save(); // Save the updated profile
+		res.data = await profile.save();
 
 		if (!res.data) {
 			this.throwObjectNotFoundError();
@@ -176,6 +222,23 @@ export class SocialProfileV1Service {
 		return res;
 	}
 
+	async resubmit(id: string): Promise<MongoResultQuery<SocialProfile>> {
+		const res = new MongoResultQuery<SocialProfile>();
+
+		if (!id) {
+			this.throwObjectNotFoundError();
+		}
+
+		res.data = await this.socialModel.findByIdAndUpdate(id, { flag: 'submitted' }, { $new: true }).exec();
+
+		if (!res.data) {
+			this.throwObjectNotFoundError();
+		}
+
+		res.status = OperationResult.update;
+		return res;
+	}
+
 	async delete(id: string): Promise<MongoResultQuery<SocialProfile>> {
 		const res = new MongoResultQuery<SocialProfile>();
 
@@ -183,7 +246,11 @@ export class SocialProfileV1Service {
 			this.throwObjectNotFoundError();
 		}
 
-		await this.socialModel.findByIdAndDelete(id).exec();
+		const profile = await this.socialModel.findByIdAndDelete(id).exec();
+
+		if (profile) {
+			await this.itemService.deleteItemByProfile(profile._id)
+		}
 
 		res.status = OperationResult.delete;
 
@@ -192,6 +259,22 @@ export class SocialProfileV1Service {
 
 	private throwObjectNotFoundError(): void {
 		throw new ObjectNotFoundException(SocialProfile.name);
+	}
+
+	async flagProfile(_id: string, flag: 'pending' | 'approved' | 'rejected'): Promise<SocialProfile> {
+		if (_id) {
+			const updatedProfile = await this.socialModel.findOneAndUpdate(
+				{ _id },
+				{ flag },
+				{ new: true }
+			).exec();
+
+			if (updatedProfile) {
+				return updatedProfile;
+			}
+		}
+
+		this.throwObjectNotFoundError();
 	}
 
 	private async populateComparisonItem(socialProfiles: SocialProfile[]): Promise<SocialProfile[]> {
@@ -208,6 +291,28 @@ export class SocialProfileV1Service {
 					};
 
 					populatedSocialProfiles.push(profileWithRanking);
+				} else
+					populatedSocialProfiles.push(socialProfile)
+			}
+		}
+
+		return populatedSocialProfiles;
+	}
+
+	private async populateFlagRequests(socialProfiles: SocialProfile[]): Promise<SocialProfile[]> {
+		const populatedSocialProfiles = [];
+
+		for (const socialProfile of socialProfiles) {
+			if (socialProfile) {
+				const requests = await this.flagService.findRequestsByProfile((socialProfile as any)._id.toString());
+
+				if (requests) {
+					const profileWithFlags: SocialProfile & { flags: FlagRequest } = {
+						...(socialProfile as any).toJSON(),  // Convert Mongoose document to plain JavaScript object
+						flags: requests,
+					};
+
+					populatedSocialProfiles.push(profileWithFlags);
 				}
 			}
 		}

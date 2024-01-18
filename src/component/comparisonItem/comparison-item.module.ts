@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, Module, forwardRef } from '@nestjs/common';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import {
   ComparisonItem,
@@ -17,6 +17,7 @@ import { GalleryModule } from '../gallery/gallery.module';
 import * as mongooseStore from 'cache-manager-mongoose';
 import * as mongoose from 'mongoose';
 import { CategoryModule } from '../category/category.module';
+import { FlagRequestModule } from '../flag-request/index.module';
 import {
   ScoreSnapshot,
   ScoreSnapshotSchema
@@ -41,7 +42,8 @@ import {
     }),
     GalleryModule,
     ItemScoreModule,
-    CategoryModule
+    CategoryModule,
+    forwardRef(() => FlagRequestModule)
   ],
   providers: [ComparisonItemV1Service, CollegeQueueConsumer],
   controllers: [ComparisonItemV1Controller],

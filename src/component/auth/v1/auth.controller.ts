@@ -60,7 +60,7 @@ export class AuthController {
 
     @Post('sso/login')
     @ApiOperation({ summary: 'Login User with SSO' })
-    // @UseGuards(LocalAuthGuard)
+    @UseGuards(LocalAuthGuard)
     async ssoLogin(
         @Body() _loginData: SsoLoginRequestDto,
         @Request() req
