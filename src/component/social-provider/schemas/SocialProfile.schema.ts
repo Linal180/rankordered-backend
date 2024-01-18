@@ -31,7 +31,7 @@ export class SocialProfile {
 	@Prop()
 	username: string;
 
-	@Prop({ type: String, required: true })
+	@Prop({ type: String, required: false })
 	profilePicture: string;
 
 	@Prop({

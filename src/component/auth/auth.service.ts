@@ -295,7 +295,7 @@ export class AuthService {
                     if (!profile) {
                         await this.profileService.create({
                             email, provider: 'instagram',
-                            profilePicture: picture || 'missing',
+                            profilePicture: picture || '',
                             userId: user?._id.toString(),
                             username: username
                         })
