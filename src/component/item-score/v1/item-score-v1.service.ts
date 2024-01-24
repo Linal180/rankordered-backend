@@ -11,7 +11,7 @@ export class ItemScoreV1Service {
     constructor(
         @InjectModel(ItemScore.name)
         private itemScoreModel: Model<ItemScoreDocument>
-    ) {}
+    ) { }
 
     async findAll(
         filter: any = {},
