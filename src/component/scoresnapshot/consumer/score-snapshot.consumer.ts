@@ -1,4 +1,3 @@
-import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { ComparisonItemV1Service } from 'src/component/comparisonItem/v1/comparison-item-v1.service';
 import { DateTime } from 'luxon';
@@ -25,8 +24,7 @@ export class ScoreSnapshotConsumer {
             const today = DateTime.now().toUTC().startOf('day');
             let page = 1;
             this.logger.log(
-                `saving score and ranking of category ${job.data._id
-                } in ${today.toString()}`
+                `saving score and ranking of category ${job.data._id} in ${today.toString()}`
             );
 
             let haveNextPage: boolean;
@@ -45,15 +43,17 @@ export class ScoreSnapshotConsumer {
                     });
 
                 data.forEach(async (item) => {
-                    await this.scoreSnapshotService.addSnapshot(
-                        CreateSnapshotDto.create({
-                            itemId: item._id,
-                            categoryId: job.data._id,
-                            score: item.score.score ?? 0,
-                            ranking: item.ranking,
-                            date: today.toJSDate()
-                        })
-                    );
+                    if (item.score.score) {
+                        await this.scoreSnapshotService.addSnapshot(
+                            CreateSnapshotDto.create({
+                                itemId: item._id,
+                                categoryId: job.data._id,
+                                score: item.score.score,
+                                ranking: item.ranking,
+                                date: today.toJSDate()
+                            })
+                        );
+                    }
                 });
 
                 total += data.length;
