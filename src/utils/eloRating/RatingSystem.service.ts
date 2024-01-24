@@ -28,9 +28,11 @@ export class RatingSystemService {
         score: number,
         kFactor = 32
     ): number {
-        return parseFloat(
+        const r = parseFloat(
             (rating + kFactor * (score - expectedProbability)).toFixed(3)
-        );
+        )
+        console.log("<<<<<<<", score === 1, "************   ", r, "  ************")
+        return r;
     }
 
     calculateKFactor(totalComparison: number, rating: number) {
