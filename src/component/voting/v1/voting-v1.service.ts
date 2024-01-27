@@ -7,6 +7,8 @@ import { RatingSystemService } from '../../../utils/eloRating/RatingSystem.servi
 import { VotingCreatedEvent } from '../events/VotingCreated.event';
 import { Voting, VotingDocument } from '../schemas/Voting.schema';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
+import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
+import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 
 @Injectable()
 export class VotingV1Service {
@@ -15,7 +17,7 @@ export class VotingV1Service {
         private scoreService: ItemScoreV1Service,
         private ratingSystem: RatingSystemService,
         private eventEmitter: EventEmitter2
-    ) {}
+    ) { }
 
     async findByItemId(itemId: string, categoryId: string): Promise<Voting[]> {
         return this.votingModel
@@ -137,6 +139,85 @@ export class VotingV1Service {
         );
 
         return vote;
+    }
+
+    async getVotingCount(categoryId: string): Promise<MongoResultQuery<{ today: number; all: number }>> {
+        const res = new MongoResultQuery<{ today: number; all: number }>();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const todayCount = await this.votingModel.countDocuments({
+            categoryId,
+            createdAt: {
+                $gte: today,
+                $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) // Votes created before tomorrow
+            }
+        }).exec();
+
+        const all = await this.votingModel.find({ categoryId }).count();
+
+        res.data = {
+            all, today: todayCount
+        }
+
+        res.status = OperationResult.fetch
+        return res
+    }
+
+    async getVotingStats(categoryId: string): Promise<MongoResultQuery<{ count: number, date: string }[]>> {
+        const res = new MongoResultQuery<{ count: number, date: string }[]>();
+
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const dateArray = Array.from({ length: 31 }, (_, index) => {
+            const date = new Date(thirtyDaysAgo);
+            date.setDate(date.getDate() + index);
+            const formattedDate = date.toISOString().split('T')[0]; // Extract and use only the date part
+            return formattedDate;
+        });
+
+        const result = await this.votingModel.aggregate([
+            {
+                $match: {
+                    categoryId,
+                    createdAt: {
+                        $gte: thirtyDaysAgo,
+                        $lt: new Date(new Date().setHours(23, 59, 59, 999)) // Votes created before end of today
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } // Convert date to string with format "YYYY-MM-DD"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: "$_id",
+                    count: 1
+                }
+            }
+        ]);
+
+        // Create a Map for quick lookup of results by date
+        const resultMap = new Map(result.map(({ date, count }) => [date, count]));
+
+        // Merge the aggregated results with the date array, filling in missing dates with count 0
+        const finalResult = dateArray.map(date => ({
+            date,
+            count: resultMap.get(date) || 0
+        }));
+
+
+        res.data = finalResult
+        res.status = OperationResult.complete
+
+        return res
     }
 
     private throwObjectNotFoundError() {
