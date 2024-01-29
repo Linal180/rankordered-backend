@@ -2,20 +2,23 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { User, UserDocument } from '../schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateUserDto } from '../dto/CreateUser.dto';
+import { CreateUserDto, UpdateProfileDto } from '../dto/CreateUser.dto';
 import { hash } from 'bcrypt';
 import { UpdateUserDto } from '../dto/UpdateUser.dto';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { SocialProfileV1Service } from 'src/component/social-provider/v1/social-profile-v1.service';
+import { Gallery } from '../../gallery/schemas/gallery.schema';
+import { GalleryV1Service } from '../../gallery/v1/gallery-v1.service';
 
 @Injectable()
 export class Userv1Service {
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         @Inject(forwardRef(() => SocialProfileV1Service))
-        private socialService: SocialProfileV1Service
+        private socialService: SocialProfileV1Service,
+        private galleryService: GalleryV1Service,
     ) { }
 
     async findById(id: string): Promise<MongoResultQuery<User>> {
@@ -95,6 +98,63 @@ export class Userv1Service {
     async updateUser(
         userId: string,
         userData: UpdateUserDto
+    ): Promise<MongoResultQuery<User>> {
+        const res = new MongoResultQuery<User>();
+
+        if (userData.password) {
+            userData.password = await hash(userData.password, 10);
+        }
+
+        res.data = await this.userModel.findByIdAndUpdate(userId, userData, {
+            returnDocument: 'after'
+        });
+
+        if (!res.data) {
+            this.throwObjectNotFoundError();
+        }
+
+        res.status = OperationResult.update;
+
+        return res;
+    }
+
+    async updateProfilePicture(
+        userId: string,
+        image: Gallery
+    ): Promise<User> {
+        const user = await this.userModel.findByIdAndUpdate(userId, { profilePicture: image }, {
+            returnDocument: 'after'
+        });
+
+        if (!user) {
+            this.throwObjectNotFoundError();
+        }
+
+        return user
+    }
+
+    async deleteProfilePicture(
+        userId: string,
+    ): Promise<MongoResultQuery<User>> {
+        const res = new MongoResultQuery<User>();
+        const user = await this.userModel.findById(userId)
+
+        if (!user) {
+            this.throwObjectNotFoundError();
+        }
+
+        if (user.profilePicture) {
+            await this.galleryService.delete((user.profilePicture as any)._id)
+        }
+
+        res.data = user
+        res.status = OperationResult.delete
+        return res
+    }
+
+    async updateProfile(
+        userId: string,
+        userData: UpdateProfileDto
     ): Promise<MongoResultQuery<User>> {
         const res = new MongoResultQuery<User>();
 

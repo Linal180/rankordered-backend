@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
@@ -12,14 +12,17 @@ import { join } from 'path';
 import { UploadedFileWithSource } from '../schemas/UploadedFile.data';
 import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
 import { UpdateGalleryDto } from '../dto/updateGallery.dto';
+import { Userv1Service } from 'src/component/user/v1/userv1.service';
 
 @Injectable()
 export class GalleryV1Service {
     constructor(
         @InjectModel(Gallery.name)
         private galleryModel: Model<GalleryDocument>,
-        private config: ConfigService
-    ) {}
+        private config: ConfigService,
+        @Inject(forwardRef(() => Userv1Service))
+        private userService: Userv1Service
+    ) { }
 
     async findById(id: string): Promise<MongoResultQuery<Gallery>> {
         const res = new MongoResultQuery<Gallery>();
@@ -41,7 +44,7 @@ export class GalleryV1Service {
         const res = new MongoResultQuery<Gallery[]>();
 
         res.data = await this.galleryModel
-            .find()
+            .find({ isProfile: false })
             .sort([['createdAt', 'asc']])
             .skip(pagination.currentPage * pagination.limit)
             .limit(pagination.limit)
@@ -50,6 +53,39 @@ export class GalleryV1Service {
         res.count = await this.galleryModel.find().count();
 
         return res;
+    }
+
+    async uploadUserProfilePicture(
+        userId: string,
+        file: UploadedFileWithSource
+    ): Promise<MongoResultQuery<Gallery>> {
+        const res = new MongoResultQuery<Gallery>();
+        try {
+            const { data: user } = await this.userService.findById(userId);
+
+            if (user.profilePicture) (
+                await this.delete((user.profilePicture as any)._id)
+            )
+
+            const image = await this.galleryModel.create({
+                name: `${user.name}-${userId}-profile`,
+                path: file.destination.substring(2, file.destination.length),
+                slug: file.filename,
+                type: FileType.image,
+                isProfile: true
+            });
+            await this.userService.updateProfilePicture(userId, image)
+
+            res.data = image
+            res.status = OperationResult.upload;
+
+            return res;
+        } catch (error) {
+            console.log(error)
+            res.data = null
+            return res
+        }
+
     }
 
     async create(
@@ -80,19 +116,24 @@ export class GalleryV1Service {
     }
 
     async delete(id: string): Promise<MongoResultQuery<Gallery>> {
-        const res = new MongoResultQuery<Gallery>();
+        try {
+            const res = new MongoResultQuery<Gallery>();
 
-        res.data = await this.galleryModel.findByIdAndDelete(id, {
-            returnDocument: 'after'
-        });
+            res.data = await this.galleryModel.findByIdAndDelete(id, {
+                returnDocument: 'after'
+            });
 
-        fs.unlinkSync(
-            join(this.config.get('rootPath'), res.data.path, res.data.slug)
-        );
+            fs.unlinkSync(
+                join(this.config.get('rootPath'), res.data.path, res.data.slug)
+            );
 
-        res.status = OperationResult.delete;
+            res.status = OperationResult.delete;
 
-        return res;
+            return res;
+        } catch (error) {
+            console.log(error)
+            return null
+        }
     }
 
     async edit(
