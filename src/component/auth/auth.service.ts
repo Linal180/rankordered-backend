@@ -15,11 +15,13 @@ import { ResetPasswordPayload, ResetPasswordResponse } from './dto/ResetPassword
 import { MailerService } from 'src/component/mailer/mailer.service';
 import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
 import { SsoUser, TwitterUser } from 'src/interfaces';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService: Userv1Service,
+        private readonly configService: ConfigService,
         private jwtService: JwtService,
         private profileService: SocialProfileV1Service,
         private mailerService: MailerService
@@ -316,17 +318,25 @@ export class AuthService {
     }
 
     setCurrentUserPayload(user: User, profile: SocialProfile): CurrentUserDto {
-        const { email, name, username } = user;
+        const { email, name, username, profilePicture: primary } = user || {};
         const { email: primaryEmail, profilePicture, provider } = profile || {};
 
-        return {
-            email, name, username,
+        const nextAppHost = this.configService.get<string>('url')
+        const _id = (user as any)._id
+        const currentUser: CurrentUserDto = {
+            _id, email, name, username,
             ...(profile && {
                 primaryProfile: {
                     email: primaryEmail, profilePicture, provider
                 }
             })
         }
+
+        if (primary) {
+            currentUser.profilePicture = `${nextAppHost}/${primary.path}/${primary.slug}`
+        }
+
+        return currentUser;
     }
 
     private generateUsername(name: string) {

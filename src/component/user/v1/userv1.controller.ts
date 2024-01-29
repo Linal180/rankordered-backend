@@ -6,6 +6,7 @@ import {
     Param,
     Post,
     Put,
+    Req,
     UseGuards,
     UseInterceptors
 } from '@nestjs/common';
@@ -13,7 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { TransformInterceptor } from '../../../shared/response/interceptors/Transform.interceptor';
-import { CreateUserDto } from '../dto/CreateUser.dto';
+import { CreateUserDto, UpdateProfileDto } from '../dto/CreateUser.dto';
 import { UpdateUserDto } from '../dto/UpdateUser.dto';
 import { UserDto } from '../dto/User.dto';
 import { Userv1Service } from './userv1.service';
@@ -30,7 +31,7 @@ import { UserType } from '../dto/UserType';
 @ApiBearerAuth()
 @UseInterceptors(TransformInterceptor)
 export class Userv1Controller {
-    constructor(private userService: Userv1Service) {}
+    constructor(private userService: Userv1Service) { }
 
     @Get()
     @Roles(UserType.ADMIN)
@@ -50,6 +51,26 @@ export class Userv1Controller {
         @Body() createUserDto: CreateUserDto
     ): Promise<MongoResultQuery<UserDto>> {
         return this.userService.createUser(createUserDto);
+    }
+
+    @Post('delete-profile-picture')
+    @UseGuards(JwtAuthGuard)
+    deleteProfilePicture(
+        @Req() request: any,
+    ): Promise<MongoResultQuery<UserDto>> {
+        const { user } = request || {};
+
+        return this.userService.deleteProfilePicture(user.userId);
+    }
+
+    @Post('update-profile')
+    @UseGuards(JwtAuthGuard)
+    updateProfile(
+        @Body() userDto: UpdateProfileDto,
+        @Req() request: any,
+    ): Promise<MongoResultQuery<UserDto>> {
+        const { user } = request || {};
+        return this.userService.updateProfile(user.userId, userDto);
     }
 
     @Put(':id')

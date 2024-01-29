@@ -49,8 +49,8 @@ export class GoogleUserDto {
 }
 
 export class CurrentUserDto {
-    // @ApiProperty()
-    // id: string;
+    @ApiProperty()
+    _id: string;
 
     @ApiProperty()
     email: string;
@@ -60,6 +60,9 @@ export class CurrentUserDto {
 
     @ApiProperty()
     username: string;
+
+    @ApiProperty()
+    profilePicture?: string;
 
     @ApiProperty()
     primaryProfile: PrimaryProfileDto;

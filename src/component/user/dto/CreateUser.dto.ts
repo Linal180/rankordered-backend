@@ -34,3 +34,11 @@ export class CreateUserDto extends CreateSocialProfileDto {
     @IsNotEmpty()
     type: UserType;
 }
+
+export class UpdateProfileDto {
+    @ApiProperty({ example: 'john smith' })
+    name?: string;
+
+    @ApiProperty({ example: 'password@123' })
+    password?: string;
+}

@@ -88,7 +88,6 @@ export class ComparisonItemV1Service {
     ): Promise<MongoResultQuery<ComparisonItemDocument>> {
         const res = new MongoResultQuery<ComparisonItemDocument>();
         const item = await this.itemModel.create(createItemData);
-
         if (!item) {
             this.throwObjectNotFoundError();
         }
