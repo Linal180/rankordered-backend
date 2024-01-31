@@ -15,7 +15,7 @@ export class VotingV1Service {
         private scoreService: ItemScoreV1Service,
         private ratingSystem: RatingSystemService,
         private eventEmitter: EventEmitter2
-    ) {}
+    ) { }
 
     async findByItemId(itemId: string, categoryId: string): Promise<Voting[]> {
         return this.votingModel
@@ -50,12 +50,27 @@ export class VotingV1Service {
             .exec();
     }
 
+
+
+    /*
+        This function is responsible for creating and storing vote.
+        This function receives 
+            - categoryID => related to default category of college
+            - contestantID and opponentID => Colleges which took participation
+            - winnerID => one of the colleges which was selected by user
+    */
     async updateVoting(
         categoryId: string,
         contestantId: string,
         opponentId: string,
         winnerId: string
     ): Promise<Voting> {
+        /*
+            Following block of code is to get
+                - Previous Score
+                - Number of Comparisons
+            for Contestant.
+        */
         const contestantPreviousSCore =
             (
                 await this.scoreService.findByItemIdAndCategoryId(
@@ -77,16 +92,27 @@ export class VotingV1Service {
                 )
             )?.score ?? 0;
 
+        /*
+            Calculating kFactor for Contestant.
+        */
         const kFactor = this.ratingSystem.calculateKFactor(
             contestantNoOfComparison,
             contestantPreviousSCore
         );
 
+        /*
+            Calculating probability of Winning chance between 
+            Contestant and opponent.
+        */
         const probability = this.ratingSystem.calculateProbabilityOfWinning(
             contestantPreviousSCore,
             opponentPreviousScore
         );
 
+        /*
+            Calculating Next Rating for Contestant,
+            Score will passed as 1 if contestant is winner, otherwise 0
+        */
         let contestantCurrentSCore = this.ratingSystem.calculateNextRating(
             contestantPreviousSCore,
             probability,
@@ -98,6 +124,10 @@ export class VotingV1Service {
             contestantCurrentSCore = 0;
         }
 
+        /*
+            Calculating Next Rating for Opponent,
+            Score will passed as 1 if contestant is opponent, otherwise 0
+        */
         let opponentCurrentSCore = this.ratingSystem.calculateNextRating(
             opponentPreviousScore,
             1 - probability,
