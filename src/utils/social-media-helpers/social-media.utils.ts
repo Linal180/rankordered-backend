@@ -131,12 +131,13 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
 
         console.log(`******* ${propertyId} *******`)
         console.log("***********************************")
-        const analyticsDataClient = new BetaAnalyticsDataClient({
-            credentials: {
-                client_email: clientEmail,
-                private_key: privateKey
-            }
-        });
+        const analyticsDataClient = new BetaAnalyticsDataClient();
+        // {
+        //     credentials: {
+        //         client_email: clientEmail,
+        //         private_key: privateKey
+        //     }
+        // }
         console.log("********** client is loaded ******")
         const [response] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
