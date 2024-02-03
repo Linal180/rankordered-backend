@@ -153,6 +153,8 @@ export const getVisitAnalytics = async () => {
             ],
         });
 
+        console.log("********************")
+        console.log(response)
         const [todayResponse] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
             dateRanges: [
@@ -167,6 +169,8 @@ export const getVisitAnalytics = async () => {
                 }
             ],
         });
+        console.log("********************")
+        console.log(todayResponse)
 
         response.rows.forEach(row => {
             analysisReport.month = parseInt(row.metricValues[0].value) ?? 0
