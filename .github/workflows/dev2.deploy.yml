@@ -76,6 +76,7 @@ jobs:
                   sudo echo GOOGLE_ANALYTICS_PROPERTY_ID=${{secrets.GOOGLE_ANALYTICS_PROPERTY_ID}} >> .env
                   sudo echo GOOGLE_ANALYTICS_CLIENT_EMAIL=${{secrets.GOOGLE_ANALYTICS_CLIENT_EMAIL}} >> .env
                   sudo echo GOOGLE_ANALYTICS_PRIVATE_KEY=${{secrets.GOOGLE_ANALYTICS_PRIVATE_KEY}} >> .env
+                  sudo echo GOOGLE_APPLICATION_CREDENTIALS=${{secrets.GOOGLE_APPLICATION_CREDENTIALS}} >> .env
 
                   cat .env
 
