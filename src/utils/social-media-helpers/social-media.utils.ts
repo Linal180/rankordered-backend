@@ -116,6 +116,7 @@ export const getVisitAnalytics = async () => {
         const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
         const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY;
 
+        console.log("********* getVisitAnalytics *********")
         let analysisReport = {
             today: 0,
             month: 0
@@ -125,6 +126,7 @@ export const getVisitAnalytics = async () => {
             console.log("******** GOOGLE ANALYTICS ENVS MISSING! *********")
             return analysisReport;
         }
+        console.log("********* calling GA API *********")
 
         const startDate = getDateXDaysAgo(30);
         const endDate = new Date().toISOString().split('T')[0];
@@ -174,6 +176,8 @@ export const getVisitAnalytics = async () => {
             analysisReport.today = parseInt(row.metricValues[0].value) ?? 0
         });
 
+        console.log(`********* ${response.rows} *********`)
+        console.log(`********* ${todayResponse.rows} *********`)
         return analysisReport;
     } catch (error) {
         console.log(error)
