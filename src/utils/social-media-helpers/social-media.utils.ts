@@ -129,8 +129,7 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
         const startDate = getDateXDaysAgo(30);
         const endDate = new Date().toISOString().split('T')[0];
 
-        console.log(`******* ${clientEmail} *******`)
-        console.log(`******* ${privateKey} *******`)
+        console.log(`******* ${propertyId} *******`)
         console.log("***********************************")
         const analyticsDataClient = new BetaAnalyticsDataClient({
             credentials: {
@@ -138,7 +137,7 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
                 private_key: privateKey
             }
         });
-
+        console.log("********** client is loaded ******")
         const [response] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
             dateRanges: [
@@ -187,7 +186,10 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
         console.log(`********* ${todayResponse.rows} *********`)
         return { today, month };
     } catch (error) {
+        console.log("*********** ERROR IN GOOGLE ANALYTICS API **********")
         console.log(error)
+        console.log("************************************************")
+        return { today: 0, month: 0 }
     }
 }
 
