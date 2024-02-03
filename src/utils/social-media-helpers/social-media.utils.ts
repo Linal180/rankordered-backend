@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as Twit from 'twit';
 import { google } from 'googleapis';
 import { TwitterUser } from 'src/interfaces';
+import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
     const oauth2Client = new google.auth.OAuth2();
@@ -56,3 +57,79 @@ export const getTwitterUserInfo = async (
         console.error('Error retrieving user information from Twitter:', error);
     }
 };
+
+const getDateXDaysAgo = (days: number) => {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - days);
+    return currentDate.toISOString().split('T')[0];
+};
+
+export const getVisitAnalytics = async () => {
+    try {
+        const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
+        const cleintEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
+        const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY;
+
+        let analysisReport = {
+            today: 0,
+            month: 0
+        }
+
+        if (!(propertyId && cleintEmail && privateKey)) {
+            console.log("******** GOOGLE ANALYTICS ENVS MISSING! *********")
+            return analysisReport;
+        }
+
+        const startDate = getDateXDaysAgo(30);
+        const endDate = new Date().toISOString().split('T')[0];
+
+        const analyticsDataClient = new BetaAnalyticsDataClient({
+            credentials: {
+                client_email: cleintEmail,
+                private_key: privateKey
+            }
+        });
+
+        const [response] = await analyticsDataClient.runReport({
+            property: `properties/${propertyId}`,
+            dateRanges: [
+                {
+                    startDate,
+                    endDate,
+                }
+            ],
+            metrics: [
+                {
+                    name: 'screenPageViews'
+                }
+            ],
+        });
+
+        const [todayResponse] = await analyticsDataClient.runReport({
+            property: `properties/${propertyId}`,
+            dateRanges: [
+                {
+                    startDate: endDate,
+                    endDate,
+                }
+            ],
+            metrics: [
+                {
+                    name: 'screenPageViews'
+                }
+            ],
+        });
+
+        response.rows.forEach(row => {
+            analysisReport.month = parseInt(row.metricValues[0].value) ?? 0
+        });
+
+        todayResponse.rows.forEach(row => {
+            analysisReport.today = parseInt(row.metricValues[0].value) ?? 0
+        });
+
+        return analysisReport;
+    } catch (error) {
+        console.log(error)
+    }
+}
