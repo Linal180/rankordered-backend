@@ -7,6 +7,7 @@ import {
     Post,
     Put,
     Query,
+    Req,
     UploadedFile,
     UseGuards,
     UseInterceptors,
@@ -36,7 +37,7 @@ import { UserType } from 'src/component/user/dto/UserType';
 @Controller({ version: '1', path: 'gallery' })
 @UseInterceptors(TransformInterceptor)
 export class GalleryV1Controller {
-    constructor(private service: GalleryV1Service) {}
+    constructor(private service: GalleryV1Service) { }
 
     @Get()
     async getGalleryItem(
@@ -100,6 +101,45 @@ export class GalleryV1Controller {
     )
     async uploadGalleryItem(@UploadedFile() image: UploadedFileWithSource) {
         return this.service.create(image);
+    }
+
+    @Post('upload-profile')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                author: { type: 'string', required: ['false'] },
+                title: { type: 'string', required: ['false'] },
+                url: { type: 'string', required: ['false'] },
+                license: { type: 'string', required: ['false'] },
+                image: {
+                    type: 'string',
+                    format: 'binary'
+                }
+            }
+        }
+    })
+    @UseInterceptors(
+        FileInterceptor('image', {
+            storage: diskStorage({
+                destination: './public/upload/images',
+                filename: editFileName
+            }),
+            fileFilter: imageFileFilter,
+            limits: {
+                fileSize: 1000 * 1000 * 20
+            }
+        })
+    )
+    async uploadUserProfilePicture(
+        @Req() request: any,
+        @UploadedFile() image: UploadedFileWithSource
+    ) {
+        const { user } = request || {};
+        return this.service.uploadUserProfilePicture(user.userId, image);
     }
 
     @Put(':id/source')

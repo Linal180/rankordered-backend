@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as Twit from 'twit';
 import { google } from 'googleapis';
-import { TwitterUser } from 'src/interfaces';
+import { InstagramUser, TwitterUser } from 'src/interfaces';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
@@ -35,6 +35,52 @@ export const getTiktokUserInfo = async (accessToken: string) => {
     }
 };
 
+
+const instagramUserAPI = async (accessToken: string, userId: string): Promise<InstagramUser | null> => {
+    const fields = 'id,username,name,profile_picture_url,account_type,media_count,followers_count,follows_count,biography';
+    const apiUrl = `https://graph.instagram.com/v12.0/${userId}?fields=${fields}&access_token=${accessToken}`;
+
+    try {
+        const response = await axios.get(apiUrl);
+
+        console.log("Instagram User *** ", response.data);
+        return { ...response.data, email: `${response.data.username}@instagram,con` };
+    } catch (error) {
+        console.error('Error in InstagramUserAPI:', error);
+        return null
+    }
+}
+
+export const getInstagramAccessToken = async (code: string): Promise<InstagramUser | null> => {
+    const form = new URLSearchParams();
+    form.append('client_id', process.env.INSTAGRAM_CLIENT_ID);
+    form.append('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
+    form.append('grant_type', 'authorization_code');
+    form.append('redirect_uri', process.env.INSTAGRAM_CALLBACK_URL);
+    form.append('code', code);
+
+    return await axios({
+        method: 'POST',
+        url: 'https://api.instagram.com/oauth/access_token',
+        data: form,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    }).then(async (response) => {
+        const { data: { access_token, user_id } } = response
+
+        if (access_token && user_id) {
+            const instagramUser = await instagramUserAPI(access_token, user_id)
+            return instagramUser;
+        }
+
+        return null;
+    }).catch((err) => {
+        console.log(err.response);
+        return null;
+    });
+}
+
 export const getTwitterUserInfo = async (
     userAccessToken: string,
     userAccessSecret: string
@@ -67,7 +113,7 @@ const getDateXDaysAgo = (days: number) => {
 export const getVisitAnalytics = async () => {
     try {
         const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
-        const cleintEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
+        const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
         const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY;
 
         let analysisReport = {
@@ -75,7 +121,7 @@ export const getVisitAnalytics = async () => {
             month: 0
         }
 
-        if (!(propertyId && cleintEmail && privateKey)) {
+        if (!(propertyId && clientEmail && privateKey)) {
             console.log("******** GOOGLE ANALYTICS ENVS MISSING! *********")
             return analysisReport;
         }
@@ -85,7 +131,7 @@ export const getVisitAnalytics = async () => {
 
         const analyticsDataClient = new BetaAnalyticsDataClient({
             credentials: {
-                client_email: cleintEmail,
+                client_email: clientEmail,
                 private_key: privateKey
             }
         });
@@ -132,4 +178,10 @@ export const getVisitAnalytics = async () => {
     } catch (error) {
         console.log(error)
     }
+}
+
+export const generateSlug = (input: string) => {
+    const sanitizedInput = input.toLowerCase().replace(/[^a-zA-Z0-9\s]/g, '');
+    const slug = sanitizedInput.split(' ').join('-');
+    return slug;
 }

@@ -5,4 +5,4 @@ import { MailModule } from './mail/mail.module';
 @Module({
     imports: [MailModule, EloRatingModule]
 })
-export class UtilModule {}
+export class UtilModule { }

@@ -4,7 +4,7 @@ import { compare } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
-import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo } from 'src/utils/social-media-helpers/social-media.utils';
+import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo, getInstagramAccessToken } from 'src/utils/social-media-helpers/social-media.utils';
 import { UserType } from '../user/dto/UserType';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
@@ -15,11 +15,13 @@ import { ResetPasswordPayload, ResetPasswordResponse } from './dto/ResetPassword
 import { MailerService } from 'src/component/mailer/mailer.service';
 import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
 import { SsoUser, TwitterUser } from 'src/interfaces';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
     constructor(
         private userService: Userv1Service,
+        private readonly configService: ConfigService,
         private jwtService: JwtService,
         private profileService: SocialProfileV1Service,
         private mailerService: MailerService
@@ -271,18 +273,70 @@ export class AuthService {
         throw new InvalidTokenException();
     }
 
+    async feedInstagramUser(code: string) {
+        try {
+            const instagramUser = await getInstagramAccessToken(code);
+
+            if (instagramUser) {
+                const { picture, username, email } = instagramUser
+
+                const user: any = await this.userService.getByUsernameOrEmail(username);
+                let userPayload;
+
+                if (!user) {
+                    const { data, status } = await this.userService.createUser({
+                        email, name: username, username, type: 'user' as UserType, provider: 'instagram', profilePicture: picture || 'missing'
+                    });
+
+                    if (status === OperationResult.create) {
+                        userPayload = data;
+                    }
+                } else {
+                    const profile = await this.profileService.findSocialProfileByIdAndProvider(user?._id, 'instagram')
+
+                    if (!profile) {
+                        await this.profileService.create({
+                            email, provider: 'instagram',
+                            profilePicture: picture || '',
+                            userId: user?._id.toString(),
+                            username: username
+                        })
+                    }
+
+                    userPayload = user;
+                }
+
+                const { access_token, refresh_token } = await this.login(userPayload);
+
+                return {
+                    access_token, refresh_token
+                }
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     setCurrentUserPayload(user: User, profile: SocialProfile): CurrentUserDto {
-        const { email, name, username } = user;
+        const { email, name, username, profilePicture: primary } = user || {};
         const { email: primaryEmail, profilePicture, provider } = profile || {};
 
-        return {
-            email, name, username,
+        const nextAppHost = this.configService.get<string>('url')
+        const _id = (user as any)._id
+        const currentUser: CurrentUserDto = {
+            _id, email, name, username,
             ...(profile && {
                 primaryProfile: {
                     email: primaryEmail, profilePicture, provider
                 }
             })
         }
+
+        if (primary) {
+            currentUser.profilePicture = `${nextAppHost}/${primary.path}/${primary.slug}`
+        }
+
+        return currentUser;
     }
 
     private generateUsername(name: string) {
