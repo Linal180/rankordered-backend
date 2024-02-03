@@ -110,21 +110,19 @@ const getDateXDaysAgo = (days: number) => {
     return currentDate.toISOString().split('T')[0];
 };
 
-export const getVisitAnalytics = async () => {
+export const getVisitAnalytics = async (): Promise<{ today: number; month: number }> => {
     try {
         const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
         const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
         const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY;
 
         console.log("********* getVisitAnalytics *********")
-        let analysisReport = {
-            today: 0,
-            month: 0
-        }
+        let today = 0;
+        let month = 0;
 
         if (!(propertyId && clientEmail && privateKey)) {
             console.log("******** GOOGLE ANALYTICS ENVS MISSING! *********")
-            return analysisReport;
+            return { month, today };
         }
         console.log("********* calling GA API *********")
 
@@ -133,13 +131,14 @@ export const getVisitAnalytics = async () => {
 
         console.log(`******* ${clientEmail} *******`)
         console.log(`******* ${privateKey} *******`)
+        console.log("***********************************")
         const analyticsDataClient = new BetaAnalyticsDataClient({
             credentials: {
                 client_email: clientEmail,
                 private_key: privateKey
             }
         });
-        console.log(analyticsDataClient)
+
         const [response] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
             dateRanges: [
@@ -156,7 +155,8 @@ export const getVisitAnalytics = async () => {
         });
 
         console.log("********************")
-        console.log(response)
+        console.log(response.rows)
+        console.log("********************")
         const [todayResponse] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
             dateRanges: [
@@ -171,20 +171,21 @@ export const getVisitAnalytics = async () => {
                 }
             ],
         });
-        console.log("********************")
-        console.log(todayResponse)
+        console.log("2 ********************")
+        console.log(todayResponse.rows)
+        console.log("2 ********************")
 
         response.rows.forEach(row => {
-            analysisReport.month = parseInt(row.metricValues[0].value) ?? 0
+            month = parseInt(row.metricValues[0].value) ?? 0
         });
 
         todayResponse.rows.forEach(row => {
-            analysisReport.today = parseInt(row.metricValues[0].value) ?? 0
+            today = parseInt(row.metricValues[0].value) ?? 0
         });
 
         console.log(`********* ${response.rows} *********`)
         console.log(`********* ${todayResponse.rows} *********`)
-        return analysisReport;
+        return { today, month };
     } catch (error) {
         console.log(error)
     }
