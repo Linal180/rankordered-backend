@@ -9,6 +9,8 @@ import { Voting, VotingDocument } from '../schemas/Voting.schema';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
+import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
+import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
 
 @Injectable()
 export class VotingV1Service {
@@ -141,8 +143,22 @@ export class VotingV1Service {
         return vote;
     }
 
-    async getVotingCount(categoryId: string): Promise<MongoResultQuery<{ today: number; all: number }>> {
-        const res = new MongoResultQuery<{ today: number; all: number }>();
+    async getVisitStats(): Promise<MongoResultQuery<AnalysisReportDTO>> {
+        const res = new MongoResultQuery<AnalysisReportDTO>();
+
+        try {
+            const { today, month } = await getVisitAnalytics();
+            res.data = { today, month }
+            res.status = OperationResult.fetch
+
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async getVotingCount(categoryId: string): Promise<MongoResultQuery<VotingCountDTO>> {
+        const res = new MongoResultQuery<VotingCountDTO>();
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -164,8 +180,8 @@ export class VotingV1Service {
         return res
     }
 
-    async getVotingStats(categoryId: string): Promise<MongoResultQuery<{ count: number, date: string }[]>> {
-        const res = new MongoResultQuery<{ count: number, date: string }[]>();
+    async getVotingStats(categoryId: string): Promise<MongoResultQuery<VotingStatsDTO[]>> {
+        const res = new MongoResultQuery<VotingStatsDTO[]>();
 
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -173,7 +189,7 @@ export class VotingV1Service {
         const dateArray = Array.from({ length: 31 }, (_, index) => {
             const date = new Date(thirtyDaysAgo);
             date.setDate(date.getDate() + index);
-            const formattedDate = date.toISOString().split('T')[0]; // Extract and use only the date part
+            const formattedDate = date.toISOString().split('T')[0];
             return formattedDate;
         });
 
@@ -212,7 +228,6 @@ export class VotingV1Service {
             date,
             count: resultMap.get(date) || 0
         }));
-
 
         res.data = finalResult
         res.status = OperationResult.complete

@@ -73,6 +73,11 @@ jobs:
                   sudo echo NEXT_APP_BASE_URL=${{secrets.NEXT_APP_BASE_URL}} >> .env
                   sudo echo SEND_GRID_API_KEY=${{secrets.SEND_GRID_API_KEY}} >> .env
                   sudo echo SEND_GRID_RESET_EMAIL_TEMPLATE_ID=${{secrets.SEND_GRID_RESET_EMAIL_TEMPLATE_ID}} >> .env
+
+                  sudo echo GOOGLE_ANALYTICS_PROPERTY_ID=${{secrets.GOOGLE_ANALYTICS_PROPERTY_ID}} >> .env
+                  sudo echo GOOGLE_ANALYTICS_CLIENT_EMAIL=${{secrets.GOOGLE_ANALYTICS_CLIENT_EMAIL}} >> .env
+                  sudo echo GOOGLE_ANALYTICS_PRIVATE_KEY=${{secrets.GOOGLE_ANALYTICS_PRIVATE_KEY}} >> .env
+
                   cat .env
 
     copy:

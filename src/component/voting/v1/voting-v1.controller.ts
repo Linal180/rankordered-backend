@@ -33,6 +33,14 @@ export class VotingV1Controller {
     return this.votingService.getVotingStats(categoryId)
   }
 
+  @Get('visits')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(UserType.ADMIN)
+  getVisitStats() {
+    return this.votingService.getVisitStats()
+  }
+
   @Get('category/:categoryId')
   @ApiQuery({
     name: 'itemId',
