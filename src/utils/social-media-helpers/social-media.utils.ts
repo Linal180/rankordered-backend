@@ -131,13 +131,15 @@ export const getVisitAnalytics = async () => {
         const startDate = getDateXDaysAgo(30);
         const endDate = new Date().toISOString().split('T')[0];
 
+        console.log(`******* ${clientEmail} *******`)
+        console.log(`******* ${privateKey} *******`)
         const analyticsDataClient = new BetaAnalyticsDataClient({
             credentials: {
                 client_email: clientEmail,
                 private_key: privateKey
             }
         });
-
+        console.log(analyticsDataClient)
         const [response] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
             dateRanges: [
