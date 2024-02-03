@@ -113,32 +113,19 @@ const getDateXDaysAgo = (days: number) => {
 export const getVisitAnalytics = async (): Promise<{ today: number; month: number }> => {
     try {
         const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
-        const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
-        const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY.replace(/\n/gm, '\n');
-
-        console.log("********* getVisitAnalytics *********")
         let today = 0;
         let month = 0;
 
-        if (!(propertyId && clientEmail && privateKey)) {
+        if (!(propertyId)) {
             console.log("******** GOOGLE ANALYTICS ENVS MISSING! *********")
             return { month, today };
         }
-        console.log("********* calling GA API *********")
 
         const startDate = getDateXDaysAgo(30);
         const endDate = new Date().toISOString().split('T')[0];
 
-        console.log(`******* ${propertyId} *******`)
-        console.log("***********************************")
         const analyticsDataClient = new BetaAnalyticsDataClient();
-        // {
-        //     credentials: {
-        //         client_email: clientEmail,
-        //         private_key: privateKey
-        //     }
-        // }
-        console.log("********** client is loaded ******")
+
         const [response] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
             dateRanges: [
@@ -154,9 +141,6 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
             ],
         });
 
-        console.log("********************")
-        console.log(response.rows)
-        console.log("********************")
         const [todayResponse] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
             dateRanges: [
@@ -171,9 +155,6 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
                 }
             ],
         });
-        console.log("2 ********************")
-        console.log(todayResponse.rows)
-        console.log("2 ********************")
 
         response.rows.forEach(row => {
             month = parseInt(row.metricValues[0].value) ?? 0
@@ -183,8 +164,6 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
             today = parseInt(row.metricValues[0].value) ?? 0
         });
 
-        console.log(`********* ${response.rows[0]} *********`)
-        console.log(`********* ${todayResponse.rows} *********`)
         return { today, month };
     } catch (error) {
         console.log("*********** ERROR IN GOOGLE ANALYTICS API **********")

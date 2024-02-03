@@ -38,7 +38,6 @@ export class VotingV1Controller {
   @ApiBearerAuth()
   @Roles(UserType.ADMIN)
   getVisitStats() {
-    console.log("********* Controller *********")
     return this.votingService.getVisitStats()
   }
 

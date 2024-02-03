@@ -145,7 +145,7 @@ export class VotingV1Service {
 
     async getVisitStats(): Promise<MongoResultQuery<AnalysisReportDTO>> {
         const res = new MongoResultQuery<AnalysisReportDTO>();
-        console.log("********* getVisitStats *********")
+
         try {
             const { today, month } = await getVisitAnalytics();
             res.data = { today, month }
