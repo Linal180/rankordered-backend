@@ -114,7 +114,7 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
     try {
         const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
         const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
-        const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY;
+        const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY.replace(/\n/gm, '\n');
 
         console.log("********* getVisitAnalytics *********")
         let today = 0;
@@ -182,7 +182,7 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
             today = parseInt(row.metricValues[0].value) ?? 0
         });
 
-        console.log(`********* ${response.rows} *********`)
+        console.log(`********* ${response.rows[0]} *********`)
         console.log(`********* ${todayResponse.rows} *********`)
         return { today, month };
     } catch (error) {
