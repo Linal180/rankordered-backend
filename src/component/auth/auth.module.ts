@@ -14,7 +14,7 @@ import { GoogleStrategy } from './google/google.strategy';
 import { TiktokStrategy } from './tiktok/tiktok.strategy';
 import { InstagramStrategy } from './instagram/instagram.strategy';
 import { SnapchatStrategy } from './snapchat.strategy';
-import { PinterestStrategy } from './pinterest.strategy';
+import { PinterestStrategy } from './pinterest/pinterest.strategy';
 import { GoogleLoginStrategy } from './google/google-login.strategy';
 import { TwitterLoginStrategy } from './twitter/twitter-login.strategy';
 import { MailerModule } from '../mailer/mailer.module';
@@ -46,10 +46,10 @@ import { MailerModule } from '../mailer/mailer.module';
         GoogleLoginStrategy,
         InstagramStrategy,
         TiktokStrategy,
-        SnapchatStrategy
-        // PinterestStrategy
+        SnapchatStrategy,
+        PinterestStrategy
     ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -10,8 +10,8 @@ export class PinterestStrategy extends PassportStrategy(Strategy, 'pinterest') {
             clientID: configService.get('PINTEREST_CLIENT_ID'),
             clientSecret: configService.get('PINTEREST_CLIENT_SECRET'),
             callbackURL: configService.get('PINTEREST_CALLBACK_URL'),
-            scope: ['read_public', 'read_relationships'],
-            state: true
+            scope: ['user_accounts:read'],
+            authorizationURL: 'https://www.pinterest.com/oauth/',
         });
     }
 

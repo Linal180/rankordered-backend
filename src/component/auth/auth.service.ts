@@ -16,6 +16,7 @@ import { MailerService } from 'src/component/mailer/mailer.service';
 import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
 import { SsoUser, TwitterUser } from 'src/interfaces';
 import { ConfigService } from '@nestjs/config';
+import { getPinterestAccessToken } from '../../utils/social-media-helpers/social-media.utils';
 
 @Injectable()
 export class AuthService {
@@ -311,6 +312,50 @@ export class AuthService {
                 return {
                     access_token, refresh_token
                 }
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async feedPinterestUser(code: string) {
+        try {
+            const pinterestUser = await getPinterestAccessToken(code);
+
+            if (pinterestUser) {
+                console.log(pinterestUser, "LLLLLLLLll")
+                return null
+                // const user: any = await this.userService.getByUsernameOrEmail(username);
+                // let userPayload;
+
+                // if (!user) {
+                //     const { data, status } = await this.userService.createUser({
+                //         email, name: username, username, type: 'user' as UserType, provider: 'instagram', profilePicture: picture || 'missing'
+                //     });
+
+                //     if (status === OperationResult.create) {
+                //         userPayload = data;
+                //     }
+                // } else {
+                //     const profile = await this.profileService.findSocialProfileByIdAndProvider(user?._id, 'instagram')
+
+                //     if (!profile) {
+                //         await this.profileService.create({
+                //             email, provider: 'instagram',
+                //             profilePicture: picture || '',
+                //             userId: user?._id.toString(),
+                //             username: username
+                //         })
+                //     }
+
+                //     userPayload = user;
+                // }
+
+                // const { access_token, refresh_token } = await this.login(userPayload);
+
+                // return {
+                //     access_token, refresh_token
+                // }
             }
         } catch (error) {
             console.log(error)
