@@ -11,7 +11,7 @@ export class ItemScoreV1Service {
     constructor(
         @InjectModel(ItemScore.name)
         private itemScoreModel: Model<ItemScoreDocument>
-    ) {}
+    ) { }
 
     async findAll(
         filter: any = {},
@@ -83,7 +83,7 @@ export class ItemScoreV1Service {
             score = await this.itemScoreModel.create({
                 itemId: itemId,
                 categoryId: categoryId,
-                score: 0
+                score: 1500
             });
         }
 
