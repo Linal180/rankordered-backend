@@ -1,0 +1,406 @@
+name | score
+Harvard Univerity | 1712.88
+Massachusetts Institute of Technology | 1632.76
+California Institute of Technology | 1597.29
+The University of Tulsa | 1583.75
+Washington University in St. Louis | 1577.56
+University of Alabama at Birmingham | 1556.58
+Wesleyan University | 1555.61
+University of Pennsylvania | 1555.49
+Cornell University Ithaca | 1548.71
+United States Military Academy | 1541.21
+University of California, Riverside | 1540.12
+University of Delaware | 1540.07
+University of Colorado Boulder | 1540
+Georgetown University | 1539.93
+Duke University | 1539.93
+The University of Alabama | 1539.93
+Southern New Hampshire University | 1539.34
+University of California, Irvine | 1538.85
+University of North Carolina at Chapel Hill | 1538.85
+George Washington University | 1538.85
+Vassar College | 1538.85
+Seton Hall University | 1538.85
+University of Massachusetts Boston | 1538.85
+University of California, Santa Cruz | 1538.85
+Florida Atlantic University | 1538.85
+Howard University | 1538.85
+Barnard College | 1538.85
+University of Chicago | 1538.85
+Oberlin College | 1538.85
+Mount Holyoke College | 1538.59
+University of Louisville | 1537.71
+James Madison University | 1521.21
+Northwestern University | 1521.15
+College of William & Mary | 1521.15
+Washington and Lee University | 1521.15
+University of California, Berkeley | 1521.08
+University of South Carolina | 1520.07
+The Ohio State University | 1520.07
+Oregon Health & Science University | 1520
+Wayne State University | 1520
+Missouri University of Science and Technology | 1520
+University of Wisconsin-Green Bay | 1520
+The Rockefeller University | 1520
+Texas A&M University | 1520
+Yale University | 1520
+Ithaca College | 1520
+University of Maryland | 1520
+University of Massachusetts Lowell | 1520
+American University | 1520
+Kansas State University | 1520
+University at Buffalo, State University of New York | 1520
+Boston University | 1520
+Columbia University in the City of New York | 1520
+Pepperdine University | 1520
+Stevens Institute of Technology | 1520
+Georgia Institute of Technology | 1520
+Williams College | 1520
+West Virginia University | 1520
+United States Naval Academy | 1520
+University of Minnesota-Twin Cities | 1520
+Hanover College | 1520
+University of California, San Diego | 1520
+Colorado College | 1520
+Tulane University | 1520
+Towson University | 1520
+Gettysburg College | 1520
+St. John's University | 1520
+Central Washington University | 1520
+University of Maryland, Baltimore | 1520
+University of Nevada, Las Vegas | 1520
+Shippensburg University of Pennsylvania | 1519.93
+The University of Texas at Austin | 1519.93
+University of Missouri-St. Louis | 1519.93
+University of North Carolina at Charlotte | 1518.92
+Florida State University | 1518.91
+Carnegie Mellon University | 1518.85
+University of Wisconsin-Milwaukee | 1518.85
+Babson College | 1518.85
+University of Rhode Island | 1518.85
+Trinity College | 1518.85
+Ohio University | 1518.85
+University of Missouri-Kansas City | 1518.85
+Hofstra University | 1518.85
+New Jersey Institute of Technology | 1518.85
+Brigham Young University | 1518.78
+University of Missouri | 1518.78
+Temple University | 1517.71
+University of Pittsburgh | 1516.62
+Kennesaw State University | 1513.43
+Dartmouth College | 1509.94
+Wright State University | 1504.33
+DePaul University | 1504.08
+Virginia Commonwealth University | 1502.3
+University of California, Los Angeles | 1502.28
+Penn State University | 1502.23
+Pace University | 1502.17
+University of Florida | 1501.21
+Texas Tech University | 1501.15
+University of Kansas | 1501.15
+California State University, Los Angeles | 1501.15
+University of Central Arkansas | 1501.15
+Loma Linda University | 1501.15
+Fairleigh Dickinson University | 1501.15
+DeVry University | 1501.15
+Smith College | 1501.15
+Dickinson College | 1501.15
+The University of Texas at San Antonio | 1501.14
+Wheaton College | 1500.01
+Princeton University | 1500
+University of Wisconsin-Madison | 1500
+Wake Forest University | 1500
+Baylor University | 1500
+Eastern Kentucky University | 1500
+East Carolina University | 1500
+Washington State University | 1500
+Skidmore College | 1500
+Liberty University | 1500
+Oakland University | 1500
+University of San Diego | 1500
+United States Air Force Academy | 1500
+The University of Texas Health Science Center at Houston | 1500
+North Carolina State University | 1500
+Hobart and William Smith Colleges | 1500
+University of Michigan | 1500
+The Catholic University of America | 1500
+Marist College | 1500
+Valencia College | 1500
+Indiana University Bloomington | 1500
+Stockton University | 1500
+University of Wisconsin-Eau Claire | 1500
+Swarthmore College | 1500
+University of Akron | 1500
+Thomas Jefferson University | 1500
+Savannah College of Art and Design | 1500
+Loyola Marymount University | 1500
+University of Notre Dame | 1500
+The University of Texas at Arlington | 1500
+Mercer University | 1500
+Bucknell University | 1500
+Michigan Technological University | 1500
+Western Michigan University | 1500
+University of Richmond | 1500
+Amherst College | 1500
+Bates College | 1500
+Rutgers, The State University of New Jersey | 1500
+Southern Methodist University | 1500
+Marquette University | 1500
+St. Olaf College | 1500
+Auburn University | 1500
+Northern Illinois University | 1500
+Nova Southeastern University | 1500
+University of Maryland, Baltimore County | 1500
+Stony Brook University | 1500
+California State University, Long Beach | 1500
+University of San Francisco | 1500
+University of South Dakota | 1500
+Brandeis University | 1500
+University of Colorado Denver | 1500
+Arkansas State University | 1500
+University of Arkansas | 1500
+Carleton College | 1500
+University of Nevada, Reno | 1500
+University of Mississippi | 1500
+The University of Montana | 1500
+Northern Arizona University | 1500
+Bryn Mawr College | 1500
+Sonoma State University | 1500
+Lehigh University | 1500
+Middlebury College | 1500
+University of New Hampshire | 1500
+Central Michigan University | 1500
+California Polytechnic State University, San Luis Obispo | 1500
+Middle Tennessee State University | 1500
+University of Washington | 1500
+The University of Arizona | 1500
+Syracuse University | 1500
+Clemson University | 1500
+Michigan State University | 1500
+Calvin University | 1500
+University of Connecticut | 1500
+University of Rochester | 1500
+Grand Valley State University | 1500
+Grand Canyon University | 1500
+Bard College | 1500
+New York University | 1500
+College of Charleston | 1500
+The University of Tennessee at Martin | 1500
+Brigham Young University-Idaho | 1500
+Clark University | 1500
+University of Nebraska at Omaha | 1500
+Oklahoma State University | 1500
+University of Virginia | 1500
+Western Washington University | 1500
+Vanderbilt University | 1500
+University of Illinois at Urbana-Champaign         | 1500
+The University of Oklahoma | 1500
+Mississippi State University | 1500
+California State University San Marcos | 1500
+Georgia Southern University | 1500
+Bentley University | 1500
+Seattle University | 1500
+University of Central Florida | 1500
+University of Wisconsin-Stevens Point | 1500
+George Mason University | 1500
+Radford University | 1500
+Northeastern University | 1500
+Duquesne University | 1500
+University of Oregon | 1500
+Iowa State University | 1500
+University of Illinois at Chicago | 1500
+Hult International Business School | 1500
+Lock Haven University | 1500
+Kent State University | 1500
+The University of Alabama in Huntsville | 1500
+The University of Utah | 1500
+Icahn School of Medicine at Mount Sinai | 1500
+Bradley University | 1500
+Western Illinois University | 1500
+Utah State University | 1500
+Virginia Polytechnic Institute and State University | 1500
+Central Connecticut State University | 1500
+Eastern Illinois University | 1500
+University of Vermont | 1500
+University of North Carolina Wilmington | 1500
+Bowdoin College | 1500
+Medical University of South Carolina | 1500
+University of Massachusetts Medical School | 1500
+University of Southern Mississippi | 1500
+University of Toledo | 1500
+California State University, Dominguez Hills | 1500
+The University of Maine | 1500
+Marshall University | 1500
+Ferris State University | 1500
+Rowan University | 1500
+Chapman University | 1500
+Louisiana State University | 1500
+University of Massachusetts Dartmouth | 1500
+Miami Dade College | 1500
+California State University, Northridge | 1500
+Suffolk University | 1500
+University of Colorado Colorado Springs | 1500
+San Francisco State University | 1500
+University of Miami | 1500
+California State University, Fresno | 1500
+Pomona College | 1500
+The University of Texas Medical Branch at Galveston | 1500
+Webster University | 1500
+Eastern Michigan University | 1500
+New Mexico Institute of Mining and Technology | 1500
+University of Texas Southwestern Medical Center | 1500
+The College of New Jersey | 1500
+University of Louisiana at Lafayette | 1500
+North Carolina Agricultural and Technical State University | 1500
+Columbia College Chicago | 1500
+Wellesley College | 1500
+Miami University | 1500
+The University of Tennessee, Knoxville | 1500
+Saint Louis University | 1500
+Villanova University | 1500
+Johns Hopkins University | 1500
+Creighton University | 1500
+Southern Illinois University Edwardsville | 1500
+Western Kentucky University | 1500
+Earlham College | 1500
+Colorado State University | 1500
+Harry Potter | 1500
+Elon University | 1500
+University of Nebraska Medical Center | 1500
+Southern Illinois University Carbondale | 1500
+Purdue University | 1500
+University of California, Santa Barbara | 1500
+Davidson College | 1500
+Worcester Polytechnic Institute | 1500
+Gonzaga University | 1500
+University of North Carolina at Greensboro | 1500
+Hamilton College | 1500
+Kenyon College | 1500
+University of Texas Rio Grande Valley | 1500
+University of Northern Iowa | 1500
+Drexel University | 1500
+University of Arkansas at Little Rock | 1500
+The Culinary Institute of America | 1500
+Tennessee Tech University | 1500
+Trinity University | 1500
+Northern Michigan University | 1500
+Emerson College | 1500
+Illinois Institute of Technology | 1500
+Indiana University of Pennsylvania | 1500
+University of Wisconsin-Oshkosh | 1500
+Missouri State University | 1499.88
+Pratt Institute | 1499.81
+University of North Florida | 1498.85
+Appalachian State University | 1498.85
+University of North Texas | 1498.85
+California State University, Chico | 1498.85
+Oregon State University | 1497.83
+Montana State University | 1491.4
+Stanford University | 1490.53
+Embry-Riddle Aeronautical University | 1489.26
+University of Wyoming | 1486.57
+University of Massachusetts Amherst | 1485.94
+Emory University | 1484.63
+Occidental College | 1483.38
+School of Visual Arts | 1483.36
+California State Polytechnic University, Pomona | 1482.29
+Berklee College of Music | 1482.29
+University of Alaska Fairbanks | 1482.17
+Idaho State University | 1482.11
+Colby College | 1481.22
+Weber State University | 1481.22
+University of Iowa | 1481.15
+University of Houston | 1481.15
+Georgia State University | 1481.15
+State University of New York at Oswego | 1481.15
+North Dakota State University | 1481.15
+Old Dominion University | 1481.15
+Florida Institute of Technology | 1481.15
+University at Albany, State University of New York | 1481.15
+University of Baltimore | 1481.15
+Santa Clara University | 1481.15
+University of Denver | 1481.08
+Quinnipiac University | 1480.07
+Colgate University | 1480
+Medical College of Wisconsin | 1480
+Loyola University Chicago | 1480
+Simmons University | 1480
+Binghamton University, State University of New York | 1480
+University of Kentucky | 1480
+Rhode Island School of Design | 1480
+University of North Dakota | 1480
+Baylor College of Medicine | 1480
+Furman University | 1480
+San Diego State University | 1480
+Arizona State University         | 1480
+Wichita State University | 1480
+The University of Memphis | 1480
+Montclair State University | 1480
+Cleveland State University | 1480
+Boston College | 1480
+Haverford College | 1480
+Stephen F. Austin State University | 1480
+Northern Kentucky University | 1480
+Lamar University | 1480
+California State University, Fullerton | 1480
+California State University, San Bernardino | 1480
+Sam Houston State University | 1480
+University of Southern California | 1480
+University of South Florida | 1480
+Fashion Institute of Technology | 1480
+Case Western Reserve University | 1480
+Hillsdale College | 1480
+The University of Texas MD Anderson Cancer Center | 1480
+Monmouth University | 1480
+Rochester Institute of Technology | 1480
+Reed College | 1480
+Boise State University | 1479.93
+University of St. Thomas | 1479.04
+California State University, Sacramento | 1478.98
+Tufts University | 1478.92
+Texas State University | 1478.92
+The University of Texas at Dallas | 1478.92
+Drake University | 1478.92
+University of Cincinnati | 1478.92
+College of Saint Benedict/Saint John's University | 1478.85
+University of Nebraska-Lincoln | 1478.85
+University of California, Merced | 1478.85
+Yeshiva University | 1478.85
+College of the Holy Cross | 1478.85
+University of California, Davis | 1478.85
+The University of Texas at El Paso | 1478.85
+Rensselaer Polytechnic Institute | 1478.85
+Minnesota State University, Mankato | 1478.85
+Illinois State University | 1478.85
+Portland State University | 1478.85
+The Evergreen State College | 1477.83
+East Tennessee State University | 1477.77
+University of Dayton | 1477.77
+Gallaudet University | 1477.71
+Humboldt State University | 1476.9
+The New School | 1471.86
+Florida International University | 1465.56
+University of Idaho | 1463.42
+San José State University | 1463.38
+Ball State University | 1463.36
+University of Georgia | 1462.29
+Colorado School of Mines | 1462.17
+The University of Texas Health Science Center at San Antonio | 1461.22
+William Marsh Rice University | 1461.15
+Macalester College | 1461.15
+Texas Christian University | 1461.15
+New Mexico State University | 1461.15
+Utah Valley University | 1461.15
+Rasmussen College | 1461.15
+Butler University | 1461.15
+Western Carolina University | 1461.15
+University of New Mexico | 1461.15
+Bowling Green State University | 1461.15
+Lewis & Clark College | 1460.07
+Stetson University | 1460
+Harvey Mudd College | 1459.17
+Brown University | 1457.29
+Indiana State University | 1452.73
+Biola University | 1442.35
+Fordham University | 1379.71
+Florida Gulf Coast University | 1321.92
