@@ -120,9 +120,10 @@ export class VotingV1Service {
             kFactor
         );
 
-        if (contestantCurrentSCore < 0) {
-            contestantCurrentSCore = 0;
-        }
+        // Allow Negative values on Pablo suggestion
+        // if (contestantCurrentSCore < 0) {
+        //     contestantCurrentSCore = 0;
+        // }
 
         /*
             Calculating Next Rating for Opponent,
@@ -135,9 +136,10 @@ export class VotingV1Service {
             kFactor
         );
 
-        if (opponentCurrentSCore < 0) {
-            opponentCurrentSCore = 0;
-        }
+        // Allow Negative values on Pablo suggestion
+        // if (opponentCurrentSCore < 0) {
+        //     opponentCurrentSCore = 0;
+        // }
 
         const vote = await this.votingModel.create({
             categoryId: categoryId,
