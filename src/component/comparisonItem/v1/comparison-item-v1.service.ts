@@ -2,8 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId, Types } from 'mongoose';
-import * as fs from 'fs';
-import * as path from 'path';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
@@ -92,53 +90,6 @@ export class ComparisonItemV1Service {
         res.status = OperationResult.create;
 
         return res;
-    }
-
-    async getScores() {
-        // its a temp service and will be removed 
-        const textFilePath = path.resolve(process.cwd(), 'results.txt');
-        const colleges = fs.readFileSync(textFilePath, 'utf-8').split('\n').map(name => {
-            const rec = name.split('|')
-            const college = (rec[0] || '').trim()
-            const score = (rec[1] || '').trim()
-
-            return { college, score }
-        });
-
-        let count = 0
-        const collegePromises = colleges.map(async (college) => {
-            const item = await this.itemModel.findOne(
-                { name: college.college },
-                '_id -category -defaultCategory -defaultImage -images'
-            ).exec();
-
-            if (item) {
-                const scoreSnap = await this.scoreSnapshotModel
-                    .findOne({ itemId: item._id })
-                    .sort({ createdAt: -1 })
-                    .limit(1)
-                    .exec();
-
-
-                if (scoreSnap) {
-                    if (scoreSnap.score !== parseFloat(college.score)) {
-                        console.log(`Updating score for ${college.college}`)
-
-                        count++;
-                        await this.scoreSnapshotModel
-                            .updateOne({ _id: scoreSnap._id }, { $set: { score: college.score } })
-                            .exec();
-                    }
-                }
-            }
-
-            return item;
-        });
-
-        Promise.all(collegePromises).then(() =>
-            console.log(`************ Score updated for ${count} colleges **************`)
-        )
-        return colleges
     }
 
     async updateItem(
