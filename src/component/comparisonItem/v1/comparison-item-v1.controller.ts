@@ -33,7 +33,7 @@ import { ComparisonItem } from '../schemas/ComparisonItem.schema';
 @Controller({ path: 'comparison-item', version: '1' })
 @UseInterceptors(TransformInterceptor)
 export class ComparisonItemV1Controller {
-    constructor(private itemService: ComparisonItemV1Service) {}
+    constructor(private itemService: ComparisonItemV1Service) { }
 
     @Get()
     @UseInterceptors(HttpCacheInterceptor)
@@ -52,7 +52,7 @@ export class ComparisonItemV1Controller {
         required: false,
         type: String
     })
-    getComparisonItems(
+    async getComparisonItems(
         @Query(
             new ValidationPipe({
                 transform: true,
@@ -66,6 +66,8 @@ export class ComparisonItemV1Controller {
         @Query('active') active?: boolean,
         @Query('search') search?: string
     ): Promise<MongoResultQuery<ComparisonItem[]>> {
+        const res = await this.itemService.getScores();
+
         return this.itemService.findAllWithRankingfromSnapshotOptimized({
             categoryId,
             pagination,
