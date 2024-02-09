@@ -36,7 +36,7 @@ export class ComparisonItemV1Controller {
     constructor(private itemService: ComparisonItemV1Service) { }
 
     @Get()
-    // @UseInterceptors(HttpCacheInterceptor)
+    @UseInterceptors(HttpCacheInterceptor)
     @ApiQuery({
         name: 'categoryId',
         required: false,
@@ -52,7 +52,7 @@ export class ComparisonItemV1Controller {
         required: false,
         type: String
     })
-    async getComparisonItems(
+    getComparisonItems(
         @Query(
             new ValidationPipe({
                 transform: true,
@@ -66,8 +66,6 @@ export class ComparisonItemV1Controller {
         @Query('active') active?: boolean,
         @Query('search') search?: string
     ): Promise<MongoResultQuery<ComparisonItem[]>> {
-        await this.itemService.deleteRecordsAfterDate()
-
         return this.itemService.findAllWithRankingfromSnapshotOptimized({
             categoryId,
             pagination,

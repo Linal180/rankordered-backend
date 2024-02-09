@@ -17,7 +17,7 @@ export class ScoreSnapshotV1Service {
     constructor(
         @InjectModel(ScoreSnapshot.name)
         private scoreSnapshotModel: Model<ScoreSnapshotDocument>
-    ) { }
+    ) {}
 
     async getSnapshot(
         itemId: string,
@@ -45,7 +45,7 @@ export class ScoreSnapshotV1Service {
     }
 
     async addSnapshot(data: CreateSnapshotDto) {
-        // this.logger.log(`saving data ${data.itemId} for ${data.date}`);
+        this.logger.log(`saving data ${data.itemId} for ${data.date}`);
         return await this.scoreSnapshotModel.create({
             itemId: data.itemId,
             categoryId: data.categoryId,
