@@ -144,6 +144,18 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async deleteRecordsAfterDate(): Promise<void> {
+        const dateToDeleteAfter = new Date('2024-02-04T00:00:00Z');
+
+        try {
+            // Use deleteMany to delete records after the specified date
+            await this.scoreSnapshotModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
+            console.log('Records deleted successfully.');
+        } catch (error) {
+            console.error('Error deleting records:', error);
+        }
+    }
+
     async findByIdWithRanking(
         id: string,
         categoryId: string = null
