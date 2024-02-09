@@ -50,17 +50,7 @@ export class VotingV1Service {
             .exec();
     }
 
-    async deleteRecordsAfterDate(): Promise<void> {
-        const dateToDeleteAfter = new Date('2024-02-04T00:00:00Z');
 
-        try {
-            // Use deleteMany to delete records after the specified date
-            await this.votingModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
-            console.log('Voting Records deleted successfully.');
-        } catch (error) {
-            console.error('Error deleting records:', error);
-        }
-    }
 
     /*
         This function is responsible for creating and storing vote.
@@ -177,8 +167,6 @@ export class VotingV1Service {
                 categoryId: categoryId
             })
         );
-
-        await this.deleteRecordsAfterDate()
 
         return vote;
     }
