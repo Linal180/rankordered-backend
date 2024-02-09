@@ -23,6 +23,7 @@ export class ScoreSnapshotConsumer {
         try {
             const today = DateTime.now().toUTC().startOf('day');
             let page = 1;
+            console.log("*************************** Starting Score and Ranking Sync *********************")
             this.logger.log(
                 `saving score and ranking of category ${job.data._id} in ${today.toString()}`
             );
@@ -41,9 +42,10 @@ export class ScoreSnapshotConsumer {
                             currentPage: page - 1
                         }
                     });
-
+                console.log("***********************************")
                 data.forEach(async (item) => {
                     if (item.score.score) {
+                        console.log(item.name, ":", item.ranking)
                         await this.scoreSnapshotService.addSnapshot(
                             CreateSnapshotDto.create({
                                 itemId: item._id,
@@ -55,6 +57,8 @@ export class ScoreSnapshotConsumer {
                         );
                     }
                 });
+                console.log("***********************************")
+
 
                 total += data.length;
 
@@ -88,6 +92,7 @@ export class ScoreSnapshotConsumer {
             });
 
             this.logger.log('saving snapshots complete');
+            console.log("********** Score and ranking sync completed ****************")
         } catch (error) {
             this.logger.error('saving category scores error', error);
         }
