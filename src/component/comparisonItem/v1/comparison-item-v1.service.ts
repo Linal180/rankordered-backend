@@ -537,6 +537,23 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async deleteRecordsAfterDate(date: string): Promise<MongoResultQuery<{ deleted: number }>> {
+        const dateToDeleteAfter = new Date(date);
+        dateToDeleteAfter.setHours(23, 59, 59, 999);
+        const res = new MongoResultQuery<{ deleted: number }>();
+
+        try {
+            const result = await this.scoreSnapshotModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
+            console.log('***** ScoreSnaps deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+            res.status = OperationResult.complete
+            res.data = { deleted: result.deletedCount }
+            return res
+        } catch (error) {
+            console.error('Error deleting records:', error);
+            return null
+        }
+    }
+
     itemScoreLookup = (categoryId = null) => {
         return {
             $lookup: {
