@@ -7,6 +7,8 @@ import { RatingSystemService } from '../../../utils/eloRating/RatingSystem.servi
 import { VotingCreatedEvent } from '../events/VotingCreated.event';
 import { Voting, VotingDocument } from '../schemas/Voting.schema';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
+import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
+import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 
 @Injectable()
 export class VotingV1Service {
@@ -169,6 +171,24 @@ export class VotingV1Service {
         );
 
         return vote;
+    }
+
+    async deleteRecordsAfterDate(date: string): Promise<MongoResultQuery<{ deleted: number }>> {
+        const dateToDeleteAfter = new Date(date);
+        dateToDeleteAfter.setHours(23, 59, 59, 999);
+        const res = new MongoResultQuery<{ deleted: number }>();
+
+        try {
+            const result = await this.votingModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
+            console.log('***** Votes deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+
+            res.status = OperationResult.complete
+            res.data = { deleted: result.deletedCount }
+            return res
+        } catch (error) {
+            console.error('Error deleting records:', error);
+            return null
+        }
     }
 
     private throwObjectNotFoundError() {

@@ -1,13 +1,27 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateVotingItemDto } from '../dto/CreateVotingItem.dto';
 import { VotingItemDto } from '../dto/VotingItem.dto';
 import { VotingV1Service } from './voting-v1.service';
+import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { Roles } from 'src/component/auth/roles.decorator';
+import { RolesGuard } from 'src/component/auth/roles.guard';
+import { UserType } from 'src/component/user/dto/UserType';
 
 @ApiTags('Votings')
 @Controller({ path: 'voting', version: '1' })
 export class VotingV1Controller {
-    constructor(private votingService: VotingV1Service) {}
+    constructor(private votingService: VotingV1Service) { }
+
+    @Get('delete-votes')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
+    deleteSnapScore(
+        @Body('date') date: string
+    ) {
+        return this.votingService.deleteRecordsAfterDate(date);
+    }
 
     @Get('category/:categoryId')
     @ApiQuery({
