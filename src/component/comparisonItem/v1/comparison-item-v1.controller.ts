@@ -36,6 +36,16 @@ import { ComparisonItem } from '../schemas/ComparisonItem.schema';
 export class ComparisonItemV1Controller {
     constructor(private itemService: ComparisonItemV1Service) { }
 
+    @Get('delete-scores')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
+    deleteSnapScore(
+        @Body('date') date: string
+    ) {
+        return this.itemService.deleteRecordsAfterDate(date);
+    }
+
     @Get()
     @UseInterceptors(HttpCacheInterceptor)
     @ApiQuery({
