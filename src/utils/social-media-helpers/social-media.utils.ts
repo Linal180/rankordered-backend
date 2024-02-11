@@ -1,7 +1,8 @@
 import axios from 'axios';
 import * as Twit from 'twit';
 import { google } from 'googleapis';
-import { TwitterUser } from 'src/interfaces';
+import { InstagramUser, TwitterUser } from 'src/interfaces';
+import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
     const oauth2Client = new google.auth.OAuth2();
@@ -34,6 +35,52 @@ export const getTiktokUserInfo = async (accessToken: string) => {
     }
 };
 
+
+const instagramUserAPI = async (accessToken: string, userId: string): Promise<InstagramUser | null> => {
+    const fields = 'id,username,name,profile_picture_url,account_type,media_count,followers_count,follows_count,biography';
+    const apiUrl = `https://graph.instagram.com/v12.0/${userId}?fields=${fields}&access_token=${accessToken}`;
+
+    try {
+        const response = await axios.get(apiUrl);
+
+        console.log("Instagram User *** ", response.data);
+        return { ...response.data, email: `${response.data.username}@instagram,con` };
+    } catch (error) {
+        console.error('Error in InstagramUserAPI:', error);
+        return null
+    }
+}
+
+export const getInstagramAccessToken = async (code: string): Promise<InstagramUser | null> => {
+    const form = new URLSearchParams();
+    form.append('client_id', process.env.INSTAGRAM_CLIENT_ID);
+    form.append('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
+    form.append('grant_type', 'authorization_code');
+    form.append('redirect_uri', process.env.INSTAGRAM_CALLBACK_URL);
+    form.append('code', code);
+
+    return await axios({
+        method: 'POST',
+        url: 'https://api.instagram.com/oauth/access_token',
+        data: form,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    }).then(async (response) => {
+        const { data: { access_token, user_id } } = response
+
+        if (access_token && user_id) {
+            const instagramUser = await instagramUserAPI(access_token, user_id)
+            return instagramUser;
+        }
+
+        return null;
+    }).catch((err) => {
+        console.log(err.response);
+        return null;
+    });
+}
+
 export const getTwitterUserInfo = async (
     userAccessToken: string,
     userAccessSecret: string
@@ -56,3 +103,85 @@ export const getTwitterUserInfo = async (
         console.error('Error retrieving user information from Twitter:', error);
     }
 };
+
+const getDateXDaysAgo = (days: number) => {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - days);
+    return currentDate.toISOString().split('T')[0];
+};
+
+export const getVisitAnalytics = async () => {
+    try {
+        const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
+        const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
+        const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY;
+
+        let analysisReport = {
+            today: 0,
+            month: 0
+        }
+
+        if (!(propertyId && clientEmail && privateKey)) {
+            console.log("******** GOOGLE ANALYTICS ENVS MISSING! *********")
+            return analysisReport;
+        }
+
+        const startDate = getDateXDaysAgo(30);
+        const endDate = new Date().toISOString().split('T')[0];
+
+        const analyticsDataClient = new BetaAnalyticsDataClient({
+            credentials: {
+                client_email: clientEmail,
+                private_key: privateKey
+            }
+        });
+
+        const [response] = await analyticsDataClient.runReport({
+            property: `properties/${propertyId}`,
+            dateRanges: [
+                {
+                    startDate,
+                    endDate,
+                }
+            ],
+            metrics: [
+                {
+                    name: 'screenPageViews'
+                }
+            ],
+        });
+
+        const [todayResponse] = await analyticsDataClient.runReport({
+            property: `properties/${propertyId}`,
+            dateRanges: [
+                {
+                    startDate: endDate,
+                    endDate,
+                }
+            ],
+            metrics: [
+                {
+                    name: 'screenPageViews'
+                }
+            ],
+        });
+
+        response.rows.forEach(row => {
+            analysisReport.month = parseInt(row.metricValues[0].value) ?? 0
+        });
+
+        todayResponse.rows.forEach(row => {
+            analysisReport.today = parseInt(row.metricValues[0].value) ?? 0
+        });
+
+        return analysisReport;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const generateSlug = (input: string) => {
+    const sanitizedInput = input.toLowerCase().replace(/[^a-zA-Z0-9\s]/g, '');
+    const slug = sanitizedInput.split(' ').join('-');
+    return slug;
+}

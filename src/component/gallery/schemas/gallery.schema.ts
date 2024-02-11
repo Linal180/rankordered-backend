@@ -16,6 +16,11 @@ export class Gallery {
     @Prop()
     path: string;
 
+    @Prop({
+        default: false
+    })
+    isProfile?: string;
+
     @Prop()
     type: FileType;
 

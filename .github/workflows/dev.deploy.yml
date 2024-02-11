@@ -6,9 +6,9 @@ name: development
 on:
     # Triggers the workflow on push or pull request events but only for the master branch
     push:
-        branches: [feature/social-media-sign-in]
+        branches: [master]
     pull_request:
-        branches: [feature/social-media-sign-in]
+        branches: [master]
 
     # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
@@ -56,12 +56,10 @@ jobs:
                   sudo echo TIKTOK_CLIENT_SECRET=${{secrets.TIKTOK_CLIENT_SECRET}} >> .env
                   sudo echo TIKTOK_CALLBACK_URL=${{secrets.TIKTOK_CALLBACK_URL}} >> .env
                   sudo echo TIKTOK_LOGIN_CALLBACK_URL=${{secrets.TIKTOK_LOGIN_CALLBACK_URL}} >> .env
-                  sudo echo FACEBOOK_CLIENT_ID=${{secrets.FACEBOOK_CLIENT_ID}} >> .env
-                  sudo echo FACEBOOK_CLIENT_SECRET=${{secrets.FACEBOOK_CLIENT_SECRET}} >> .env
-                  sudo echo FACEBOOK_CALLBACK_URL=${{secrets.FACEBOOK_CALLBACK_URL}} >> .env
-                  sudo echo INSTAGRAM_CLIENT_ID=${{secrets.FACEBOOK_CLIENT_ID}} >> .env
-                  sudo echo INSTAGRAM_CLIENT_SECRET=${{secrets.FACEBOOK_CLIENT_SECRET}} >> .env
-                  sudo echo INSTAGRAM_CALLBACK_URL=${{secrets.FACEBOOK_CALLBACK_URL}} >> .env
+                  sudo echo INSTAGRAM_CLIENT_ID=${{secrets.INSTAGRAM_CLIENT_ID}} >> .env
+                  sudo echo INSTAGRAM_CLIENT_SECRET=${{secrets.INSTAGRAM_CLIENT_SECRET}} >> .env
+                  sudo echo INSTAGRAM_CALLBACK_URL=${{secrets.INSTAGRAM_CALLBACK_URL}} >> .env
+                  sudo echo INSTAGRAM_LOGIN_CALLBACK_URL=${{secrets.INSTAGRAM_LOGIN_CALLBACK_URL}} >> .env
                   sudo echo PINTEREST_CLIENT_ID=${{secrets.PINTEREST_CLIENT_ID}} >> .env
                   sudo echo PINTEREST_CLIENT_SECRET=${{secrets.PINTEREST_CLIENT_SECRET}} >> .env
                   sudo echo PINTEREST_CALLBACK_URL=${{secrets.PINTEREST_CALLBACK_URL}} >> .env
@@ -75,6 +73,11 @@ jobs:
                   sudo echo NEXT_APP_BASE_URL=${{secrets.NEXT_APP_BASE_URL}} >> .env
                   sudo echo SEND_GRID_API_KEY=${{secrets.SEND_GRID_API_KEY}} >> .env
                   sudo echo SEND_GRID_RESET_EMAIL_TEMPLATE_ID=${{secrets.SEND_GRID_RESET_EMAIL_TEMPLATE_ID}} >> .env
+
+                  sudo echo GOOGLE_ANALYTICS_PROPERTY_ID=${{secrets.GOOGLE_ANALYTICS_PROPERTY_ID}} >> .env
+                  sudo echo GOOGLE_ANALYTICS_CLIENT_EMAIL=${{secrets.GOOGLE_ANALYTICS_CLIENT_EMAIL}} >> .env
+                  sudo echo GOOGLE_ANALYTICS_PRIVATE_KEY=${{secrets.GOOGLE_ANALYTICS_PRIVATE_KEY}} >> .env
+
                   cat .env
 
     copy:

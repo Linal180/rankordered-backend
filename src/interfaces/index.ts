@@ -26,3 +26,10 @@ export interface GoogleUser {
   family_name: string,
   picture: string,
 }
+
+export type InstagramUser = {
+  id: string,
+  email: string,
+  username: string
+  picture: string,
+}

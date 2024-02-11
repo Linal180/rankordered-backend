@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
@@ -17,6 +17,7 @@ import {
 } from '../schemas/ComparisonItem.schema';
 import { ComparisonItemWithScore } from '../schemas/ComparisonItemWithScore';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
+import { FlagRequestV1Service } from '../../flag-request/v1/flag-request-v1.service';
 import {
     ScoreSnapshot,
     ScoreSnapshotDocument
@@ -29,9 +30,10 @@ export class ComparisonItemV1Service {
         private itemModel: Model<ComparisonItemDocument>,
         @InjectModel(ScoreSnapshot.name)
         private scoreSnapshotModel: Model<ScoreSnapshotDocument>,
-
         private eventEmitter: EventEmitter2,
-        private readonly categoryService: CategoryV1Service
+        private readonly categoryService: CategoryV1Service,
+        @Inject(forwardRef(() => FlagRequestV1Service))
+        private readonly flagRequestService: FlagRequestV1Service
     ) { }
 
     async findById(id: string): Promise<MongoResultQuery<ComparisonItem>> {
@@ -45,6 +47,20 @@ export class ComparisonItemV1Service {
 
         res.status = OperationResult.fetch;
         return res;
+    }
+
+    async findByProfile(id: string): Promise<ComparisonItemWithScore> {
+        const item = await this.itemModel.findOne({ profile: id }).exec();
+        if (item) {
+            const { data } = await this.findByIdWithRanking(
+                item._id,
+                ((item.defaultCategory as any)._id || '').toString()
+            )
+
+            return data;
+        }
+
+        return null
     }
 
     async findByQuery({
@@ -71,9 +87,7 @@ export class ComparisonItemV1Service {
         createItemData: CreateComparisonItemDto
     ): Promise<MongoResultQuery<ComparisonItemDocument>> {
         const res = new MongoResultQuery<ComparisonItemDocument>();
-
         const item = await this.itemModel.create(createItemData);
-
         if (!item) {
             this.throwObjectNotFoundError();
         }
@@ -144,6 +158,22 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async deleteItemByProfile(id: string): Promise<ComparisonItem> {
+
+        const item = await this.itemModel.findByIdAndDelete(id);
+
+        if (item) {
+            this.eventEmitter.emit(
+                'ComparisonItem.deleted',
+                ComparisonItemDeletedEvent.create({ id: item.id })
+            );
+
+            return item;
+        }
+
+        return null;
+    }
+
     async findByIdWithRanking(
         id: string,
         categoryId: string = null
@@ -169,7 +199,7 @@ export class ComparisonItemV1Service {
                     this.scoreCategoryLookup,
                     this.scoreCategoryRefine,
                     this.categoryLookup,
-                    this.defaultCategotyLookup,
+                    this.defaultCategoryLookup,
                     this.defaultCategoryRefine,
                     this.imagesLookup,
                     this.defaultImageLookup,
@@ -283,7 +313,7 @@ export class ComparisonItemV1Service {
             this.skip(pagination.currentPage * pagination.limit),
             this.limit(pagination.limit),
             this.categoryLookup,
-            this.defaultCategotyLookup,
+            this.defaultCategoryLookup,
             this.defaultCategoryRefine,
             this.imagesLookup,
             this.defaultImageLookup,
@@ -306,7 +336,7 @@ export class ComparisonItemV1Service {
         return res;
     }
 
-    async findAllWithRankingfromSnapshot({
+    async findAllWithRankingFromSnapshot({
         categoryId = null,
         pagination
     }: {
@@ -335,7 +365,7 @@ export class ComparisonItemV1Service {
             this.skip(pagination.currentPage * pagination.limit),
             this.limit(pagination.limit),
             this.categoryLookup,
-            this.defaultCategotyLookup,
+            this.defaultCategoryLookup,
             this.defaultCategoryRefine,
             this.imagesLookup,
             this.defaultImageLookup,
@@ -352,13 +382,14 @@ export class ComparisonItemV1Service {
         return res;
     }
 
-    async findAllWithRankingfromSnapshotOptimized({
+    async findAllWithRankingFromSnapshotOptimized({
         categoryId = null,
         pagination,
         search,
         active,
         ids,
-        favorite = false
+        favorite = false,
+        userId
     }: {
         categoryId: string;
         pagination: PaginationDto;
@@ -366,6 +397,7 @@ export class ComparisonItemV1Service {
         active?: boolean | string;
         ids?: string[];
         favorite?: boolean;
+        userId?: string;
     }): Promise<MongoResultQuery<ComparisonItem[]>> {
         // eslint-disable-next-line prefer-const
         const options: any = {};
@@ -396,7 +428,17 @@ export class ComparisonItemV1Service {
             };
         }
 
-        const items = await this.itemModel.find(itemsQuery).exec();
+        const data = await this.itemModel.find(itemsQuery)
+            .populate('profile')
+            .exec();
+
+        const items = data.filter(item => {
+            if (!item.profile) {
+                return true;
+            }
+
+            return !['approved', 'submitted'].includes(item.profile?.flag);
+        });
 
         const categoryItemsIds = category.data.categoryRankingItems.filter(
             (item) => {
@@ -411,6 +453,13 @@ export class ComparisonItemV1Service {
                 );
             }
         );
+
+        let currentUserFlagRequests = []
+
+        if (userId) {
+            currentUserFlagRequests = await this.flagRequestService.findCurrentUserRequests(userId)
+            console.log(currentUserFlagRequests)
+        }
 
         const sortedItems = items
             .map((item) => ({
@@ -740,7 +789,7 @@ export class ComparisonItemV1Service {
         }
     };
 
-    defaultCategotyLookup = {
+    defaultCategoryLookup = {
         $lookup: {
             from: 'categories',
             localField: 'defaultCategory',

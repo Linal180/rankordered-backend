@@ -7,6 +7,9 @@ export class CategoryDto {
     @ApiProperty({ example: 'college' })
     slug: string;
 
+    @ApiProperty({ example: false })
+    isSocial?: boolean;
+
     @ApiProperty({ example: 'abc123', required: false })
     parentId?: CategoryDto = null;
 }

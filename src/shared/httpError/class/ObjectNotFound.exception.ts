@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class ObjectNotFoundException extends HttpException {
-    constructor(className) {
+    constructor(className: string) {
         super(`${className} not found`, HttpStatus.NOT_FOUND);
     }
 }
@@ -21,5 +21,11 @@ export class BadRequestException extends HttpException {
 export class RecordNotFoundException extends HttpException {
     constructor() {
         super(`Not found`, HttpStatus.NOT_FOUND);
+    }
+}
+
+export class AlreadyExistException extends HttpException {
+    constructor(className: string) {
+        super(`${className} already exist`, HttpStatus.FORBIDDEN);
     }
 }

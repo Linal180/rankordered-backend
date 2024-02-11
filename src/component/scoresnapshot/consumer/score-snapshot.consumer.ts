@@ -64,7 +64,7 @@ export class ScoreSnapshotConsumer {
             } while (haveNextPage);
 
             const { data } =
-                await this.comparisonItemService.findAllWithRankingfromSnapshot(
+                await this.comparisonItemService.findAllWithRankingFromSnapshot(
                     {
                         categoryId: job.data._id,
                         pagination: {
