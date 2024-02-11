@@ -13,6 +13,16 @@ import { UserType } from 'src/component/user/dto/UserType';
 export class VotingV1Controller {
   constructor(private votingService: VotingV1Service) { }
 
+  @Get('delete-votes')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(UserType.ADMIN)
+  deleteSnapScore(
+    @Body('date') date: string
+  ) {
+    return this.votingService.deleteRecordsAfterDate(date);
+  }
+
   @Get('count')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()

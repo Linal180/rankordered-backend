@@ -54,12 +54,27 @@ export class VotingV1Service {
             .exec();
     }
 
+
+
+    /*
+        This function is responsible for creating and storing vote.
+        This function receives 
+            - categoryID => related to default category of college
+            - contestantID and opponentID => Colleges which took participation
+            - winnerID => one of the colleges which was selected by user
+    */
     async updateVoting(
         categoryId: string,
         contestantId: string,
         opponentId: string,
         winnerId: string
     ): Promise<Voting> {
+        /*
+            Following block of code is to get
+                - Previous Score
+                - Number of Comparisons
+            for Contestant.
+        */
         const contestantPreviousSCore =
             (
                 await this.scoreService.findByItemIdAndCategoryId(
@@ -81,16 +96,27 @@ export class VotingV1Service {
                 )
             )?.score ?? 0;
 
+        /*
+            Calculating kFactor for Contestant.
+        */
         const kFactor = this.ratingSystem.calculateKFactor(
             contestantNoOfComparison,
             contestantPreviousSCore
         );
 
+        /*
+            Calculating probability of Winning chance between 
+            Contestant and opponent.
+        */
         const probability = this.ratingSystem.calculateProbabilityOfWinning(
             contestantPreviousSCore,
             opponentPreviousScore
         );
 
+        /*
+            Calculating Next Rating for Contestant,
+            Score will passed as 1 if contestant is winner, otherwise 0
+        */
         let contestantCurrentSCore = this.ratingSystem.calculateNextRating(
             contestantPreviousSCore,
             probability,
@@ -98,10 +124,15 @@ export class VotingV1Service {
             kFactor
         );
 
-        if (contestantCurrentSCore < 0) {
-            contestantCurrentSCore = 0;
-        }
+        // Allow Negative values on Pablo suggestion
+        // if (contestantCurrentSCore < 0) {
+        //     contestantCurrentSCore = 0;
+        // }
 
+        /*
+            Calculating Next Rating for Opponent,
+            Score will passed as 1 if contestant is opponent, otherwise 0
+        */
         let opponentCurrentSCore = this.ratingSystem.calculateNextRating(
             opponentPreviousScore,
             1 - probability,
@@ -109,9 +140,10 @@ export class VotingV1Service {
             kFactor
         );
 
-        if (opponentCurrentSCore < 0) {
-            opponentCurrentSCore = 0;
-        }
+        // Allow Negative values on Pablo suggestion
+        // if (opponentCurrentSCore < 0) {
+        //     opponentCurrentSCore = 0;
+        // }
 
         const vote = await this.votingModel.create({
             categoryId: categoryId,
@@ -233,6 +265,24 @@ export class VotingV1Service {
         res.status = OperationResult.complete
 
         return res
+    }
+
+    async deleteRecordsAfterDate(date: string): Promise<MongoResultQuery<{ deleted: number }>> {
+        const dateToDeleteAfter = new Date(date);
+        dateToDeleteAfter.setHours(23, 59, 59, 999);
+        const res = new MongoResultQuery<{ deleted: number }>();
+
+        try {
+            const result = await this.votingModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
+            console.log('***** Votes deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+
+            res.status = OperationResult.complete
+            res.data = { deleted: result.deletedCount }
+            return res
+        } catch (error) {
+            console.error('Error deleting records:', error);
+            return null
+        }
     }
 
     private throwObjectNotFoundError() {
