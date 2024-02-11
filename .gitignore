@@ -49,3 +49,5 @@ public/upload/**/*
 
 # pm2
 .pm2
+
+yarn.lock

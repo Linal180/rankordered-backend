@@ -11,43 +11,71 @@ import { UserType } from 'src/component/user/dto/UserType';
 @ApiTags('Votings')
 @Controller({ path: 'voting', version: '1' })
 export class VotingV1Controller {
-    constructor(private votingService: VotingV1Service) { }
+  constructor(private votingService: VotingV1Service) { }
 
-    @Get('delete-votes')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @ApiBearerAuth()
-    @Roles(UserType.ADMIN)
-    deleteSnapScore(
-        @Body('date') date: string
-    ) {
-        return this.votingService.deleteRecordsAfterDate(date);
-    }
+  @Get('delete-votes')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(UserType.ADMIN)
+  deleteSnapScore(
+    @Body('date') date: string
+  ) {
+    return this.votingService.deleteRecordsAfterDate(date);
+  }
 
-    @Get('category/:categoryId')
-    @ApiQuery({
-        name: 'itemId',
-        required: false,
-        type: String
-    })
-    getVotingByCategoryId(
-        @Param('categoryId') categoryId: string,
-        @Query('itemId') itemId: string
-    ) {
-        return itemId
-            ? this.votingService.findByItemId(itemId, categoryId)
-            : this.votingService.findByCategoryId(categoryId);
-    }
+  @Get('count')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(UserType.ADMIN)
+  getVotingCount(
+    @Query('categoryId') categoryId: string,
+  ) {
+    return this.votingService.getVotingCount(categoryId)
+  }
 
-    @Post()
-    createVotingItem(
-        @Body()
-        createVotingData: CreateVotingItemDto
-    ): Promise<VotingItemDto> {
-        return this.votingService.updateVoting(
-            createVotingData.categoryId,
-            createVotingData.contestantId,
-            createVotingData.opponentId,
-            createVotingData.winnerId
-        );
-    }
+  @Get('stats')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(UserType.ADMIN)
+  getVotingStats(
+    @Query('categoryId') categoryId: string,
+  ) {
+    return this.votingService.getVotingStats(categoryId)
+  }
+
+  @Get('visits')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(UserType.ADMIN)
+  getVisitStats() {
+    return this.votingService.getVisitStats()
+  }
+
+  @Get('category/:categoryId')
+  @ApiQuery({
+    name: 'itemId',
+    required: false,
+    type: String
+  })
+  getVotingByCategoryId(
+    @Param('categoryId') categoryId: string,
+    @Query('itemId') itemId: string
+  ) {
+    return itemId
+      ? this.votingService.findByItemId(itemId, categoryId)
+      : this.votingService.findByCategoryId(categoryId);
+  }
+
+  @Post()
+  createVotingItem(
+    @Body()
+    createVotingData: CreateVotingItemDto
+  ): Promise<VotingItemDto> {
+    return this.votingService.updateVoting(
+      createVotingData.categoryId,
+      createVotingData.contestantId,
+      createVotingData.opponentId,
+      createVotingData.winnerId
+    );
+  }
 }

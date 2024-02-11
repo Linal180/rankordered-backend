@@ -9,6 +9,7 @@ import { VotingModule } from './voting/Voting.module';
 import { ScoreSnapshotModule } from './scoresnapshot/score-snapshot.module';
 import { ProfileModule } from './profile/profile.module';
 import { SocialProfileModule } from './social-provider/SocialProfile.module';
+import { FlagRequestModule } from './flag-request/index.module';
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import { SocialProfileModule } from './social-provider/SocialProfile.module';
         VotingModule,
         ScoreSnapshotModule,
         ProfileModule,
-        SocialProfileModule
+        SocialProfileModule,
+        FlagRequestModule
     ]
 })
 export class ComponentModule { }

@@ -7,6 +7,7 @@ import {
     Post,
     Put,
     Query,
+    Req,
     UseGuards,
     UseInterceptors,
     ValidationPipe
@@ -63,6 +64,7 @@ export class ComparisonItemV1Controller {
         type: String
     })
     getComparisonItems(
+        @Req() request: any,
         @Query(
             new ValidationPipe({
                 transform: true,
@@ -76,11 +78,13 @@ export class ComparisonItemV1Controller {
         @Query('active') active?: boolean,
         @Query('search') search?: string
     ): Promise<MongoResultQuery<ComparisonItem[]>> {
-        return this.itemService.findAllWithRankingfromSnapshotOptimized({
+        const { user } = request || {};
+        return this.itemService.findAllWithRankingFromSnapshotOptimized({
             categoryId,
             pagination,
             search,
-            active
+            active,
+            userId: user ? user.userId : null
         });
     }
 

@@ -12,7 +12,7 @@ import { ProfileModule } from '../profile/profile.module';
 import { TwitterStrategy } from './twitter/twitter.strategy';
 import { GoogleStrategy } from './google/google.strategy';
 import { TiktokStrategy } from './tiktok/tiktok.strategy';
-import { InstagramStrategy } from './instagram.strategy';
+import { InstagramStrategy } from './instagram/instagram.strategy';
 import { SnapchatStrategy } from './snapchat.strategy';
 import { PinterestStrategy } from './pinterest.strategy';
 import { GoogleLoginStrategy } from './google/google-login.strategy';
@@ -44,12 +44,12 @@ import { MailerModule } from '../mailer/mailer.module';
         TwitterLoginStrategy,
         GoogleStrategy,
         GoogleLoginStrategy,
-        // InstagramStrategy,
+        InstagramStrategy,
         TiktokStrategy,
-        SnapchatStrategy,
+        SnapchatStrategy
         // PinterestStrategy
     ],
     controllers: [AuthController],
     exports: [AuthService]
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -86,10 +86,10 @@ describe('ComparisonItemV1Controller', () => {
                 {
                     provide: ComparisonItemV1Service,
                     useValue: {
-                        findAllWithRankingfromSnapshotOptimized: jest
+                        findAllWithRankingFromSnapshotOptimized: jest
                             .fn()
                             .mockResolvedValue(responseManyWithScore),
-                        findAllWithRankingfromSnapshot: jest
+                        findAllWithRankingFromSnapshot: jest
                             .fn()
                             .mockResolvedValue(responseManyWithScore),
                         findByIdWithRanking: jest
@@ -131,7 +131,7 @@ describe('ComparisonItemV1Controller', () => {
 
             expect(items.status).toBe(OperationResult.fetch);
             expect(
-                jest.spyOn(service, 'findAllWithRankingfromSnapshotOptimized')
+                jest.spyOn(service, 'findAllWithRankingFromSnapshotOptimized')
             ).toBeCalledTimes(1);
         });
     });

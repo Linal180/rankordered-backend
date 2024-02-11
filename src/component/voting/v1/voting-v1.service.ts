@@ -8,7 +8,9 @@ import { VotingCreatedEvent } from '../events/VotingCreated.event';
 import { Voting, VotingDocument } from '../schemas/Voting.schema';
 import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
-import { OperationResult } from 'src/shared/mongoResult/OperationResult';
+import { OperationResult } from '../../../shared/mongoResult/OperationResult';
+import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
+import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
 
 @Injectable()
 export class VotingV1Service {
@@ -171,6 +173,98 @@ export class VotingV1Service {
         );
 
         return vote;
+    }
+
+    async getVisitStats(): Promise<MongoResultQuery<AnalysisReportDTO>> {
+        const res = new MongoResultQuery<AnalysisReportDTO>();
+
+        try {
+            const { today, month } = await getVisitAnalytics();
+            res.data = { today, month }
+            res.status = OperationResult.fetch
+
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async getVotingCount(categoryId: string): Promise<MongoResultQuery<VotingCountDTO>> {
+        const res = new MongoResultQuery<VotingCountDTO>();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const todayCount = await this.votingModel.countDocuments({
+            categoryId,
+            createdAt: {
+                $gte: today,
+                $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) // Votes created before tomorrow
+            }
+        }).exec();
+
+        const all = await this.votingModel.find({ categoryId }).count();
+
+        res.data = {
+            all, today: todayCount
+        }
+
+        res.status = OperationResult.fetch
+        return res
+    }
+
+    async getVotingStats(categoryId: string): Promise<MongoResultQuery<VotingStatsDTO[]>> {
+        const res = new MongoResultQuery<VotingStatsDTO[]>();
+
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const dateArray = Array.from({ length: 31 }, (_, index) => {
+            const date = new Date(thirtyDaysAgo);
+            date.setDate(date.getDate() + index);
+            const formattedDate = date.toISOString().split('T')[0];
+            return formattedDate;
+        });
+
+        const result = await this.votingModel.aggregate([
+            {
+                $match: {
+                    categoryId,
+                    createdAt: {
+                        $gte: thirtyDaysAgo,
+                        $lt: new Date(new Date().setHours(23, 59, 59, 999)) // Votes created before end of today
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } // Convert date to string with format "YYYY-MM-DD"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: "$_id",
+                    count: 1
+                }
+            }
+        ]);
+
+        // Create a Map for quick lookup of results by date
+        const resultMap = new Map(result.map(({ date, count }) => [date, count]));
+
+        // Merge the aggregated results with the date array, filling in missing dates with count 0
+        const finalResult = dateArray.map(date => ({
+            date,
+            count: resultMap.get(date) || 0
+        }));
+
+        res.data = finalResult
+        res.status = OperationResult.complete
+
+        return res
     }
 
     async deleteRecordsAfterDate(date: string): Promise<MongoResultQuery<{ deleted: number }>> {
