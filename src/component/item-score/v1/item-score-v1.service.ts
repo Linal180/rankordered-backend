@@ -94,6 +94,24 @@ export class ItemScoreV1Service {
         await this.itemScoreModel.deleteMany({ itemId: itemId }).exec();
     }
 
+    async deleteRecordsAfterDate(date: string): Promise<MongoResultQuery<{ deleted: number }>> {
+        const dateToDeleteAfter = new Date(date);
+        dateToDeleteAfter.setHours(23, 59, 59, 999);
+        const res = new MongoResultQuery<{ deleted: number }>();
+
+        try {
+            const result = await this.itemScoreModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
+            console.log('***** Votes deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+
+            res.status = OperationResult.complete
+            res.data = { deleted: result.deletedCount }
+            return res
+        } catch (error) {
+            console.error('Error deleting records:', error);
+            return null
+        }
+    }
+
     private throwObjectNotFoundError() {
         throw new ObjectNotFoundException(ItemScore.name);
     }
