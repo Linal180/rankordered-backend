@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as Twit from 'twit';
 import { google } from 'googleapis';
-import { InstagramUser, TwitterUser } from 'src/interfaces';
+import { InstagramUser, PinterestUser, TwitterUser } from 'src/interfaces';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 export const getGoogleUserInfo = async (accessToken: string) => {
@@ -47,6 +47,82 @@ const instagramUserAPI = async (accessToken: string, userId: string): Promise<In
         return { ...response.data, email: `${response.data.username}@instagram,con` };
     } catch (error) {
         console.error('Error in InstagramUserAPI:', error);
+        return null
+    }
+}
+
+const pinterestUserAPI = async (accessToken: string): Promise<PinterestUser | null> => {
+    const apiUrl = `https://api.pinterest.com/v5/user_account`;
+
+    try {
+        const response = await axios.get(apiUrl, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                followRedirect: 'false'
+            }
+        });
+
+        return { ...response.data, email: `${response.data.username}@instagram.com` };
+    } catch (error) {
+        console.error('***** Error in PinterestUserAPI *******');
+        console.log(error)
+        return null
+    }
+}
+
+const queryString = (data: { [key: string]: string }): string => {
+    return Object.keys(data)
+        .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+        .join('&');
+}
+
+export const getPinterestAccessToken = async (code: string): Promise<PinterestUser | null> => {
+    const clientId = process.env.PINTEREST_CLIENT_ID
+    const clientSecret = process.env.PINTEREST_CLIENT_SECRET
+
+    try {
+        const credentials = `${clientId}:${clientSecret}`;
+        const base64Credentials = Buffer.from(credentials, 'utf-8').toString('base64');
+        const tokenExchangeUrl = 'https://api.pinterest.com/v5/oauth/token';
+        const redirectUri = process.env.PINTEREST_CALLBACK_URL
+
+        const data = {
+            code,
+            grant_type: 'authorization_code',
+            redirect_uri: redirectUri,
+        };
+
+        const headers = {
+            Authorization: `Basic ${base64Credentials}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        };
+
+
+        const response = await axios({
+            method: 'POST',
+            url: tokenExchangeUrl,
+            data: queryString(data),
+            headers
+        })
+
+        if (response) {
+            const { data: { access_token } } = response
+
+            if (access_token) {
+                const pinterestUser = await pinterestUserAPI(access_token)
+
+                return pinterestUser;
+            } else {
+                console.log("****** Failed to get Pinterest Access Token ********")
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.log("***** Error in getPinterestAccessToken *****")
+        console.log(error.response)
+        console.log("************************************")
         return null
     }
 }

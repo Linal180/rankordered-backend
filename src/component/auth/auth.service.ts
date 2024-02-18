@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import * as cache from 'memory-cache';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
 import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo, getInstagramAccessToken } from 'src/utils/social-media-helpers/social-media.utils';
@@ -16,6 +17,7 @@ import { MailerService } from 'src/component/mailer/mailer.service';
 import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
 import { SsoUser, TwitterUser } from 'src/interfaces';
 import { ConfigService } from '@nestjs/config';
+import { getPinterestAccessToken } from '../../utils/social-media-helpers/social-media.utils';
 
 @Injectable()
 export class AuthService {
@@ -311,6 +313,37 @@ export class AuthService {
                 return {
                     access_token, refresh_token
                 }
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async feedPinterestUser(code: string) {
+        try {
+            const userId = cache.get('userId');
+            if (!userId) return null
+
+            const pinterestUser = await getPinterestAccessToken(code);
+            const { data: user } = await this.userService.findById(userId);
+            if (!user) return null
+
+            if (pinterestUser) {
+                const { username, profile_image } = pinterestUser
+                const profile = await this.profileService.findSocialProfileByIdAndProvider((user as any)?._id, 'pinterest')
+
+                if (!profile) {
+                    await this.profileService.create({
+                        email: user.email, provider: 'pinterest',
+                        profilePicture: profile_image || '',
+                        userId: (user as any)?._id.toString(),
+                        username: username
+                    })
+                }
+
+                const { access_token, refresh_token } = await this.login(user);
+
+                return { access_token, refresh_token }
             }
         } catch (error) {
             console.log(error)

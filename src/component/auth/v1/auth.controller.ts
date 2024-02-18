@@ -28,7 +28,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleAuthGuard } from '../google/google-auth.guard';
 import { TiktokAuthGuard } from '../tiktok/tiktok-auth.guard';
 import { InstagramAuthGuard } from '../instagram/instagram.guard';
-import { PinterestAuthGuard } from '../pinterest-auth.guard';
+import { PinterestAuthGuard } from '../pinterest/pinterest-auth.guard';
 import { SnapchatAuthGuard } from '../snapchat.guard';
 import { GoogleLoginAuthGuard } from '../google/google-login-auth.guard';
 import { TwitterLoginAuthGuard } from '../twitter/twitter-login-auth.guard';
@@ -310,7 +310,6 @@ export class AuthController {
     @Get('instagram')
     @UseGuards(InstagramAuthGuard)
     instagramAuth() {
-        console.log('Login with Instagram');
         return true;
     }
 
@@ -338,32 +337,32 @@ export class AuthController {
     }
 
     @Get('pinterest')
-    @UseGuards(PinterestAuthGuard)
+    @UseGuards(JwtAuthGuard, PinterestAuthGuard)
     pinterestAuth() {
         return true;
     }
 
     @Get('pinterest/callback')
-    @UseGuards(PinterestAuthGuard)
     async pinterestCallback(
         @Req()
-        req: Request & {
-            user: { accessToken: string; accessSecret: string; sso: string };
-        },
+        req: Request,
         @Res() res: Response
     ) {
-        const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
-            accessToken,
-            accessSecret
-        );
+        const code = req.url.split('code=')[1] || '';
 
-        // Redirect the user
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        if (code) {
+            const response = await this.authService.feedPinterestUser(code)
+
+            if (response) {
+                // Redirect the user
+                return res.redirect(
+                    `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
+                    }&refreshToken=${response.refresh_token}&sso=instagram`
+                );
+            }
+        }
+
+        res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
     }
 
     @Get('snapchat')
