@@ -6,7 +6,7 @@ export type SocialProfileDocument = SocialProfile & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class SocialProfile {
-	@Prop({ required: true, enum: ['instagram', 'tiktok', 'youtube', 'twitter'] })
+	@Prop({ required: true, enum: ['instagram', 'tiktok', 'youtube', 'twitter', 'pinterest', 'snapchat'] })
 	provider: string;
 
 	@Prop({ required: true })

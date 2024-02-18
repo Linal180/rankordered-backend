@@ -64,7 +64,7 @@ jobs:
 
                   sudo echo PINTEREST_CLIENT_ID=${{secrets.PINTEREST_CLIENT_ID}} >> .env
                   sudo echo PINTEREST_CLIENT_SECRET=${{secrets.PINTEREST_CLIENT_SECRET}} >> .env
-                  sudo echo PINTEREST_CALLBACK_URL=${{secrets.PINTEREST_CALLBACK_URL}} >> .env
+                  sudo echo PINTEREST_CALLBACK_URL=${{secrets.STG_PINTEREST_CALLBACK_URL}} >> .env
 
                   sudo echo SNAPCHAT_CLIENT_ID=${{secrets.SNAPCHAT_CLIENT_ID}} >> .env
                   sudo echo SNAPCHAT_CLIENT_SECRET=${{secrets.SNAPCHAT_CLIENT_SECRET}} >> .env

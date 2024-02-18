@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import * as cache from 'memory-cache';
 import { User } from '../user/schemas/user.schema';
 import { Userv1Service } from '../user/v1/userv1.service';
 import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo, getInstagramAccessToken } from 'src/utils/social-media-helpers/social-media.utils';
@@ -320,42 +321,29 @@ export class AuthService {
 
     async feedPinterestUser(code: string) {
         try {
+            const userId = cache.get('userId');
+            if (!userId) return null
+
             const pinterestUser = await getPinterestAccessToken(code);
+            const { data: user } = await this.userService.findById(userId);
+            if (!user) return null
 
             if (pinterestUser) {
-                console.log(pinterestUser, "LLLLLLLLll")
-                return null
-                // const user: any = await this.userService.getByUsernameOrEmail(username);
-                // let userPayload;
+                const { username, profile_image } = pinterestUser
+                const profile = await this.profileService.findSocialProfileByIdAndProvider((user as any)?._id, 'pinterest')
 
-                // if (!user) {
-                //     const { data, status } = await this.userService.createUser({
-                //         email, name: username, username, type: 'user' as UserType, provider: 'instagram', profilePicture: picture || 'missing'
-                //     });
+                if (!profile) {
+                    await this.profileService.create({
+                        email: user.email, provider: 'pinterest',
+                        profilePicture: profile_image || '',
+                        userId: (user as any)?._id.toString(),
+                        username: username
+                    })
+                }
 
-                //     if (status === OperationResult.create) {
-                //         userPayload = data;
-                //     }
-                // } else {
-                //     const profile = await this.profileService.findSocialProfileByIdAndProvider(user?._id, 'instagram')
+                const { access_token, refresh_token } = await this.login(user);
 
-                //     if (!profile) {
-                //         await this.profileService.create({
-                //             email, provider: 'instagram',
-                //             profilePicture: picture || '',
-                //             userId: user?._id.toString(),
-                //             username: username
-                //         })
-                //     }
-
-                //     userPayload = user;
-                // }
-
-                // const { access_token, refresh_token } = await this.login(userPayload);
-
-                // return {
-                //     access_token, refresh_token
-                // }
+                return { access_token, refresh_token }
             }
         } catch (error) {
             console.log(error)

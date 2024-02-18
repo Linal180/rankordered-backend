@@ -337,7 +337,7 @@ export class AuthController {
     }
 
     @Get('pinterest')
-    @UseGuards(PinterestAuthGuard)
+    @UseGuards(JwtAuthGuard, PinterestAuthGuard)
     pinterestAuth() {
         return true;
     }

@@ -43,3 +43,18 @@ export type PinterestAccessPayload = {
   refresh_token_expires_in: number
   scope: string
 }
+
+export type PinterestUser = {
+  id: string
+  about: string
+  username: string
+  pin_count: number
+  website_url: string
+  board_count: number
+  account_type: string
+  monthly_views: number
+  profile_image: string
+  business_name: string
+  follower_count: number
+  following_count: number
+}
