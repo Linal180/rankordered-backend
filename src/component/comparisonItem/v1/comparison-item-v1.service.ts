@@ -858,6 +858,58 @@ export class ComparisonItemV1Service {
         };
     };
 
+    async updateScores(): Promise<MongoResultQuery<void>> {
+        const res = new MongoResultQuery<void>();
+        let count = 0;
+        const pageSize = 10;
+        let currentPage = 1;
+
+        while (true) {
+            const skipCount = (currentPage - 1) * pageSize;
+
+            const colleges = await this.itemModel
+                .find({}, '_id name -category -defaultCategory -defaultImage -images')
+                .skip(skipCount)
+                .limit(pageSize)
+                .exec();
+
+            console.log(`Page ${currentPage}, Total Colleges: ${colleges.length}`);
+
+            if (colleges.length === 0) {
+                break;
+            }
+
+            const promises = colleges.map(async ({ _id, name }) => {
+                if (_id) {
+                    const scoreSnap = await this.scoreSnapshotModel
+                        .findOne({ itemId: _id })
+                        .sort({ createdAt: -1 })
+                        .limit(1)
+                        .exec();
+
+                    if (scoreSnap) {
+                        console.log(`**** Updating score for ${name} from ${scoreSnap.score} to ${scoreSnap.score + 1500.00} ******`);
+
+                        count++;
+                        return await this.scoreSnapshotModel
+                            .updateOne({ _id: scoreSnap._id }, { $set: { score: (scoreSnap.score + 1500.00).toFixed(2) } })
+                            .exec();
+                    }
+                }
+
+                return null;
+            });
+
+            await Promise.all(promises);
+            currentPage++;
+        }
+        console.log(`************ Score updated for colleges **************`);
+
+        res.status = OperationResult.update;
+        return res;
+    }
+
+
     private throwObjectNotFoundError(): void {
         throw new ObjectNotFoundException(ComparisonItem.name);
     }
