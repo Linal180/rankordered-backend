@@ -55,7 +55,7 @@ export class ComparisonItemV1Controller {
     }
 
     @Get()
-    // @UseInterceptors(HttpCacheInterceptor)
+    @UseInterceptors(HttpCacheInterceptor)
     @ApiQuery({
         name: 'categoryId',
         required: false,
