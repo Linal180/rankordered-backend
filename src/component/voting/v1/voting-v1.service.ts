@@ -11,6 +11,7 @@ import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
 import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
+import { VotingItemDto } from '../dto/VotingItem.dto';
 
 @Injectable()
 export class VotingV1Service {
@@ -67,7 +68,8 @@ export class VotingV1Service {
         categoryId: string,
         contestantId: string,
         opponentId: string,
-        winnerId: string
+        winnerId: string,
+        userId?: string
     ): Promise<Voting> {
         /*
             Following block of code is to get
@@ -153,7 +155,8 @@ export class VotingV1Service {
             opponentId: opponentId,
             opponentPreviousScore: opponentPreviousScore,
             opponentCurrentSCore: opponentCurrentSCore,
-            winnerId: winnerId
+            winnerId: winnerId,
+            userId: userId || null
         });
 
         if (!vote) {
@@ -282,6 +285,80 @@ export class VotingV1Service {
         } catch (error) {
             console.error('Error deleting records:', error);
             return null
+        }
+    }
+
+    async discardUserTodayVotes(userId: string): Promise<MongoResultQuery<{ deleted: number }>> {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+        const res = new MongoResultQuery<{ deleted: number }>();
+
+        try {
+            const result = await this.votingModel.deleteMany({
+                userId: userId,
+                createdAt: { $gt: startOfDay, $lt: endOfDay }
+            });
+
+            res.status = OperationResult.complete
+            res.data = { deleted: result.deletedCount }
+            return res
+        } catch (error) {
+            console.error('Error deleting records:', error);
+            return null;
+        }
+    }
+
+    isConsecutiveVotesFound(votes: VotingItemDto[]): boolean {
+        let contestantCount = 0;
+        let opponentCount = 0;
+
+        for (let i = 0; i < votes.length; i++) {
+            const isContestantWinner = votes[i].winnerId === votes[i].contestantId;
+            const isOpponentWinner = votes[i].winnerId === votes[i].opponentId;
+
+            if (isContestantWinner) {
+                contestantCount++;
+                opponentCount = 0;
+                if (contestantCount === 5) {
+                    return true;
+                }
+            } else if (isOpponentWinner) {
+                opponentCount++;
+                contestantCount = 0;
+                if (opponentCount === 5) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    async isVotingAbused(userId: string): Promise<boolean> {
+        try {
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
+
+            const userVotes = await this.votingModel
+                .find({
+                    userId: userId,
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lt: endOfDay
+                    }
+                })
+                .sort({ createdAt: -1 })
+                .exec();
+
+            if (userVotes?.length > 4) {
+                return this.isConsecutiveVotesFound(userVotes);
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Error checking vote records:', error);
+            return null;
         }
     }
 

@@ -28,6 +28,9 @@ export class Voting {
 
     @Prop()
     winnerId: string;
+
+    @Prop()
+    userId: string | null;
 }
 
 export const VotingSchema = SchemaFactory.createForClass(Voting);

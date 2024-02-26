@@ -5,6 +5,7 @@ import { ItemScoreModule } from '../item-score/item-score.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Voting, VotingSchema } from './schemas/Voting.schema';
 import { EloRatingModule } from '../../utils/eloRating/EloRating.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
     imports: [
@@ -12,7 +13,8 @@ import { EloRatingModule } from '../../utils/eloRating/EloRating.module';
             { name: Voting.name, schema: VotingSchema }
         ]),
         ItemScoreModule,
-        EloRatingModule
+        EloRatingModule,
+        UserModule
     ],
     providers: [VotingV1Service],
     controllers: [VotingV1Controller]

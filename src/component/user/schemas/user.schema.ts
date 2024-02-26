@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import { UserType } from '../dto/UserType';
 import { FavoriteItem } from 'src/component/favorite-item/schemas/favoriteItem.schema';
 import { Gallery } from 'src/component/gallery/schemas/gallery.schema';
+import { UserStatus } from '../dto/UserStatus.dto';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -25,6 +26,9 @@ export class User {
 
     @Prop({ required: true })
     type: UserType;
+
+    @Prop({ required: true, default: UserStatus.ACTIVE })
+    status: UserStatus;
 
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
