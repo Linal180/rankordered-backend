@@ -32,6 +32,6 @@ export class AlreadyExistException extends HttpException {
 
 export class VotingAbusedException extends HttpException {
     constructor() {
-        super('Voting abuse detected', HttpStatus.FORBIDDEN);
+        super('Voting blocked due to abusive pattern, please contact to site admin', HttpStatus.NOT_ACCEPTABLE);
     }
 }

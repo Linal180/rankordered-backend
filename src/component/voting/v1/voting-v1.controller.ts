@@ -81,23 +81,36 @@ export class VotingV1Controller {
         @Body()
         createVotingData: CreateVotingItemDto
     ): Promise<VotingItemDto> {
+        
         const userId = request?.user?.userId;
-
-        const vote = await this.votingService.updateVoting(
-            createVotingData.categoryId,
-            createVotingData.contestantId,
-            createVotingData.opponentId,
-            createVotingData.winnerId,
-            userId
-        );
-
+        let vote: VotingItemDto;
+        
         if (userId) {
+            const user = await this.userService.findById(userId);
+            if(user?.data?.status === UserStatus.INACTIVE){
+                throw new VotingAbusedException();
+            }
+             vote = await this.votingService.updateVoting(
+                createVotingData.categoryId,
+                createVotingData.contestantId,
+                createVotingData.opponentId,
+                createVotingData.winnerId,
+                userId
+            );
+
             const isVotingAbused = await this.votingService.isVotingAbused(userId);
             if (isVotingAbused) {
                 await this.votingService.discardUserTodayVotes(userId);
                 await this.userService.updateUserStatus(userId, UserStatus.INACTIVE);
                 throw new VotingAbusedException();
             }
+        } else {
+            vote = await this.votingService.updateVoting(
+                createVotingData.categoryId,
+                createVotingData.contestantId,
+                createVotingData.opponentId,
+                createVotingData.winnerId,
+            );
         }
         return vote;
     }
