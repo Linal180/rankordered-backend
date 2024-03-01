@@ -24,6 +24,9 @@ export class Voting {
     opponentCurrentSCore: number;
 
     @Prop()
+    userId: string | null;
+
+    @Prop()
     categoryId: string;
 
     @Prop()

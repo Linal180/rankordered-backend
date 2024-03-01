@@ -1,15 +1,29 @@
-import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { TransformInterceptor } from '../../../shared/response/interceptors/Transform.interceptor';
 import { ItemScoreDto } from '../dto/ItemScore.dto';
 import { ItemScoreV1Service } from './item-score-v1.service';
+import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { Roles } from 'src/component/auth/roles.decorator';
+import { RolesGuard } from 'src/component/auth/roles.guard';
+import { UserType } from 'src/component/user/dto/UserType';
 
 @ApiTags('Item Scores')
 @Controller({ path: 'item-score', version: '1' })
 @UseInterceptors(TransformInterceptor)
 export class ItemScoreV1Controller {
-    constructor(private scoreService: ItemScoreV1Service) {}
+    constructor(private scoreService: ItemScoreV1Service) { }
+
+    @Get('delete-item-scores')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
+    deleteSnapScore(
+        @Body('date') date: string
+    ) {
+        return this.scoreService.deleteRecordsAfterDate(date);
+    }
 
     @Get('item/:id')
     @ApiQuery({
