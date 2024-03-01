@@ -21,6 +21,7 @@ import { Userv1Service } from './userv1.service';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { UserType } from '../dto/UserType';
+import { UserStatus } from '../dto/UserStatus.dto';
 
 @ApiTags('Users')
 @Controller({
@@ -37,6 +38,21 @@ export class Userv1Controller {
     @Roles(UserType.ADMIN)
     getUsers(): Promise<MongoResultQuery<UserDto[]>> {
         return this.userService.findByQuery();
+    }
+
+    @Get('blocked')
+    @Roles(UserType.ADMIN)
+    getBlockedUsers(): Promise<MongoResultQuery<UserDto[]>> {
+        return this.userService.findByQuery({ status: UserStatus.INACTIVE });
+    }
+
+    @Put('update-status/:id')
+    @Roles(UserType.ADMIN)
+    updateUserStatus(
+        @Param('id') id: string,
+        @Body() updateUserDto: UpdateUserDto
+    ): Promise<MongoResultQuery<UserDto>> {
+        return this.userService.updateUser(id, updateUserDto);
     }
 
     @Get(':id')

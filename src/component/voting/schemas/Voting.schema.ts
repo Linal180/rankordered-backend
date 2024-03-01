@@ -24,10 +24,16 @@ export class Voting {
     opponentCurrentSCore: number;
 
     @Prop()
+    userId: string | null;
+
+    @Prop()
     categoryId: string;
 
     @Prop()
     winnerId: string;
+
+    @Prop()
+    userId: string | null;
 }
 
 export const VotingSchema = SchemaFactory.createForClass(Voting);

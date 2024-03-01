@@ -36,6 +36,14 @@ import { ComparisonItem } from '../schemas/ComparisonItem.schema';
 export class ComparisonItemV1Controller {
     constructor(private itemService: ComparisonItemV1Service) { }
 
+    @Post('update-scores')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiBearerAuth()
+    @Roles(UserType.ADMIN)
+    scoresUpdate() {
+        return this.itemService.updateScores();
+    }
+
     @Get('delete-scores')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()
