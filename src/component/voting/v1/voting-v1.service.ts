@@ -6,12 +6,14 @@ import { ItemScoreV1Service } from '../../item-score/v1/item-score-v1.service';
 import { RatingSystemService } from '../../../utils/eloRating/RatingSystem.service';
 import { VotingCreatedEvent } from '../events/VotingCreated.event';
 import { Voting, VotingDocument } from '../schemas/Voting.schema';
-import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
+import { ObjectNotFoundException, VotingAbusedException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
 import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
 import { VotingItemDto } from '../dto/VotingItem.dto';
+import { Userv1Service } from 'src/component/user/v1/userv1.service';
+import { UserStatus } from 'src/component/user/dto/UserStatus.dto';
 
 @Injectable()
 export class VotingV1Service {
@@ -19,7 +21,8 @@ export class VotingV1Service {
         @InjectModel(Voting.name) private votingModel: Model<VotingDocument>,
         private scoreService: ItemScoreV1Service,
         private ratingSystem: RatingSystemService,
-        private eventEmitter: EventEmitter2
+        private eventEmitter: EventEmitter2,
+        private userService: Userv1Service
     ) { }
 
     async findByItemId(itemId: string, categoryId: string): Promise<Voting[]> {
@@ -71,6 +74,22 @@ export class VotingV1Service {
         winnerId: string,
         userId?: string
     ): Promise<Voting> {
+        if (userId) {
+            const user = await this.userService.findById(userId);
+
+            if (user?.data?.status === UserStatus.INACTIVE) {
+                throw new VotingAbusedException();
+            }
+
+            const isVotingAbused = await this.isVotingAbused(userId);
+
+            if (isVotingAbused) {
+                await this.discardUserTodayVotes(userId);
+                await this.userService.updateUserStatus(userId, UserStatus.INACTIVE);
+                throw new VotingAbusedException();
+            }
+        }
+
         /*
             Following block of code is to get
                 - Previous Score
@@ -320,17 +339,16 @@ export class VotingV1Service {
             if (isContestantWinner) {
                 contestantCount++;
                 opponentCount = 0;
-                if (contestantCount === 5) {
-                    return true;
-                }
+
+                if (contestantCount === 5) return true;
             } else if (isOpponentWinner) {
                 opponentCount++;
                 contestantCount = 0;
-                if (opponentCount === 5) {
-                    return true;
-                }
+
+                if (opponentCount === 5) return true;
             }
         }
+
         return false;
     }
 
@@ -338,8 +356,7 @@ export class VotingV1Service {
         try {
             const startOfDay = new Date();
             startOfDay.setHours(0, 0, 0, 0);
-            const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
-
+            const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
             const userVotes = await this.votingModel
                 .find({
                     userId: userId,

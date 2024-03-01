@@ -113,28 +113,16 @@ const getDateXDaysAgo = (days: number) => {
 export const getVisitAnalytics = async () => {
     try {
         const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
-        const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
-        const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY;
 
         let analysisReport = {
             today: 0,
             month: 0
         }
 
-        if (!(propertyId && clientEmail && privateKey)) {
-            console.log("******** GOOGLE ANALYTICS ENVS MISSING! *********")
-            return analysisReport;
-        }
-
         const startDate = getDateXDaysAgo(30);
         const endDate = new Date().toISOString().split('T')[0];
 
-        const analyticsDataClient = new BetaAnalyticsDataClient({
-            credentials: {
-                client_email: clientEmail,
-                private_key: privateKey
-            }
-        });
+        const analyticsDataClient = new BetaAnalyticsDataClient();
 
         const [response] = await analyticsDataClient.runReport({
             property: `properties/${propertyId}`,
@@ -155,7 +143,7 @@ export const getVisitAnalytics = async () => {
             property: `properties/${propertyId}`,
             dateRanges: [
                 {
-                    startDate: endDate,
+                    startDate: getDateXDaysAgo(1),
                     endDate,
                 }
             ],

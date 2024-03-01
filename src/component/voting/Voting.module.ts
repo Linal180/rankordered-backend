@@ -19,4 +19,4 @@ import { UserModule } from '../user/user.module';
     providers: [VotingV1Service],
     controllers: [VotingV1Controller]
 })
-export class VotingModule {}
+export class VotingModule { }

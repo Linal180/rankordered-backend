@@ -56,6 +56,14 @@ export class ItemScoreV1Service {
             .exec();
     }
 
+    async findByItemId(itemId: string): Promise<ItemScore> {
+        return this.itemScoreModel
+            .findOne({ itemId })
+            .sort({ createdAt: -1 })
+            .limit(1)
+            .exec();
+    }
+
     async updateScore(
         itemId: string,
         categoryId: string,
@@ -66,6 +74,19 @@ export class ItemScoreV1Service {
             categoryId: categoryId,
             score: score
         });
+    }
+
+    async updateExistingScore(
+        itemId: string,
+        score: number
+    ): Promise<ItemScore> {
+        return await this.itemScoreModel.findOneAndUpdate(
+            { itemId },
+            { score },
+            { new: true }
+        )
+            .sort({ createdAt: -1 })
+            .exec();
     }
 
     async findAndCreateScore(

@@ -43,12 +43,12 @@ export class Userv1Controller {
     @Get('blocked')
     @Roles(UserType.ADMIN)
     getBlockedUsers(): Promise<MongoResultQuery<UserDto[]>> {
-        return this.userService.findByQuery({status: UserStatus.INACTIVE});
+        return this.userService.findByQuery({ status: UserStatus.INACTIVE });
     }
 
     @Put('update-status/:id')
     @Roles(UserType.ADMIN)
-    updateUserStatus (
+    updateUserStatus(
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto
     ): Promise<MongoResultQuery<UserDto>> {
