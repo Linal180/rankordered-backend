@@ -4,7 +4,6 @@ import { UserType } from '../dto/UserType';
 import { UserStatus } from '../dto/UserStatus.dto';
 import { FavoriteItem } from 'src/component/favorite-item/schemas/favoriteItem.schema';
 import { Gallery } from 'src/component/gallery/schemas/gallery.schema';
-import { UserStatus } from '../dto/UserStatus.dto';
 
 export type UserDocument = User & mongoose.Document;
 

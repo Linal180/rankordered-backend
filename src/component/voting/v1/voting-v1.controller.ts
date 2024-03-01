@@ -13,8 +13,7 @@ import { OptionalJwtAuthGuard } from 'src/component/auth/optional-user-guard';
 @Controller({ path: 'voting', version: '1' })
 export class VotingV1Controller {
   constructor(
-    private votingService: VotingV1Service,
-    private userService: Userv1Service
+    private votingService: VotingV1Service
   ) { }
 
   @Get('delete-votes')
