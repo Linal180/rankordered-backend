@@ -198,7 +198,7 @@ export class AuthService {
 
             if (!user) {
                 const { data, status } = await this.userService.createUser({
-                    email, name, username, type: 'user' as UserType, provider: sso, profilePicture: picture
+                    email, name, username, type: 'user' as UserType, provider: sso
                 });
 
                 if (status === OperationResult.create) {
@@ -287,7 +287,7 @@ export class AuthService {
 
                 if (!user) {
                     const { data, status } = await this.userService.createUser({
-                        email, name: username, username, type: 'user' as UserType, provider: 'instagram', profilePicture: picture || 'missing'
+                        email, name: username, username, type: 'user' as UserType, provider: 'instagram'
                     });
 
                     if (status === OperationResult.create) {
