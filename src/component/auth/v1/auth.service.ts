@@ -3,21 +3,21 @@ import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import * as cache from 'memory-cache';
-import { User } from '../user/schemas/user.schema';
-import { Userv1Service } from '../user/v1/userv1.service';
+import { User } from '../../user/schemas/user.schema';
+import { Userv1Service } from '../../user/v1/userv1.service';
 import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo, getInstagramAccessToken } from 'src/utils/social-media-helpers/social-media.utils';
-import { UserType } from '../user/dto/UserType';
+import { UserType } from '../../user/dto/UserType';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
-import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
-import { CurrentUserDto } from '../user/dto/User.dto';
-import { SocialProfile } from '../social-provider/schemas/SocialProfile.schema';
-import { SignupRequestDto } from './dto/login.dto';
-import { ResetPasswordPayload, ResetPasswordResponse } from './dto/ResetPassword.dto';
+import { SocialProfileV1Service } from '../../social-provider/v1/social-profile-v1.service';
+import { CurrentUserDto } from '../../user/dto/User.dto';
+import { SocialProfile } from '../../social-provider/schemas/SocialProfile.schema';
+import { SignupRequestDto } from '../dto/login.dto';
+import { ResetPasswordPayload, ResetPasswordResponse } from '../dto/ResetPassword.dto';
 import { MailerService } from 'src/component/mailer/mailer.service';
 import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
 import { SsoUser, TwitterUser } from 'src/interfaces';
 import { ConfigService } from '@nestjs/config';
-import { getPinterestAccessToken } from '../../utils/social-media-helpers/social-media.utils';
+import { getPinterestAccessToken } from '../../../utils/social-media-helpers/social-media.utils';
 
 @Injectable()
 export class AuthService {

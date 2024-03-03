@@ -1,14 +1,14 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { hash } from 'bcrypt';
-import { UserType } from '../user/dto/UserType';
-import { Userv1Service } from '../user/v1/userv1.service';
+import { UserType } from '../../user/dto/UserType';
+import { Userv1Service } from '../../user/v1/userv1.service';
 import { AuthService } from './auth.service';
-import { ProfileModule } from '../profile/profile.module';
-import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
+import { ProfileModule } from '../../profile/profile.module';
+import { SocialProfileV1Service } from '../../social-provider/v1/social-profile-v1.service';
 import { MailService } from 'src/utils/mail/service/mail.service';
-import { MailerModule } from '../mailer/mailer.module';
-import { SocialProfileModule } from '../social-provider/SocialProfile.module';
+import { MailerModule } from '../../mailer/mailer.module';
+import { SocialProfileModule } from '../../social-provider/SocialProfile.module';
 
 describe.skip('AuthService', () => {
     let service: AuthService;

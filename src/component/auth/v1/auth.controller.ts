@@ -10,7 +10,7 @@ import {
     Res
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AuthService } from '../auth.service';
+import { AuthService } from './auth.service';
 import {
     LoginRequestDto,
     LoginResponseDto,
@@ -18,9 +18,9 @@ import {
     SignupRequestDto,
     SsoLoginRequestDto
 } from '../dto/login.dto';
-import { JwtAuthGuard } from '../jwt-auth.guard';
-import { LocalAuthGuard } from '../local-auth.guard';
-import { AdminAuthGuard } from '../admin-auth.guard';
+import { JwtAuthGuard } from '../jwt/jwt-auth.guard';
+import { LocalAuthGuard } from '../local/local-auth.guard';
+import { AdminAuthGuard } from '../admin/admin-auth.guard';
 import { CurrentUserDto } from 'src/component/user/dto/User.dto';
 import { TwitterAuthGuard } from '../twitter/twitter-auth.guard';
 import { Response } from 'express';
@@ -29,7 +29,7 @@ import { GoogleAuthGuard } from '../google/google-auth.guard';
 import { TiktokAuthGuard } from '../tiktok/tiktok-auth.guard';
 import { InstagramAuthGuard } from '../instagram/instagram.guard';
 import { PinterestAuthGuard } from '../pinterest/pinterest-auth.guard';
-import { SnapchatAuthGuard } from '../snapchat.guard';
+import { SnapchatAuthGuard } from '../snapchat/snapchat.guard';
 import { GoogleLoginAuthGuard } from '../google/google-login-auth.guard';
 import { TwitterLoginAuthGuard } from '../twitter/twitter-login-auth.guard';
 import {
