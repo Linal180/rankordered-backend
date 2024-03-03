@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { UserType } from '../dto/UserType';
-import { UserStatus } from '../dto/UserStatus.dto';
 import { FavoriteItem } from 'src/component/favorite-item/schemas/favoriteItem.schema';
 import { Gallery } from 'src/component/gallery/schemas/gallery.schema';
 
@@ -26,9 +25,6 @@ export class User {
 
     @Prop({ required: true })
     type: UserType;
-
-    @Prop({ required: true, default: UserStatus.ACTIVE })
-    status: UserStatus;
 
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
