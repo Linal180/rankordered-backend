@@ -241,22 +241,6 @@ export class Userv1Service {
             .exec();
     }
 
-    async updateUserStatus(userId: string, status: string): Promise<User> {
-        const user = await this.userModel.findByIdAndUpdate(
-            userId,
-            { status },
-            {
-                returnDocument: 'after'
-            }
-        );
-
-        if (!user) {
-            this.throwObjectNotFoundError();
-        }
-
-        return user;
-    }
-
     private throwObjectNotFoundError(): void {
         throw new ObjectNotFoundException(User.name);
     }

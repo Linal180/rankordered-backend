@@ -6,14 +6,13 @@ import { ItemScoreV1Service } from '../../item-score/v1/item-score-v1.service';
 import { RatingSystemService } from '../../../utils/eloRating/RatingSystem.service';
 import { VotingCreatedEvent } from '../events/VotingCreated.event';
 import { Voting, VotingDocument } from '../schemas/Voting.schema';
-import { ObjectNotFoundException, VotingAbusedException } from '../../../shared/httpError/class/ObjectNotFound.exception';
+import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
 import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
 import { VotingItemDto } from '../dto/VotingItem.dto';
 import { Userv1Service } from 'src/component/user/v1/userv1.service';
-import { UserStatus } from 'src/component/user/dto/UserStatus.dto';
 
 @Injectable()
 export class VotingV1Service {
@@ -75,18 +74,10 @@ export class VotingV1Service {
         userId?: string
     ): Promise<Voting> {
         if (userId) {
-            const user = await this.userService.findById(userId);
-
-            if (user?.data?.status === UserStatus.INACTIVE) {
-                throw new VotingAbusedException();
-            }
-
             const isVotingAbused = await this.isVotingAbused(userId);
 
             if (isVotingAbused) {
                 await this.discardUserTodayVotes(userId);
-                await this.userService.updateUserStatus(userId, UserStatus.INACTIVE);
-                throw new VotingAbusedException();
             }
         }
 
@@ -220,7 +211,7 @@ export class VotingV1Service {
             categoryId,
             createdAt: {
                 $gte: today,
-                $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) // Votes created before tomorrow
+                $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
             }
         }).exec();
 
@@ -293,18 +284,21 @@ export class VotingV1Service {
         const dateToDeleteAfter = new Date(date);
         dateToDeleteAfter.setHours(23, 59, 59, 999);
         const res = new MongoResultQuery<{ deleted: number }>();
+        return res;
 
-        try {
-            const result = await this.votingModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
-            console.log('***** Votes deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+        // Locking this service to avoid accidental call
 
-            res.status = OperationResult.complete
-            res.data = { deleted: result.deletedCount }
-            return res
-        } catch (error) {
-            console.error('Error deleting records:', error);
-            return null
-        }
+        // try {
+        //     const result = await this.votingModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
+        //     console.log('***** Votes deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+
+        //     res.status = OperationResult.complete
+        //     res.data = { deleted: result.deletedCount }
+        //     return res
+        // } catch (error) {
+        //     console.error('Error deleting records:', error);
+        //     return null
+        // }
     }
 
     async discardUserTodayVotes(userId: string): Promise<MongoResultQuery<{ deleted: number }>> {
