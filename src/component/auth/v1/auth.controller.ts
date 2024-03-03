@@ -178,17 +178,12 @@ export class AuthController {
         @Res() res: Response
     ) {
         const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
+        const response = await this.authService.feedTwitterUser(
             accessToken,
             accessSecret
         );
 
-        // Redirect the user
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        res.redirect(response);
     }
 
     @Get('twitter-login')
@@ -207,16 +202,12 @@ export class AuthController {
         @Res() res: Response
     ) {
         const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
+        const response = await this.authService.feedTwitterUser(
             accessToken,
             accessSecret
         );
 
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        res.redirect(response);
     }
 
     @Get('google-login')
@@ -293,18 +284,10 @@ export class AuthController {
         },
         @Res() res: Response
     ) {
-        const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
-            accessToken,
-            accessSecret
-        );
+        const { accessToken } = req?.user || {};
+        const response = await this.authService.feedTiktokUser(accessToken);
 
-        // Redirect the user
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        res.redirect(response);
     }
 
     @Get('instagram')
