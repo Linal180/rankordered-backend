@@ -18,6 +18,7 @@ import {
 import { ComparisonItemWithScore } from '../schemas/ComparisonItemWithScore';
 import { CategoryV1Service } from 'src/component/category/v1/category-v1.service';
 import { FlagRequestV1Service } from '../../flag-request/v1/flag-request-v1.service';
+import { ItemScoreV1Service } from '../../item-score/v1/item-score-v1.service';
 import {
     ScoreSnapshot,
     ScoreSnapshotDocument
@@ -32,6 +33,7 @@ export class ComparisonItemV1Service {
         private scoreSnapshotModel: Model<ScoreSnapshotDocument>,
         private eventEmitter: EventEmitter2,
         private readonly categoryService: CategoryV1Service,
+        private readonly itemScoreV1Service: ItemScoreV1Service,
         @Inject(forwardRef(() => FlagRequestV1Service))
         private readonly flagRequestService: FlagRequestV1Service
     ) { }
@@ -857,6 +859,70 @@ export class ComparisonItemV1Service {
             $limit: limit
         };
     };
+
+    async updateScores(): Promise<MongoResultQuery<void>> {
+        const res = new MongoResultQuery<void>();
+        return res;
+
+        // let count = 0;
+        // const pageSize = 10;
+        // let currentPage = 1;
+
+        // const allPromises: Promise<any>[] = [];
+
+        // while (true) {
+        //     const skipCount = (currentPage - 1) * pageSize;
+
+        //     const colleges = await this.itemModel
+        //         .find({}, '_id name -category -defaultCategory -defaultImage -images')
+        //         .skip(skipCount)
+        //         .limit(pageSize)
+        //         .exec();
+
+        //     console.log(`Page ${currentPage}, Total Colleges: ${colleges.length}`);
+
+        //     if (colleges.length === 0) {
+        //         break;
+        //     }
+
+        //     const promises = colleges.map(async ({ _id, name }) => {
+        //         try {
+        //             const scoreItem = await this.itemScoreV1Service.findByItemId(_id)
+
+        //             if (!scoreItem) {
+        //                 console.error(`-----------No record found for ${name}------------`);
+        //                 return null;
+        //             }
+
+
+        //             console.log(`**** Updating score for ${name} from ${scoreItem.score} to ${(scoreItem.score + 1500.00).toFixed(2)} ******`);
+        //             count++;
+
+        //             const updateResult = await this.itemScoreV1Service.updateExistingScore(_id, scoreItem.score + 1500)
+
+        //             if (updateResult) {
+        //                 return updateResult;
+        //             } else {
+        //                 console.error(`Update did not modify any records for ${name}`);
+        //                 return null;
+        //             }
+        //         } catch (error) {
+        //             console.error(`Error updating score for ${name}: ${error.message} `);
+        //             return null;
+        //         }
+        //     });
+
+        //     allPromises.push(...promises);
+        //     currentPage++;
+        // }
+
+        // await Promise.all(allPromises);
+
+        // console.log(`************ Score updated for colleges ************** `);
+
+        // res.status = OperationResult.update;
+        // return res;
+    }
 
     private throwObjectNotFoundError(): void {
         throw new ObjectNotFoundException(ComparisonItem.name);
