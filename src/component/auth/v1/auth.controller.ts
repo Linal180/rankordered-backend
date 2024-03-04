@@ -10,7 +10,7 @@ import {
     Res
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AuthService } from '../auth.service';
+import { AuthService } from './auth.service';
 import {
     LoginRequestDto,
     LoginResponseDto,
@@ -18,9 +18,9 @@ import {
     SignupRequestDto,
     SsoLoginRequestDto
 } from '../dto/login.dto';
-import { JwtAuthGuard } from '../jwt-auth.guard';
-import { LocalAuthGuard } from '../local-auth.guard';
-import { AdminAuthGuard } from '../admin-auth.guard';
+import { JwtAuthGuard } from '../jwt/jwt-auth.guard';
+import { LocalAuthGuard } from '../local/local-auth.guard';
+import { AdminAuthGuard } from '../admin/admin-auth.guard';
 import { CurrentUserDto } from 'src/component/user/dto/User.dto';
 import { TwitterAuthGuard } from '../twitter/twitter-auth.guard';
 import { Response } from 'express';
@@ -29,7 +29,7 @@ import { GoogleAuthGuard } from '../google/google-auth.guard';
 import { TiktokAuthGuard } from '../tiktok/tiktok-auth.guard';
 import { InstagramAuthGuard } from '../instagram/instagram.guard';
 import { PinterestAuthGuard } from '../pinterest/pinterest-auth.guard';
-import { SnapchatAuthGuard } from '../snapchat.guard';
+import { SnapchatAuthGuard } from '../snapchat/snapchat.guard';
 import { GoogleLoginAuthGuard } from '../google/google-login-auth.guard';
 import { TwitterLoginAuthGuard } from '../twitter/twitter-login-auth.guard';
 import {
@@ -178,17 +178,12 @@ export class AuthController {
         @Res() res: Response
     ) {
         const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
+        const response = await this.authService.feedTwitterUser(
             accessToken,
             accessSecret
         );
 
-        // Redirect the user
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        res.redirect(response);
     }
 
     @Get('twitter-login')
@@ -207,16 +202,12 @@ export class AuthController {
         @Res() res: Response
     ) {
         const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
+        const response = await this.authService.feedTwitterUser(
             accessToken,
             accessSecret
         );
 
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        res.redirect(response);
     }
 
     @Get('google-login')
@@ -293,18 +284,10 @@ export class AuthController {
         },
         @Res() res: Response
     ) {
-        const { accessSecret, accessToken, sso } = req?.user || {};
-        const response = await this.authService.feedSsoUser(
-            sso,
-            accessToken,
-            accessSecret
-        );
+        const { accessToken } = req?.user || {};
+        const response = await this.authService.feedTiktokUser(accessToken);
 
-        // Redirect the user
-        res.redirect(
-            `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-            }&refreshToken=${response.refresh_token}&sso=${sso}`
-        );
+        res.redirect(response);
     }
 
     @Get('instagram')
@@ -323,17 +306,10 @@ export class AuthController {
 
         if (code) {
             const response = await this.authService.feedInstagramUser(code)
-
-            if (response) {
-                // Redirect the user
-                return res.redirect(
-                    `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-                    }&refreshToken=${response.refresh_token}&sso=instagram`
-                );
-            }
+            res.redirect(response)
         }
 
-        res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
+        res.redirect(this.configService.get('CLIENT_SSO_SUCCESS_URL'))
     }
 
     @Get('pinterest')
@@ -352,14 +328,7 @@ export class AuthController {
 
         if (code) {
             const response = await this.authService.feedPinterestUser(code)
-
-            if (response) {
-                // Redirect the user
-                return res.redirect(
-                    `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${response.access_token
-                    }&refreshToken=${response.refresh_token}&sso=instagram`
-                );
-            }
+            res.redirect(response)
         }
 
         res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);

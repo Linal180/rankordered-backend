@@ -1,7 +1,7 @@
 import { UnauthorizedException, forwardRef } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserType } from '../../user/dto/UserType';
-import { AuthService } from '../auth.service';
+import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { ProfileModule } from 'src/component/profile/profile.module';
 import { SocialProfileV1Service } from 'src/component/social-provider/v1/social-profile-v1.service';

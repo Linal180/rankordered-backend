@@ -1,15 +1,14 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { TransformInterceptor } from 'src/shared/response/interceptors/Transform.interceptor';
 import { FlagRequestV1Service } from './flag-request-v1.service';
 import { PaginationDto } from 'src/shared/pagination/Pagination.dto';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { FlagRequest } from '../schema/index.schema';
-import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 import { UserType } from 'src/component/user/dto/UserType';
-import { config } from 'rxjs';
 
 @ApiTags('Flag Requests')
 @Controller({ path: 'flag-request', version: '1' })
