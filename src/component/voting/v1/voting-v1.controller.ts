@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateVotingItemDto } from '../dto/CreateVotingItem.dto';
 import { VotingItemDto } from '../dto/VotingItem.dto';
 import { VotingV1Service } from './voting-v1.service';
-import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 import { UserType } from 'src/component/user/dto/UserType';

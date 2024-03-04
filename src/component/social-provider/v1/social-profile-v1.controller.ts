@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Put, Query, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SocialProfileV1Service } from './social-profile-v1.service';
-import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { SocialProfile } from '../schemas/SocialProfile.schema';
 import { Roles } from 'src/component/auth/roles.decorator';
