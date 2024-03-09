@@ -58,3 +58,5 @@ export type PinterestUser = {
   follower_count: number
   following_count: number
 }
+
+export type SsoProvider = 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'pinterest' | 'snapchat' | 'google' | 'youtube'

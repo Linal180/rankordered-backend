@@ -13,7 +13,7 @@ import {
     ValidationPipe
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { PaginationDto } from '../../../shared/pagination/Pagination.dto';
 import { TransformInterceptor } from '../../../shared/response/interceptors/Transform.interceptor';

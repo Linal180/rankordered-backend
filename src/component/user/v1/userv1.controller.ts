@@ -11,7 +11,7 @@ import {
     UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query';
 import { TransformInterceptor } from '../../../shared/response/interceptors/Transform.interceptor';
 import { CreateUserDto, UpdateProfileDto } from '../dto/CreateUser.dto';
