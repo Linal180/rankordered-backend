@@ -6,18 +6,20 @@ import { ItemScoreV1Service } from '../../item-score/v1/item-score-v1.service';
 import { RatingSystemService } from '../../../utils/eloRating/RatingSystem.service';
 import { VotingCreatedEvent } from '../events/VotingCreated.event';
 import { Voting, VotingDocument } from '../schemas/Voting.schema';
-import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
+import { DailyVotingLimitReached, ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
 import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
 import { VotingItemDto } from '../dto/VotingItem.dto';
 import { Userv1Service } from 'src/component/user/v1/userv1.service';
+import { VotingLimit, VotingLimitDocument } from '../schemas/VotingLimit.schema';
 
 @Injectable()
 export class VotingV1Service {
     constructor(
         @InjectModel(Voting.name) private votingModel: Model<VotingDocument>,
+        @InjectModel(VotingLimit.name) private votingLimitModel: Model<VotingLimitDocument>,
         private scoreService: ItemScoreV1Service,
         private ratingSystem: RatingSystemService,
         private eventEmitter: EventEmitter2,
@@ -67,6 +69,7 @@ export class VotingV1Service {
             - winnerID => one of the colleges which was selected by user
     */
     async updateVoting(
+        request: any,
         categoryId: string,
         contestantId: string,
         opponentId: string,
@@ -74,10 +77,40 @@ export class VotingV1Service {
         userId?: string
     ): Promise<Voting> {
         if (userId) {
-            const isVotingAbused = await this.isVotingAbused(userId);
+            // Checking Daily Voting Limit
+            const userVoting = await this.getUserVoting('userId', userId);
+            if (userVoting) {
+                if (userVoting.count >= 10) {
+                    throw new DailyVotingLimitReached();
+                }
+                userVoting.count = userVoting.count + 1;
+                await this.votingLimitModel.findByIdAndUpdate(userVoting?.id, userVoting);
+            } else {
+                const userVoting = {
+                    userId: userId,
+                    ipAddress: null,
+                    count: 1
+                };
+                await this.votingLimitModel.create(userVoting);
+            }
 
+            const isVotingAbused = await this.isVotingAbused(userId);
             if (isVotingAbused) {
                 await this.discardUserTodayVotes(userId);
+            }
+        } else {
+            const ipAddress = this.getIPAddress(request);
+            const userVoting = await this.getUserVoting('ipAddress', ipAddress);
+
+            if (userVoting) {
+                throw new DailyVotingLimitReached();
+            } else {
+                const userVotingObj = {
+                    userId: null,
+                    ipAddress: ipAddress,
+                    count: 1
+                };
+                await this.votingLimitModel.create(userVotingObj);
             }
         }
 
@@ -372,6 +405,43 @@ export class VotingV1Service {
             return null;
         }
     }
+
+    async getUserVoting(key: string, value: string): Promise<any> {
+        try {
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+            const userVoting = await this.votingLimitModel
+                .findOne({
+                    [key]: value,
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lt: endOfDay
+                    }
+                })
+                .sort({ createdAt: -1 })
+                .exec();
+
+                if(userVoting){
+                    return userVoting
+                } else {
+                    return null
+                }
+
+        } catch (error) {
+            console.error('Error checking vote records:', error);
+            return null;
+        }
+    }
+
+    getIPAddress(request: any): string {
+        const xForwardedFor = request.headers['x-forwarded-for'];
+        if (xForwardedFor) {
+          const ips = xForwardedFor.split(',');
+          return ips[0].trim();
+        }
+        return request.ip;
+      }
 
     private throwObjectNotFoundError() {
         throw new ObjectNotFoundException(Voting.name);
