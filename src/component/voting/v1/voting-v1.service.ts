@@ -12,7 +12,6 @@ import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
 import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
 import { VotingItemDto } from '../dto/VotingItem.dto';
-import { Userv1Service } from 'src/component/user/v1/userv1.service';
 import { VotingLimit, VotingLimitDocument } from '../schemas/VotingLimit.schema';
 
 @Injectable()
@@ -23,7 +22,6 @@ export class VotingV1Service {
         private scoreService: ItemScoreV1Service,
         private ratingSystem: RatingSystemService,
         private eventEmitter: EventEmitter2,
-        private userService: Userv1Service
     ) { }
 
     async findByItemId(itemId: string, categoryId: string): Promise<Voting[]> {
@@ -59,8 +57,6 @@ export class VotingV1Service {
             .exec();
     }
 
-
-
     /*
         This function is responsible for creating and storing vote.
         This function receives 
@@ -84,6 +80,7 @@ export class VotingV1Service {
                 if (userVoting.count >= 10) {
                     throw new DailyVotingLimitReached();
                 }
+
                 userVoting.count = userVoting.count + 1;
                 await this.votingLimitModel.findByIdAndUpdate(userVoting?.id, userVoting);
             } else {
@@ -92,6 +89,7 @@ export class VotingV1Service {
                     ipAddress: null,
                     count: 1
                 };
+           
                 await this.votingLimitModel.create(userVoting);
             }
 
@@ -112,7 +110,7 @@ export class VotingV1Service {
                     ipAddress: ipAddress,
                     count: 1
                 };
-                
+
                 await this.votingLimitModel.create(userVotingObj);
             }
         }
@@ -425,11 +423,7 @@ export class VotingV1Service {
                 .sort({ createdAt: -1 })
                 .exec();
 
-                if(userVoting){
-                    return userVoting
-                } else {
-                    return null
-                }
+            return userVoting ? userVoting : null;
 
         } catch (error) {
             console.error('Error checking vote records:', error);
@@ -440,11 +434,11 @@ export class VotingV1Service {
     getIPAddress(request: any): string {
         const xForwardedFor = request.headers['x-forwarded-for'];
         if (xForwardedFor) {
-          const ips = xForwardedFor.split(',');
-          return ips[0].trim();
+            const ips = xForwardedFor.split(',');
+            return ips[0].trim();
         }
         return request.ip;
-      }
+    }
 
     private throwObjectNotFoundError() {
         throw new ObjectNotFoundException(Voting.name);
