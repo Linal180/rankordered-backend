@@ -2,20 +2,22 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../user/schemas/user.schema';
-import { Userv1Service } from '../user/v1/userv1.service';
+import * as cache from 'memory-cache';
+import { User } from '../../user/schemas/user.schema';
+import { Userv1Service } from '../../user/v1/userv1.service';
 import { getGoogleUserInfo, getTwitterUserInfo, getTiktokUserInfo, getInstagramAccessToken } from 'src/utils/social-media-helpers/social-media.utils';
-import { UserType } from '../user/dto/UserType';
+import { UserType } from '../../user/dto/UserType';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
-import { SocialProfileV1Service } from '../social-provider/v1/social-profile-v1.service';
-import { CurrentUserDto } from '../user/dto/User.dto';
-import { SocialProfile } from '../social-provider/schemas/SocialProfile.schema';
-import { SignupRequestDto } from './dto/login.dto';
-import { ResetPasswordPayload, ResetPasswordResponse } from './dto/ResetPassword.dto';
+import { SocialProfileV1Service } from '../../social-provider/v1/social-profile-v1.service';
+import { CurrentUserDto } from '../../user/dto/User.dto';
+import { SocialProfile } from '../../social-provider/schemas/SocialProfile.schema';
+import { SignupRequestDto } from '../dto/login.dto';
+import { ResetPasswordPayload, ResetPasswordResponse } from '../dto/ResetPassword.dto';
 import { MailerService } from 'src/component/mailer/mailer.service';
 import { BadRequestException, InvalidTokenException, RecordNotFoundException } from 'src/shared/httpError/class/ObjectNotFound.exception';
-import { SsoUser, TwitterUser } from 'src/interfaces';
+import { SsoProvider, SsoUser, TwitterUser } from 'src/interfaces';
 import { ConfigService } from '@nestjs/config';
+import { getPinterestAccessToken } from '../../../utils/social-media-helpers/social-media.utils';
 
 @Injectable()
 export class AuthService {
@@ -171,22 +173,9 @@ export class AuthService {
                     }
                     break;
 
-                case 'twitter':
-                    const {
-                        email, profile_image_url_https, screen_name, name
-                    }: TwitterUser = await getTwitterUserInfo(accessToken, accessSecret)
-                    ssoUser = {
-                        email, name, username: screen_name, picture: profile_image_url_https
-                    }
-                    break;
-
                 case 'tiktok':
                     const tiktokUser = await getTiktokUserInfo(accessToken)
                     ssoUser = { ...tiktokUser };
-                    break;
-
-                case 'facebook':
-                case 'instagram':
                     break;
             }
 
@@ -273,47 +262,119 @@ export class AuthService {
         throw new InvalidTokenException();
     }
 
-    async feedInstagramUser(code: string) {
+    async feedTiktokUser(access: string) {
         try {
-            const instagramUser = await getInstagramAccessToken(code);
+            const user = await this.getUserFromCache();
 
-            if (instagramUser) {
-                const { picture, username, email } = instagramUser
+            if (!user) return null;
 
-                const user: any = await this.userService.getByUsernameOrEmail(username);
-                let userPayload;
+            const tiktokUser = await getTiktokUserInfo(access)
 
-                if (!user) {
-                    const { data, status } = await this.userService.createUser({
-                        email, name: username, username, type: 'user' as UserType, provider: 'instagram'
-                    });
+            if (tiktokUser) {
+                const {email, profile_picture, username } = tiktokUser || {}
+                const profile = await this.profileService.findSocialProfileByIdAndProvider((user as any)?._id, 'tiktok')
 
-                    if (status === OperationResult.create) {
-                        userPayload = data;
-                    }
-                } else {
-                    const profile = await this.profileService.findSocialProfileByIdAndProvider(user?._id, 'instagram')
-
-                    if (!profile) {
-                        await this.profileService.create({
-                            email, provider: 'instagram',
-                            profilePicture: picture || '',
-                            userId: user?._id.toString(),
-                            username: username
-                        })
-                    }
-
-                    userPayload = user;
+                if (!profile) {
+                    await this.profileService.create({
+                        email, provider: 'tiktok',
+                        profilePicture: profile_picture || '',
+                        userId: (user as any)?._id.toString(),
+                        username
+                    })
                 }
 
-                const { access_token, refresh_token } = await this.login(userPayload);
-
-                return {
-                    access_token, refresh_token
-                }
+                return await this.redirectUrl(user, 'tiktok')
             }
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    async feedTwitterUser(access: string, secret: string) {
+        try {
+            const user = await this.getUserFromCache();
+
+            if (!user) return null;
+
+            const {
+                email, profile_image_url_https, screen_name
+            }: TwitterUser = await getTwitterUserInfo(access, secret)
+
+
+            if (email) {
+                const profile = await this.profileService.findSocialProfileByIdAndProvider((user as any)?._id, 'twitter')
+
+                if (!profile) {
+                    await this.profileService.create({
+                        email, provider: 'twitter',
+                        profilePicture: profile_image_url_https || '',
+                        userId: (user as any)?._id.toString(),
+                        username: screen_name
+                    })
+                }
+
+                return await this.redirectUrl(user, 'twitter')
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async feedInstagramUser(code: string): Promise<string> {
+        try {
+            const user = await this.getUserFromCache();
+
+            if (!user) return null;
+
+            const instagramUser = await getInstagramAccessToken(code);
+
+            if (instagramUser) {
+                const { picture, username, email } = instagramUser;
+                const profile = await this.profileService.findSocialProfileByIdAndProvider((user as any)?._id, 'instagram')
+
+                if (!profile) {
+                    await this.profileService.create({
+                        email, provider: 'instagram',
+                        profilePicture: picture || '',
+                        userId: (user as any)?._id.toString(),
+                        username: username
+                    })
+                }
+
+                return await this.redirectUrl(user, 'instagram')
+            }
+        } catch (error) {
+            console.log(error)
+            return this.redirectUrl()
+        }
+    }
+
+    async feedPinterestUser(code: string): Promise<string> {
+        try {
+            const user = await this.getUserFromCache();
+
+            if (!user) return null;
+
+            const pinterestUser = await getPinterestAccessToken(code);
+
+            if (pinterestUser) {
+                const { username, profile_image } = pinterestUser
+                const profile = await this.profileService.findSocialProfileByIdAndProvider((user as any)?._id, 'pinterest')
+
+                if (!profile) {
+                    await this.profileService.create({
+                        email: user.email, provider: 'pinterest',
+                        profilePicture: profile_image || '',
+                        userId: (user as any)?._id.toString(),
+                        username: username
+                    })
+                }
+
+                return await this.redirectUrl(user, 'pinterest')
+            }
+        } catch (error) {
+            console.log(error)
+            return this.redirectUrl()
         }
     }
 
@@ -350,6 +411,30 @@ export class AuthService {
                 expiresIn: '1440m'
             })
         }
+    }
+
+    private async getUserFromCache() {
+        const userId = cache.get('userId');
+
+        if (userId) {
+            const { data: user } = await this.userService.findById(userId);
+
+            return user;
+        }
+
+        return null
+    }
+
+    private async redirectUrl(user: User = null, provider: SsoProvider = 'google' ): Promise<string> {
+        if(user){
+            const { access_token, refresh_token } = await this.login(user);
+            
+            if (access_token) {
+                return `${this.configService.get('CLIENT_SSO_SUCCESS_URL')}?accessToken=${access_token}&refreshToken=${refresh_token}&sso=${provider}`;
+            }
+        }
+
+        return this.configService.get('CLIENT_SSO_SUCCESS_URL')
     }
 
     private createToken(): string {

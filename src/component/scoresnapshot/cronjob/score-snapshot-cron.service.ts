@@ -30,6 +30,12 @@ export class ScoreSnapshotCronService {
         await this.houseKeepingSnapshot();
     }
 
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+    async clearVotingLimitRecords() {
+        this.logger.log('cleaning up voting limit records');
+        await this.scoreSnapshotService.clearVotingLimitRecords();
+    }
+
     async saveItemScoreAndRanking() {
         try {
             const { data } = await this.categoryService.findByQuery({

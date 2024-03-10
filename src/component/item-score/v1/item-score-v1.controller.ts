@@ -4,7 +4,7 @@ import { MongoResultQuery } from '../../../shared/mongoResult/MongoResult.query'
 import { TransformInterceptor } from '../../../shared/response/interceptors/Transform.interceptor';
 import { ItemScoreDto } from '../dto/ItemScore.dto';
 import { ItemScoreV1Service } from './item-score-v1.service';
-import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 import { UserType } from 'src/component/user/dto/UserType';

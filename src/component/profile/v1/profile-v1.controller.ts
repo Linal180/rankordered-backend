@@ -8,7 +8,7 @@ import {
     UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { UpdateUserDto } from 'src/component/user/dto/UpdateUser.dto';
 import { UserDto } from 'src/component/user/dto/User.dto';
 import { Userv1Service } from 'src/component/user/v1/userv1.service';

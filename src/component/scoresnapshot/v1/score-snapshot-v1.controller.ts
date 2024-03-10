@@ -6,7 +6,7 @@ import { ScoreSnapshot } from '../schemas/score-snapshot.schema';
 import { ScoreSnapshotV1Service } from './score-snapshot-v1.service';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { UserType } from 'src/component/user/dto/UserType';
-import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 
 @ApiTags('Score Snapshot')
