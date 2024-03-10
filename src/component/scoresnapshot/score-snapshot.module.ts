@@ -11,12 +11,14 @@ import {
 } from './schemas/score-snapshot.schema';
 import { ScoreSnapshotV1Controller } from './v1/score-snapshot-v1.controller';
 import { ScoreSnapshotV1Service } from './v1/score-snapshot-v1.service';
+import { VotingLimit, VotingLimitSchema } from '../voting/schemas/VotingLimit.schema';
 
 @Module({
     imports: [
         BullModule.registerQueue({ name: 'score_snapshot' }),
         MongooseModule.forFeature([
-            { name: ScoreSnapshot.name, schema: ScoreSnapshotSchema }
+            { name: ScoreSnapshot.name, schema: ScoreSnapshotSchema },
+            { name: VotingLimit.name, schema: VotingLimitSchema }
         ]),
         CategoryModule,
         ComparisonItemModule
@@ -28,4 +30,4 @@ import { ScoreSnapshotV1Service } from './v1/score-snapshot-v1.service';
         ScoreSnapshotConsumer
     ]
 })
-export class ScoreSnapshotModule {}
+export class ScoreSnapshotModule { }
