@@ -29,3 +29,9 @@ export class AlreadyExistException extends HttpException {
         super(`${className} already exist`, HttpStatus.FORBIDDEN);
     }
 }
+
+export class DailyVotingLimitReached extends HttpException {
+    constructor() {
+        super(`Daily voting limit reached`, HttpStatus.FORBIDDEN);
+    }
+}

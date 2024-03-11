@@ -33,3 +33,30 @@ export type InstagramUser = {
   username: string
   picture: string,
 }
+
+export type PinterestAccessPayload = {
+  access_token: string
+  refresh_token: string
+  response_type: string
+  token_type: string
+  expires_in: number
+  refresh_token_expires_in: number
+  scope: string
+}
+
+export type PinterestUser = {
+  id: string
+  about: string
+  username: string
+  pin_count: number
+  website_url: string
+  board_count: number
+  account_type: string
+  monthly_views: number
+  profile_image: string
+  business_name: string
+  follower_count: number
+  following_count: number
+}
+
+export type SsoProvider = 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'pinterest' | 'snapchat' | 'google' | 'youtube'

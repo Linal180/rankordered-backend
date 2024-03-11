@@ -5,16 +5,20 @@ import { ItemScoreModule } from '../item-score/item-score.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Voting, VotingSchema } from './schemas/Voting.schema';
 import { EloRatingModule } from '../../utils/eloRating/EloRating.module';
+import { UserModule } from '../user/user.module';
+import { VotingLimit, VotingLimitSchema } from './schemas/VotingLimit.schema';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
-            { name: Voting.name, schema: VotingSchema }
+            { name: Voting.name, schema: VotingSchema },
+            { name: VotingLimit.name, schema: VotingLimitSchema }
         ]),
         ItemScoreModule,
-        EloRatingModule
+        EloRatingModule,
+        UserModule
     ],
     providers: [VotingV1Service],
     controllers: [VotingV1Controller]
 })
-export class VotingModule {}
+export class VotingModule { }

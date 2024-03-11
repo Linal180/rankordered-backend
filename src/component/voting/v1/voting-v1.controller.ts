@@ -1,12 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateVotingItemDto } from '../dto/CreateVotingItem.dto';
 import { VotingItemDto } from '../dto/VotingItem.dto';
 import { VotingV1Service } from './voting-v1.service';
-import { JwtAuthGuard } from 'src/component/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt/jwt-auth.guard';
 import { Roles } from 'src/component/auth/roles.decorator';
 import { RolesGuard } from 'src/component/auth/roles.guard';
 import { UserType } from 'src/component/user/dto/UserType';
+import { OptionalJwtAuthGuard } from 'src/component/auth/optional-user-guard';
 
 @ApiTags('Votings')
 @Controller({ path: 'voting', version: '1' })
@@ -67,15 +68,22 @@ export class VotingV1Controller {
   }
 
   @Post()
-  createVotingItem(
+  @UseGuards(OptionalJwtAuthGuard)
+  async createVotingItem(
+    @Req()
+    request: any,
     @Body()
     createVotingData: CreateVotingItemDto
   ): Promise<VotingItemDto> {
-    return this.votingService.updateVoting(
+    const userId = request?.user?.userId || '';
+
+    return await this.votingService.updateVoting(
+      request,
       createVotingData.categoryId,
       createVotingData.contestantId,
       createVotingData.opponentId,
-      createVotingData.winnerId
-    );
+      createVotingData.winnerId,
+      userId
+    )
   }
 }

@@ -1,9 +1,0 @@
-{
-    "files.eol": "\n",
-    "prettier.requireConfig": true,
-    "prettier.useEditorConfig": false,
-    "editor.formatOnSave": true,
-    "cSpell.words": [
-        "sendgrid"
-    ],
-}

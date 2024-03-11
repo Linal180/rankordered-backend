@@ -6,19 +6,22 @@ import { ItemScoreV1Service } from '../../item-score/v1/item-score-v1.service';
 import { RatingSystemService } from '../../../utils/eloRating/RatingSystem.service';
 import { VotingCreatedEvent } from '../events/VotingCreated.event';
 import { Voting, VotingDocument } from '../schemas/Voting.schema';
-import { ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
+import { DailyVotingLimitReached, ObjectNotFoundException } from '../../../shared/httpError/class/ObjectNotFound.exception';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from '../../../shared/mongoResult/OperationResult';
 import { getVisitAnalytics } from 'src/utils/social-media-helpers/social-media.utils';
 import { AnalysisReportDTO, VotingCountDTO, VotingStatsDTO } from '../dto/Stats.dto';
+import { VotingItemDto } from '../dto/VotingItem.dto';
+import { VotingLimit, VotingLimitDocument } from '../schemas/VotingLimit.schema';
 
 @Injectable()
 export class VotingV1Service {
     constructor(
         @InjectModel(Voting.name) private votingModel: Model<VotingDocument>,
+        @InjectModel(VotingLimit.name) private votingLimitModel: Model<VotingLimitDocument>,
         private scoreService: ItemScoreV1Service,
         private ratingSystem: RatingSystemService,
-        private eventEmitter: EventEmitter2
+        private eventEmitter: EventEmitter2,
     ) { }
 
     async findByItemId(itemId: string, categoryId: string): Promise<Voting[]> {
@@ -54,8 +57,6 @@ export class VotingV1Service {
             .exec();
     }
 
-
-
     /*
         This function is responsible for creating and storing vote.
         This function receives 
@@ -64,11 +65,56 @@ export class VotingV1Service {
             - winnerID => one of the colleges which was selected by user
     */
     async updateVoting(
+        request: any,
         categoryId: string,
         contestantId: string,
         opponentId: string,
-        winnerId: string
+        winnerId: string,
+        userId?: string
     ): Promise<Voting> {
+        if (userId) {
+            // Checking Daily Voting Limit
+            const userVoting = await this.getUserVoting('userId', userId);
+
+            if (userVoting) {
+                if (userVoting.count >= 10) {
+                    throw new DailyVotingLimitReached();
+                }
+
+                userVoting.count = userVoting.count + 1;
+                await this.votingLimitModel.findByIdAndUpdate(userVoting?.id, userVoting);
+            } else {
+                const userVoting = {
+                    userId: userId,
+                    ipAddress: null,
+                    count: 1
+                };
+           
+                await this.votingLimitModel.create(userVoting);
+            }
+
+            const isVotingAbused = await this.isVotingAbused(userId);
+
+            if (isVotingAbused) {
+                await this.discardUserTodayVotes(userId);
+            }
+        } else {
+            const ipAddress = this.getIPAddress(request);
+            const userVoting = await this.getUserVoting('ipAddress', ipAddress);
+
+            if (userVoting) {
+                throw new DailyVotingLimitReached();
+            } else {
+                const userVotingObj = {
+                    userId: null,
+                    ipAddress: ipAddress,
+                    count: 1
+                };
+
+                await this.votingLimitModel.create(userVotingObj);
+            }
+        }
+
         /*
             Following block of code is to get
                 - Previous Score
@@ -153,7 +199,8 @@ export class VotingV1Service {
             opponentId: opponentId,
             opponentPreviousScore: opponentPreviousScore,
             opponentCurrentSCore: opponentCurrentSCore,
-            winnerId: winnerId
+            winnerId: winnerId,
+            userId: userId || null
         });
 
         if (!vote) {
@@ -271,18 +318,126 @@ export class VotingV1Service {
         const dateToDeleteAfter = new Date(date);
         dateToDeleteAfter.setHours(23, 59, 59, 999);
         const res = new MongoResultQuery<{ deleted: number }>();
+        return res;
+
+        // Locking this service to avoid accidental call
+
+        // try {
+        //     const result = await this.votingModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
+        //     console.log('***** Votes deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+
+        //     res.status = OperationResult.complete
+        //     res.data = { deleted: result.deletedCount }
+        //     return res
+        // } catch (error) {
+        //     console.error('Error deleting records:', error);
+        //     return null
+        // }
+    }
+
+    async discardUserTodayVotes(userId: string): Promise<MongoResultQuery<{ deleted: number }>> {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+        const res = new MongoResultQuery<{ deleted: number }>();
 
         try {
-            const result = await this.votingModel.deleteMany({ createdAt: { $gt: dateToDeleteAfter } });
-            console.log('***** Votes deleted successfully created after', dateToDeleteAfter.toLocaleString(), 'Deleted count:', result.deletedCount, " *********");
+            const result = await this.votingModel.deleteMany({
+                userId: userId,
+                createdAt: { $gt: startOfDay, $lt: endOfDay }
+            });
 
             res.status = OperationResult.complete
             res.data = { deleted: result.deletedCount }
             return res
         } catch (error) {
             console.error('Error deleting records:', error);
-            return null
+            return null;
         }
+    }
+
+    isConsecutiveVotesFound(votes: VotingItemDto[]): boolean {
+        let contestantCount = 0;
+        let opponentCount = 0;
+
+        for (let i = 0; i < votes.length; i++) {
+            const isContestantWinner = votes[i].winnerId === votes[i].contestantId;
+            const isOpponentWinner = votes[i].winnerId === votes[i].opponentId;
+
+            if (isContestantWinner) {
+                contestantCount++;
+                opponentCount = 0;
+
+                if (contestantCount === 5) return true;
+            } else if (isOpponentWinner) {
+                opponentCount++;
+                contestantCount = 0;
+
+                if (opponentCount === 5) return true;
+            }
+        }
+
+        return false;
+    }
+
+    async isVotingAbused(userId: string): Promise<boolean> {
+        try {
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+            const userVotes = await this.votingModel
+                .find({
+                    userId: userId,
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lt: endOfDay
+                    }
+                })
+                .sort({ createdAt: -1 })
+                .exec();
+
+            if (userVotes?.length > 4) {
+                return this.isConsecutiveVotesFound(userVotes);
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Error checking vote records:', error);
+            return null;
+        }
+    }
+
+    async getUserVoting(key: string, value: string): Promise<any> {
+        try {
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+            const userVoting = await this.votingLimitModel
+                .findOne({
+                    [key]: value,
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lt: endOfDay
+                    }
+                })
+                .sort({ createdAt: -1 })
+                .exec();
+
+            return userVoting ? userVoting : null;
+
+        } catch (error) {
+            console.error('Error checking vote records:', error);
+            return null;
+        }
+    }
+
+    getIPAddress(request: any): string {
+        const xForwardedFor = request.headers['x-forwarded-for'];
+        if (xForwardedFor) {
+            const ips = xForwardedFor.split(',');
+            return ips[0].trim();
+        }
+        return request.ip;
     }
 
     private throwObjectNotFoundError() {
