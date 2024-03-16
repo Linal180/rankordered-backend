@@ -78,6 +78,7 @@ export class VotingV1Controller {
     const userId = request?.user?.userId || '';
 
     return await this.votingService.updateVoting(
+      request,
       createVotingData.categoryId,
       createVotingData.contestantId,
       createVotingData.opponentId,

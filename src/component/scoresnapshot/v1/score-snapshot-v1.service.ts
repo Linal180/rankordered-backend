@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { MongoResultQuery } from 'src/shared/mongoResult/MongoResult.query';
 import { OperationResult } from 'src/shared/mongoResult/OperationResult';
 import { CreateSnapshotDto } from '../dto/CreateSnapshot.dto';
+import { VotingLimit, VotingLimitDocument } from 'src/component/voting/schemas/VotingLimit.schema';
 import {
     ScoreSnapshot,
     ScoreSnapshotDocument
@@ -16,7 +17,9 @@ export class ScoreSnapshotV1Service {
 
     constructor(
         @InjectModel(ScoreSnapshot.name)
-        private scoreSnapshotModel: Model<ScoreSnapshotDocument>
+        private scoreSnapshotModel: Model<ScoreSnapshotDocument>,
+        @InjectModel(VotingLimit.name)
+        private votingLimitModel: Model<VotingLimitDocument>
     ) { }
 
     async getSnapshot(
@@ -68,6 +71,10 @@ export class ScoreSnapshotV1Service {
         return await this.scoreSnapshotModel.deleteMany({
             createdAt: { $lt: dateLimit }
         });
+    }
+
+    async clearVotingLimitRecords(): Promise<DeleteResult> {
+        return await this.votingLimitModel.deleteMany({});
     }
 }
 
