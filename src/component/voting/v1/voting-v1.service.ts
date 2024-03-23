@@ -239,7 +239,7 @@ export class VotingV1Service {
     async getVotingCount(categoryId: string): Promise<MongoResultQuery<VotingCountDTO>> {
         const res = new MongoResultQuery<VotingCountDTO>();
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setUTCHours(0, 0, 0, 0);
 
         const todayCount = await this.votingModel.countDocuments({
             categoryId,
@@ -316,7 +316,7 @@ export class VotingV1Service {
 
     async deleteRecordsAfterDate(date: string): Promise<MongoResultQuery<{ deleted: number }>> {
         const dateToDeleteAfter = new Date(date);
-        dateToDeleteAfter.setHours(23, 59, 59, 999);
+        dateToDeleteAfter.setUTCHours(23, 59, 59, 999);
         const res = new MongoResultQuery<{ deleted: number }>();
         return res;
 
@@ -337,7 +337,7 @@ export class VotingV1Service {
 
     async discardUserTodayVotes(userId: string): Promise<MongoResultQuery<{ deleted: number }>> {
         const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
+        startOfDay.setUTCHours(0, 0, 0, 0);
         const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
         const res = new MongoResultQuery<{ deleted: number }>();
 
@@ -383,7 +383,7 @@ export class VotingV1Service {
     async isVotingAbused(userId: string): Promise<boolean> {
         try {
             const startOfDay = new Date();
-            startOfDay.setHours(0, 0, 0, 0);
+            startOfDay.setUTCHours(0, 0, 0, 0);
             const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
             const userVotes = await this.votingModel
                 .find({
@@ -410,7 +410,7 @@ export class VotingV1Service {
     async getUserVoting(key: string, value: string): Promise<any> {
         try {
             const startOfDay = new Date();
-            startOfDay.setHours(0, 0, 0, 0);
+            startOfDay.setUTCHours(0, 0, 0, 0);
             const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
             const userVoting = await this.votingLimitModel
                 .findOne({

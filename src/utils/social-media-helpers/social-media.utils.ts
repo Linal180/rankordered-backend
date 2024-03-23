@@ -221,7 +221,7 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
             property: `properties/${propertyId}`,
             dateRanges: [
                 {
-                    startDate: getDateXDaysAgo(1),
+                    startDate: getDateXDaysAgo(0),
                     endDate,
                 }
             ],
