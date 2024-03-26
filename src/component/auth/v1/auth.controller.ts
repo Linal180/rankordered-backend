@@ -307,9 +307,10 @@ export class AuthController {
         if (code) {
             const response = await this.authService.feedInstagramUser(code)
             res.redirect(response)
+        } else {
+            res.redirect(this.configService.get('CLIENT_SSO_SUCCESS_URL'))
         }
 
-        res.redirect(this.configService.get('CLIENT_SSO_SUCCESS_URL'))
     }
 
     @Get('pinterest')
@@ -329,9 +330,9 @@ export class AuthController {
         if (code) {
             const response = await this.authService.feedPinterestUser(code)
             res.redirect(response)
+        } else {
+            res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
         }
-
-        res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
     }
 
     @Get('snapchat')
