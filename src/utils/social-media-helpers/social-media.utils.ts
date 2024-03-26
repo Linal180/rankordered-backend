@@ -35,7 +35,6 @@ export const getTiktokUserInfo = async (accessToken: string) => {
     }
 };
 
-
 const instagramUserAPI = async (accessToken: string, userId: string): Promise<InstagramUser | null> => {
     const fields = 'id,username,name,profile_picture_url,account_type,media_count,followers_count,follows_count,biography';
     const apiUrl = `https://graph.instagram.com/v12.0/${userId}?fields=${fields}&access_token=${accessToken}`;
