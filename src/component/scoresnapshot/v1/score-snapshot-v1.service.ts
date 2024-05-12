@@ -58,19 +58,58 @@ export class ScoreSnapshotV1Service {
         });
     }
 
+    // async houseKeepingSnapshot(): Promise<DeleteResult> {
+    //     const dateLimit = DateTime.now()
+    //         .startOf('day')
+    //         .minus({ months: 2 })
+    //         .toJSDate();
+
+    //     this.logger.log(
+    //         `Deleting snapshot older than ${dateLimit.toISOString()}`
+    //     );
+
+    //     return await this.scoreSnapshotModel.deleteMany({
+    //         createdAt: { $lt: dateLimit }
+    //     });
+    // }
+
     async houseKeepingSnapshot(): Promise<DeleteResult> {
         const dateLimit = DateTime.now()
             .startOf('day')
             .minus({ months: 2 })
             .toJSDate();
+    
+        this.logger.log(`Deleting snapshots older than ${dateLimit.toISOString()}`);
+    
+        const result = await this.scoreSnapshotModel.aggregate([
+            {
+                $group: {
+                    _id: "$itemId",
+                    newestDate: { $max: "$date" },
+                    oldestDate: { $min: "$date" },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $match: {
+                    $or: [
+                        { oldestDate: { $lt: dateLimit }, newestDate: { $lt: dateLimit } }, // Only older than 2 months
+                        { oldestDate: { $lt: dateLimit }, newestDate: { $gte: dateLimit } } // Mixed, include only older than 2 months
+                    ]
+                }
+            }
+        ]).exec();
+    
+        const itemIdsToDelete = result
+        .filter((item: any) => item.newestDate >= dateLimit) // Filter out items with all records older than 2 months
+        .map((item: any) => item._id);
 
-        this.logger.log(
-            `Deleting snapshot older than ${dateLimit.toISOString()}`
-        );
-
-        return await this.scoreSnapshotModel.deleteMany({
-            createdAt: { $lt: dateLimit }
+        const deleteResult = await this.scoreSnapshotModel.deleteMany({
+            itemId: { $in: itemIdsToDelete },
+            date: { $lt: dateLimit } // Additional condition to ensure snapshots older than 2 months are deleted
         });
+
+        return deleteResult;
     }
 
     async clearVotingLimitRecords(): Promise<DeleteResult> {
