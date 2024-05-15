@@ -303,14 +303,21 @@ export class AuthController {
         @Res() res: Response
     ) {
         const code = req.url.split('?code=')[1] || '';
-
+        console.log(`***** Instagram code ***** ${code}`)
         if (code) {
             const response = await this.authService.feedInstagramUser(code)
-            res.redirect(response)
+
+            if(response){
+                res.redirect(response)
+                return
+            }
+
+            console.log("****** User not found from cache ********")
         } else {
-            res.redirect(this.configService.get('CLIENT_SSO_SUCCESS_URL'))
+            console.log("****** Instagram code not found ********")
         }
 
+        res.redirect(this.configService.get('CLIENT_SSO_SUCCESS_URL'))
     }
 
     @Get('pinterest')
