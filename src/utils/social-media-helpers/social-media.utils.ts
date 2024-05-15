@@ -97,7 +97,6 @@ export const getPinterestAccessToken = async (code: string): Promise<PinterestUs
             'Content-Type': 'application/x-www-form-urlencoded',
         };
 
-
         const response = await axios({
             method: 'POST',
             url: tokenExchangeUrl,
