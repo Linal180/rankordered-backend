@@ -324,7 +324,7 @@ export class AuthService {
         try {
             const user = await this.getUserFromCache();
 
-            if (!user) return null;
+            if (!user) return '404';
 
             const instagramUser = await getInstagramAccessToken(code);
 

@@ -307,12 +307,16 @@ export class AuthController {
         if (code) {
             const response = await this.authService.feedInstagramUser(code)
 
+            if (response === '404'){
+                console.log("****** User not found from cache ********")
+                return
+            }
+
             if(response){
                 res.redirect(response)
                 return
             }
 
-            console.log("****** User not found from cache ********")
         } else {
             console.log("****** Instagram code not found ********")
         }

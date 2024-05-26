@@ -150,6 +150,7 @@ export const getInstagramAccessToken = async (code: string): Promise<InstagramUs
 
         return null;
     }).catch((err) => {
+        console.log("********** Error in getInstagramAccessToken *************")
         console.log(err.response);
         return null;
     });
