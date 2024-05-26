@@ -46,7 +46,7 @@ export class SocialProfileV1Service {
 					.populate({
 						path: 'category',
 						model: 'Category',
-						select: 'name _id' // Include only 'name' and '_id' fields
+						select: 'name _id'
 					})
 					.exec();
 
@@ -286,8 +286,9 @@ export class SocialProfileV1Service {
 
 				if (item) {
 					const profileWithRanking: SocialProfile & { ranking: number } = {
-						...(socialProfile as any).toJSON(),  // Convert Mongoose document to plain JavaScript object
+						...(socialProfile as any).toJSON(),
 						ranking: item?.ranking,
+						scoreSnaps: await this.itemService.getComparisonItemTotalScoreSnaps(item._id)
 					};
 
 					populatedSocialProfiles.push(profileWithRanking);
