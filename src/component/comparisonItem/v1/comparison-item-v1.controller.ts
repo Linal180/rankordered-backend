@@ -241,6 +241,13 @@ export class ComparisonItemV1Controller {
         return this.itemService.createItem(createItemData);
     }
 
+    @Post('manual-update')
+    updateScoreManually(
+        @Body() { slug, score }: { slug: string, score: number }
+    ): Promise<MongoResultQuery<unknown>> {
+        return this.itemService.addComparisonScoreManually(slug, score);
+    }
+
     @Put('activate-all')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiBearerAuth()

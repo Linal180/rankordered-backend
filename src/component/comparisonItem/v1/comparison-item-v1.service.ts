@@ -51,6 +51,24 @@ export class ComparisonItemV1Service {
         return res;
     }
 
+    async addComparisonScoreManually(slug: string, score: number){
+        const res = new MongoResultQuery();
+
+        try {
+            const item = await this.itemModel.findOne({ slug })
+
+            if(item){
+                await this.itemScoreV1Service.updateScore(item._id, (item.defaultCategory as any)._id.toString(), score)
+
+                res.status = OperationResult.update
+            }
+
+            return res
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async findByProfile(id: string): Promise<ComparisonItemWithScore> {
         const item = await this.itemModel.findOne({ profile: id }).exec();
         if (item) {
