@@ -89,23 +89,28 @@ export class ComparisonItemV1Service {
         createItemData: CreateComparisonItemDto
     ): Promise<MongoResultQuery<ComparisonItemDocument>> {
         const res = new MongoResultQuery<ComparisonItemDocument>();
-        const item = await this.itemModel.create(createItemData);
-        if (!item) {
-            this.throwObjectNotFoundError();
+
+        try {
+            const item = await this.itemModel.create(createItemData);
+            if (!item) {
+                this.throwObjectNotFoundError();
+            }
+
+            this.eventEmitter.emit(
+                'ComparisonItem.created',
+                ComparisonItemCreatedEvent.create({
+                    id: item.id,
+                    category: createItemData.category
+                })
+            );
+
+            res.data = item;
+            res.status = OperationResult.create;
+
+            return res;
+        } catch (error) {
+            console.log(`Error in Comparison Item Service ${this.createItem.name}`)
         }
-
-        this.eventEmitter.emit(
-            'ComparisonItem.created',
-            ComparisonItemCreatedEvent.create({
-                id: item.id,
-                category: createItemData.category
-            })
-        );
-
-        res.data = item;
-        res.status = OperationResult.create;
-
-        return res;
     }
 
     async updateItem(
@@ -162,12 +167,14 @@ export class ComparisonItemV1Service {
 
     async deleteItemByProfile(id: string): Promise<ComparisonItem> {
 
-        const item = await this.itemModel.findByIdAndDelete(id);
+        const item = await this.itemModel.findOne({ profileId: id });
 
         if (item) {
+            // await this.itemModel.deleteOne(item._id)
+
             this.eventEmitter.emit(
                 'ComparisonItem.deleted',
-                ComparisonItemDeletedEvent.create({ id: item.id })
+                ComparisonItemDeletedEvent.create({ id: item._id })
             );
 
             return item;
@@ -517,6 +524,10 @@ export class ComparisonItemV1Service {
 
     async getComparisonItemTotalCount() {
         return this.itemModel.find().count();
+    }
+
+    async getComparisonItemTotalScoreSnaps(itemId: string) {
+        return this.scoreSnapshotModel.find({ itemId }).count();
     }
 
     async getComparisonItem(

@@ -35,7 +35,6 @@ export const getTiktokUserInfo = async (accessToken: string) => {
     }
 };
 
-
 const instagramUserAPI = async (accessToken: string, userId: string): Promise<InstagramUser | null> => {
     const fields = 'id,username,name,profile_picture_url,account_type,media_count,followers_count,follows_count,biography';
     const apiUrl = `https://graph.instagram.com/v12.0/${userId}?fields=${fields}&access_token=${accessToken}`;
@@ -98,7 +97,6 @@ export const getPinterestAccessToken = async (code: string): Promise<PinterestUs
             'Content-Type': 'application/x-www-form-urlencoded',
         };
 
-
         const response = await axios({
             method: 'POST',
             url: tokenExchangeUrl,
@@ -152,6 +150,7 @@ export const getInstagramAccessToken = async (code: string): Promise<InstagramUs
 
         return null;
     }).catch((err) => {
+        console.log("********** Error in getInstagramAccessToken *************")
         console.log(err.response);
         return null;
     });
@@ -221,7 +220,7 @@ export const getVisitAnalytics = async (): Promise<{ today: number; month: numbe
             property: `properties/${propertyId}`,
             dateRanges: [
                 {
-                    startDate: getDateXDaysAgo(1),
+                    startDate: getDateXDaysAgo(0),
                     endDate,
                 }
             ],

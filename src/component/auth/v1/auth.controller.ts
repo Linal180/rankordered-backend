@@ -303,10 +303,22 @@ export class AuthController {
         @Res() res: Response
     ) {
         const code = req.url.split('?code=')[1] || '';
-
+        console.log(`***** Instagram code ***** ${code}`)
         if (code) {
             const response = await this.authService.feedInstagramUser(code)
-            res.redirect(response)
+
+            if (response === '404'){
+                console.log("****** User not found from cache ********")
+                return
+            }
+
+            if(response){
+                res.redirect(response)
+                return
+            }
+
+        } else {
+            console.log("****** Instagram code not found ********")
         }
 
         res.redirect(this.configService.get('CLIENT_SSO_SUCCESS_URL'))
@@ -329,9 +341,9 @@ export class AuthController {
         if (code) {
             const response = await this.authService.feedPinterestUser(code)
             res.redirect(response)
+        } else {
+            res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
         }
-
-        res.redirect(`${this.configService.get('CLIENT_SSO_SUCCESS_URL')}`);
     }
 
     @Get('snapchat')
